@@ -20,7 +20,8 @@ export function PublicCardPage() {
 	const safeSlug = slug ?? ''
 	const { data, isLoading, isError } = useGetCardBySlugQuery(safeSlug)
 
-	const publicBaseUrl = (import.meta.env.VITE_PUBLIC_BASE_URL as string | undefined) ?? window.location.origin
+	const publicBaseUrl =
+		(import.meta.env.VITE_PUBLIC_BASE_URL as string | undefined) ?? window.location.origin
 	const url = safeSlug ? fullUrl(publicBaseUrl, safeSlug) : window.location.href
 
 	if (isLoading) {
@@ -43,7 +44,9 @@ export function PublicCardPage() {
 			<div className="min-h-screen grid place-items-center p-6">
 				<Card className="max-w-lg p-6 text-center">
 					<div className="text-xl font-semibold">Card not found</div>
-					<p className="mt-2 text-sm text-brand-muted">This employee card does not exist or the link is invalid.</p>
+					<p className="mt-2 text-sm text-brand-muted">
+						This employee card does not exist or the link is invalid.
+					</p>
 				</Card>
 			</div>
 		)
@@ -54,7 +57,9 @@ export function PublicCardPage() {
 			<div className="min-h-screen grid place-items-center p-6">
 				<Card className="max-w-lg p-6 text-center">
 					<div className="text-xl font-semibold">Card unavailable</div>
-					<p className="mt-2 text-sm text-brand-muted">This employee card is currently unpublished.</p>
+					<p className="mt-2 text-sm text-brand-muted">
+						This employee card is currently unpublished.
+					</p>
 				</Card>
 			</div>
 		)
@@ -69,7 +74,10 @@ export function PublicCardPage() {
 					content={`Contact information for ${data.full_name}, ${data.position}.`}
 				/>
 				<meta property="og:title" content={`${data.full_name} | Digital Business Card`} />
-				<meta property="og:description" content={`Contact information for ${data.full_name}, ${data.position}.`} />
+				<meta
+					property="og:description"
+					content={`Contact information for ${data.full_name}, ${data.position}.`}
+				/>
 			</Helmet>
 
 			<EmployeeTopHeader
@@ -80,19 +88,34 @@ export function PublicCardPage() {
 			/>
 
 			<div className="mx-auto max-w-5xl p-4">
-				<motion.div initial= opacity: 0, y: 8  animate= opacity: 1, y: 0  transition= duration: 0.35 >
+				<motion.div
+					initial= opacity: 0, y: 8 
+					animate= opacity: 1, y: 0 
+					transition= duration: 0.35 
+				>
 					<div className="grid gap-4 lg:grid-cols-[1.1fr_0.9fr]">
 						<Card className="p-5">
-							<div className="flex flex-col items-center text-center lg:flex-row lg:items-start lg:text-left gap-5">
+							<div className="flex flex-col items-center gap-5 text-center lg:flex-row lg:items-start lg:text-left">
 								<div className="h-28 w-28 overflow-hidden rounded-2xl border border-white/15 bg-white/10">
 									{data.profile_photo_url ? (
-										<img src={data.profile_photo_url} alt={`${data.full_name} photo`} className="h-full w-full object-cover" loading="lazy" />
+										<img
+											src={data.profile_photo_url}
+											alt={`${data.full_name} photo`}
+											className="h-full w-full object-cover"
+											loading="lazy"
+										/>
 									) : (
 										<div className="grid h-full w-full place-items-center text-2xl font-semibold text-white/80">
-											{data.full_name.split(' ').map((p) => p[0]).slice(0, 2).join('').toUpperCase()}
+											{data.full_name
+												.split(' ')
+												.map((p) => p[0])
+												.slice(0, 2)
+												.join('')
+												.toUpperCase()}
 										</div>
 									)}
 								</div>
+
 								<div className="flex-1">
 									<div className="text-2xl font-semibold">{data.full_name}</div>
 									<div className="mt-1 text-sm text-brand-muted">{data.position}</div>
@@ -103,11 +126,14 @@ export function PublicCardPage() {
 										<div className="mt-2 text-sm text-white/90">{data.organization_name}</div>
 									) : null}
 									{data.bio ? (
-										<p className="mt-3 text-sm text-brand-muted leading-relaxed">{data.bio}</p>
+										<p className="mt-3 text-sm leading-relaxed text-brand-muted">{data.bio}</p>
 									) : null}
-									<div className="mt-4 flex flex-wrap items-center justify-center lg:justify-start gap-3">
+									<div className="mt-4 flex flex-wrap items-center justify-center gap-3 lg:justify-start">
 										<SaveContactButton card={data} />
-										<ShareButton url={url} title={`${data.full_name} | Digital Business Card`} />
+										<ShareButton
+											url={url}
+											title={`${data.full_name} | Digital Business Card`}
+										/>
 									</div>
 								</div>
 							</div>

@@ -1,0 +1,24 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+	color-scheme: dark;
+}
+
+html, body {
+	height: 100%;
+}
+
+body {
+	margin: 0;
+	background: radial-gradient(1000px 600px at 20% 0%, rgba(212, 175, 55, 0.12), transparent 60%),
+		radial-gradient(900px 550px at 80% 20%, rgba(245, 197, 66, 0.08), transparent 55%),
+		linear-gradient(180deg, #050814, #08111F);
+	color: white;
+	font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+}
+
+* {
+	-webkit-tap-highlight-color: transparent;
+}

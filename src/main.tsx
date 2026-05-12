@@ -6,6 +6,7 @@ import { BrowserRouter } from 'react-router-dom'
 
 import { store } from './app/store'
 import { App } from './App'
+import { ToastProvider } from './ui/Toast'
 
 import './styles/index.css'
 
@@ -13,9 +14,11 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
 	<React.StrictMode>
 		<HelmetProvider>
 			<Provider store={store}>
-				<BrowserRouter>
-					<App />
-				</BrowserRouter>
+				<ToastProvider>
+					<BrowserRouter>
+						<App />
+					</BrowserRouter>
+				</ToastProvider>
 			</Provider>
 		</HelmetProvider>
 	</React.StrictMode>

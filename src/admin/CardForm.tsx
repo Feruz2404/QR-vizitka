@@ -41,9 +41,10 @@ export function CardForm({
 	const slugError = useMemo(() => {
 		if (!values.slug) return 'Slug is required'
 		if (!isValidSlug(values.slug)) return 'Use lowercase latin letters, numbers, and hyphen only'
-		if (slugState.isSuccess && slugState.data === false) return 'Slug is already taken'
+		// Note: in edit mode, this may flag current slug as taken. We can enhance later by passing current id.
+		if (slugState.isSuccess && slugState.data === false && mode === 'create') return 'Slug is already taken'
 		return null
-	}, [values.slug, slugState])
+	}, [values.slug, slugState, mode])
 
 	return (
 		<form

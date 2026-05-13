@@ -169,6 +169,33 @@ export function ContactSection({ card }: { card: EmployeeCard }) {
 		)
 	}
 
+	if (card.phone_extra) {
+		const href = telHref(card.phone_extra)
+		push(
+			<ContactRow
+				key="phone_extra"
+				icon={<Phone className="h-4 w-4 text-brand-gold" />}
+				label="Extra phone"
+				value={formatUzPhone(card.phone_extra) ?? card.phone_extra}
+				action={href ? { type: 'link', href, label: 'Call' } : undefined}
+				delay={delayStep * i}
+			/>
+		)
+	}
+
+	if (card.short_phone) {
+		push(
+			<ContactRow
+				key="short_phone"
+				icon={<Phone className="h-4 w-4 text-brand-gold" />}
+				label="Internal"
+				value={`Internal: ${card.short_phone}`}
+				action= type: 'copy', value: String(card.short_phone), label: 'Copy' 
+				delay={delayStep * i}
+			/>
+		)
+	}
+
 	if (card.telegram_username || card.telegram_url) {
 		push(
 			<ContactRow
@@ -193,7 +220,7 @@ export function ContactSection({ card }: { card: EmployeeCard }) {
 				icon={<Facebook className="h-4 w-4 text-brand-gold" />}
 				label="Facebook"
 				value={card.facebook_url}
-				action={card.facebook_url ? { type: 'link', href: card.facebook_url, label: 'Open' } : undefined}
+				action= type: 'link', href: card.facebook_url, label: 'Open' 
 				delay={delayStep * i}
 			/>
 		)
@@ -206,7 +233,7 @@ export function ContactSection({ card }: { card: EmployeeCard }) {
 				icon={<Globe className="h-4 w-4 text-brand-gold" />}
 				label="Website"
 				value={card.website_url}
-				action={card.website_url ? { type: 'link', href: card.website_url, label: 'Open' } : undefined}
+				action= type: 'link', href: card.website_url, label: 'Open' 
 				delay={delayStep * i}
 			/>
 		)
@@ -219,7 +246,7 @@ export function ContactSection({ card }: { card: EmployeeCard }) {
 				icon={<MapPin className="h-4 w-4 text-brand-gold" />}
 				label="Address"
 				value={card.address}
-				action={card.address ? { type: 'copy', value: card.address, label: 'Copy' } : undefined}
+				action= type: 'copy', value: card.address, label: 'Copy' 
 				delay={delayStep * i}
 			/>
 		)

@@ -186,7 +186,7 @@ export function ContactSection({ card }: { card: EmployeeCard }) {
 				icon={<Facebook className="h-4 w-4 text-brand-gold" />}
 				label="Facebook"
 				value={card.facebook_url}
-				action= type: 'link', href: card.facebook_url, label: 'Open' 
+				action={card.facebook_url ? { type: 'link', href: card.facebook_url, label: 'Open' } : undefined}
 				delay={delayStep * i}
 			/>
 		)
@@ -199,7 +199,7 @@ export function ContactSection({ card }: { card: EmployeeCard }) {
 				icon={<Globe className="h-4 w-4 text-brand-gold" />}
 				label="Website"
 				value={card.website_url}
-				action= type: 'link', href: card.website_url, label: 'Open' 
+				action={card.website_url ? { type: 'link', href: card.website_url, label: 'Open' } : undefined}
 				delay={delayStep * i}
 			/>
 		)

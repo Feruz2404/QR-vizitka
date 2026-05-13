@@ -19,9 +19,7 @@ function fullUrl(publicBaseUrl: string, slug: string) {
 
 function initials(fullName: string) {
 	const parts = fullName.trim().split(/\s+/).filter(Boolean)
-	const a = parts[0]?.[0] ?? ''
-	const b = parts[1]?.[0] ?? ''
-	return (a + b).toUpperCase()
+	return `${parts[0]?.[0] ?? ''}${parts[1]?.[0] ?? ''}`.toUpperCase()
 }
 
 function telNormalize(value?: string | null) {
@@ -120,17 +118,9 @@ export function PublicCardPage() {
 			/>
 
 			<div className="mx-auto max-w-[1100px] px-4 pb-10 pt-6">
-				<motion.div
-					initial= opacity: 0, y: 10 
-					animate= opacity: 1, y: 0 
-					transition= duration: 0.35 
-				>
+				<motion.div initial= opacity: 0, y: 10  animate= opacity: 1, y: 0  transition= duration: 0.35 >
 					<div className="grid gap-5 lg:grid-cols-[1.08fr_0.92fr]">
-						<motion.div
-							initial= opacity: 0, y: 14 
-							animate= opacity: 1, y: 0 
-							transition= duration: 0.45, delay: 0.05 
-						>
+						<motion.div initial= opacity: 0, y: 14  animate= opacity: 1, y: 0  transition= duration: 0.45, delay: 0.05 >
 							<Card className="relative overflow-hidden rounded-[32px] p-6">
 								<div className="pointer-events-none absolute inset-0 bg-[radial-gradient(700px_circle_at_20%_10%,rgba(245,197,66,0.16),transparent_55%),radial-gradient(900px_circle_at_90%_20%,rgba(59,130,246,0.14),transparent_60%)]" />
 								<div className="pointer-events-none absolute inset-0 border border-white/10" />
@@ -146,7 +136,6 @@ export function PublicCardPage() {
 													<div className="grid h-full w-full place-items-center text-4xl font-semibold text-white/90">{initials(data.full_name)}</div>
 												)}
 											</div>
-
 											{data.logo_url ? (
 												<div className="absolute -bottom-3 -right-3 rounded-2xl border border-white/15 bg-black/35 p-2 backdrop-blur-xl">
 													<img src={data.logo_url} alt="Organization logo" className="h-8 w-8 rounded-lg object-contain" loading="lazy" />

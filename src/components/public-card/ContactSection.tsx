@@ -79,7 +79,11 @@ function ContactRow({
 
 				{action ? (
 					action.type === 'link' ? (
-						<a href={action.href} target={action.href.startsWith('http') ? '_blank' : undefined} rel="noreferrer">
+						<a
+							href={action.href}
+							target={action.href.startsWith('http') ? '_blank' : undefined}
+							rel="noreferrer"
+						>
 							<Button size="sm" variant={action.href.startsWith('tel:') ? 'primary' : 'secondary'}>
 								{action.label}
 							</Button>
@@ -171,7 +175,11 @@ export function ContactSection({ card }: { card: EmployeeCard }) {
 				key="telegram"
 				icon={<MessageCircle className="h-4 w-4 text-brand-gold" />}
 				label="Telegram"
-				value={card.telegram_username ? `@${String(card.telegram_username).replace(/^@/, '')}` : card.telegram_url ?? ''}
+				value={
+					card.telegram_username
+						? `@${String(card.telegram_username).replace(/^@/, '')}`
+						: card.telegram_url ?? ''
+				}
 				action={card.telegram_url ? { type: 'link', href: card.telegram_url, label: 'Open' } : undefined}
 				delay={delayStep * i}
 			/>

@@ -4,7 +4,7 @@ on:
   pull_request:
     branches: [main]
   push:
-    branches: [fix/admin-image-upload-flow]
+    branches: [fix/vercel-spa-routing]
 
 jobs:
   build:

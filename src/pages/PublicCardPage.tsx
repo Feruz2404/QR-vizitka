@@ -130,7 +130,7 @@ export function PublicCardPage() {
 									) : null}
 									<div className="mt-4 flex flex-wrap items-center justify-center gap-3 lg:justify-start">
 										<SaveContactButton card={data} />
-										<ShareContactButton url={url} title={`${data.full_name} | Digital Business Card`} />
+										<ShareButton url={url} title={`${data.full_name} | Digital Business Card`} />
 									</div>
 								</div>
 							</div>

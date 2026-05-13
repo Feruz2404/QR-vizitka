@@ -127,6 +127,7 @@ export function ContactSection({ card }: { card: EmployeeCard }) {
 			/>
 		)
 	}
+
 	if (card.personal_email) {
 		push(
 			<ContactRow
@@ -139,42 +140,49 @@ export function ContactSection({ card }: { card: EmployeeCard }) {
 			/>
 		)
 	}
+
 	if (card.phone_primary) {
+		const href = telHref(card.phone_primary)
 		push(
 			<ContactRow
 				key="phone_primary"
 				icon={<Phone className="h-4 w-4 text-brand-gold" />}
 				label="Primary phone"
 				value={formatUzPhone(card.phone_primary) ?? card.phone_primary}
-				action={telHref(card.phone_primary) ? { type: 'link', href: telHref(card.phone_primary)!, label: 'Call' } : undefined}
+				action={href ? { type: 'link', href, label: 'Call' } : undefined}
 				delay={0.03 * i}
 			/>
 		)
 	}
+
 	if (card.phone_secondary) {
+		const href = telHref(card.phone_secondary)
 		push(
 			<ContactRow
 				key="phone_secondary"
 				icon={<Phone className="h-4 w-4 text-brand-gold" />}
 				label="Secondary phone"
 				value={formatUzPhone(card.phone_secondary) ?? card.phone_secondary}
-				action={telHref(card.phone_secondary) ? { type: 'link', href: telHref(card.phone_secondary)!, label: 'Call' } : undefined}
+				action={href ? { type: 'link', href, label: 'Call' } : undefined}
 				delay={0.03 * i}
 			/>
 		)
 	}
+
 	if (card.phone_extra) {
+		const href = telHref(card.phone_extra)
 		push(
 			<ContactRow
 				key="phone_extra"
 				icon={<Phone className="h-4 w-4 text-brand-gold" />}
 				label="Extra phone"
 				value={formatUzPhone(card.phone_extra) ?? card.phone_extra}
-				action={telHref(card.phone_extra) ? { type: 'link', href: telHref(card.phone_extra)!, label: 'Call' } : undefined}
+				action={href ? { type: 'link', href, label: 'Call' } : undefined}
 				delay={0.03 * i}
 			/>
 		)
 	}
+
 	if (card.short_phone) {
 		push(
 			<ContactRow
@@ -187,6 +195,7 @@ export function ContactSection({ card }: { card: EmployeeCard }) {
 			/>
 		)
 	}
+
 	if (card.telegram_username || card.telegram_url) {
 		push(
 			<ContactRow
@@ -203,6 +212,7 @@ export function ContactSection({ card }: { card: EmployeeCard }) {
 			/>
 		)
 	}
+
 	if (card.facebook_url) {
 		push(
 			<ContactRow
@@ -215,6 +225,7 @@ export function ContactSection({ card }: { card: EmployeeCard }) {
 			/>
 		)
 	}
+
 	if (card.website_url) {
 		push(
 			<ContactRow
@@ -227,6 +238,7 @@ export function ContactSection({ card }: { card: EmployeeCard }) {
 			/>
 		)
 	}
+
 	if (card.address) {
 		push(
 			<ContactRow

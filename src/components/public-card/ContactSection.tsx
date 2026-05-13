@@ -109,7 +109,6 @@ function ContactRow({
 export function ContactSection({ card }: { card: EmployeeCard }) {
 	const rows: Array<JSX.Element> = []
 	let i = 0
-
 	const push = (el: JSX.Element) => {
 		i += 1
 		rows.push(el)
@@ -164,33 +163,6 @@ export function ContactSection({ card }: { card: EmployeeCard }) {
 				label="Secondary phone"
 				value={formatUzPhone(card.phone_secondary) ?? card.phone_secondary}
 				action={href ? { type: 'link', href, label: 'Call' } : undefined}
-				delay={0.03 * i}
-			/>
-		)
-	}
-
-	if (card.phone_extra) {
-		const href = telHref(card.phone_extra)
-		push(
-			<ContactRow
-				key="phone_extra"
-				icon={<Phone className="h-4 w-4 text-brand-gold" />}
-				label="Extra phone"
-				value={formatUzPhone(card.phone_extra) ?? card.phone_extra}
-				action={href ? { type: 'link', href, label: 'Call' } : undefined}
-				delay={0.03 * i}
-			/>
-		)
-	}
-
-	if (card.short_phone) {
-		push(
-			<ContactRow
-				key="short_phone"
-				icon={<Phone className="h-4 w-4 text-brand-gold" />}
-				label="Internal"
-				value={`Internal: ${card.short_phone}`}
-				action= type: 'copy', value: String(card.short_phone), label: 'Copy' 
 				delay={0.03 * i}
 			/>
 		)

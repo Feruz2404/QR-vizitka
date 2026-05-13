@@ -37,7 +37,7 @@ export function ProtectedRoute() {
 	}
 
 	if (!session) {
-		return <Navigate to="/admin/login" replace state={ { from: location } } />
+		return <Navigate to="/admin/login" replace state= from: location  />
 	}
 
 	return <Outlet />

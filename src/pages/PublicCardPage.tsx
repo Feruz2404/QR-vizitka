@@ -55,11 +55,11 @@ export function PublicCardPage() {
 		return (
 			<div className="min-h-screen">
 				<div className="sticky top-0 z-40 border-b border-white/10 bg-black/35 backdrop-blur-xl">
-					<div className="mx-auto max-w-6xl px-4 py-3">
+					<div className="mx-auto max-w-[1100px] px-4 py-3">
 						<Skeleton className="h-10 w-52" />
 					</div>
 				</div>
-				<div className="mx-auto max-w-6xl p-4">
+				<div className="mx-auto max-w-[1100px] p-4">
 					<Skeleton className="h-64 w-full" />
 				</div>
 			</div>
@@ -99,15 +99,9 @@ export function PublicCardPage() {
 		<div className="min-h-screen text-white">
 			<Helmet>
 				<title>{data.full_name} | Digital Business Card</title>
-				<meta
-					name="description"
-					content={`Contact information for ${data.full_name}, ${data.position}.`}
-				/>
+				<meta name="description" content={`Contact information for ${data.full_name}, ${data.position}.`} />
 				<meta property="og:title" content={`${data.full_name} | Digital Business Card`} />
-				<meta
-					property="og:description"
-					content={`Contact information for ${data.full_name}, ${data.position}.`}
-				/>
+				<meta property="og:description" content={`Contact information for ${data.full_name}, ${data.position}.`} />
 			</Helmet>
 
 			{/* Premium background */}
@@ -161,6 +155,7 @@ export function PublicCardPage() {
 													</div>
 												)}
 											</div>
+
 											{data.logo_url ? (
 												<div className="absolute -bottom-3 -right-3 rounded-2xl border border-white/15 bg-black/35 p-2 backdrop-blur-xl">
 													<img
@@ -178,14 +173,13 @@ export function PublicCardPage() {
 												<span className="h-1.5 w-1.5 rounded-full bg-yellow-300/80" />
 												Premium digital card
 											</div>
+
 											<div className="mt-3 text-3xl font-semibold tracking-tight">
 												{data.full_name}
 											</div>
 											<div className="mt-1 text-sm text-white/80">{data.position}</div>
 											{org ? <div className="mt-2 text-sm text-white/90">{org}</div> : null}
-											{data.department ? (
-												<div className="mt-1 text-sm text-white/70">{data.department}</div>
-											) : null}
+											{data.department ? <div className="mt-1 text-sm text-white/70">{data.department}</div> : null}
 											{data.bio ? (
 												<p className="mt-3 text-sm leading-relaxed text-white/70">{data.bio}</p>
 											) : null}
@@ -201,6 +195,7 @@ export function PublicCardPage() {
 														</Button>
 													</a>
 												) : null}
+
 												{quick?.email ? (
 													<a href={`mailto:${quick.email}`} className="w-full sm:w-auto">
 														<Button
@@ -212,6 +207,7 @@ export function PublicCardPage() {
 														</Button>
 													</a>
 												) : null}
+
 												{quick?.tg ? (
 													<a
 														href={quick.tg}
@@ -228,6 +224,7 @@ export function PublicCardPage() {
 														</Button>
 													</a>
 												) : null}
+
 												<div className="w-full sm:w-auto">
 													<SaveContactButton card={data} className="w-full sm:w-auto" />
 												</div>

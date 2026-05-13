@@ -99,9 +99,15 @@ export function PublicCardPage() {
 		<div className="min-h-screen text-white">
 			<Helmet>
 				<title>{data.full_name} | Digital Business Card</title>
-				<meta name="description" content={`Contact information for ${data.full_name}, ${data.position}.`} />
+				<meta
+					name="description"
+					content={`Contact information for ${data.full_name}, ${data.position}.`}
+				/>
 				<meta property="og:title" content={`${data.full_name} | Digital Business Card`} />
-				<meta property="og:description" content={`Contact information for ${data.full_name}, ${data.position}.`} />
+				<meta
+					property="og:description"
+					content={`Contact information for ${data.full_name}, ${data.position}.`}
+				/>
 			</Helmet>
 
 			{/* Premium background */}

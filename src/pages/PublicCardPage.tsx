@@ -1,4 +1,4 @@
-import { motion } from 'framer-motion'
+﻿import { motion } from 'framer-motion'
 import { Helmet } from 'react-helmet-async'
 import { useMemo } from 'react'
 import { useParams } from 'react-router-dom'
@@ -226,6 +226,7 @@ export function PublicCardPage() {
 												<ShareButton url={url} title={`${data.full_name} | Digital Business Card`} />
 											</div>
 									</div>
+								</div>
 								</div>
 							</Card>
 						</motion.div>

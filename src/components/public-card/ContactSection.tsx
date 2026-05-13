@@ -59,9 +59,9 @@ function ContactRow({
 
 	return (
 		<motion.div
-			initial= opacity: 0, y: 10 
-			animate= opacity: 1, y: 0 
-			transition= duration: 0.28, delay 
+			initial={{ opacity: 0, y: 10 }} 
+			animate={{ opacity: 1, y: 0 }} 
+			transition={{ duration: 0.28, delay }} 
 			className="rounded-2xl border border-white/10 bg-white/[0.06] p-3 shadow-[0_18px_60px_rgba(0,0,0,0.35)] backdrop-blur"
 		>
 			<div className="flex items-center justify-between gap-3">
@@ -196,7 +196,7 @@ export function ContactSection({ card }: { card: EmployeeCard }) {
 				icon={<Phone className="h-4 w-4 text-brand-gold" />}
 				label="Internal"
 				value={`Internal: ${card.short_phone}`}
-				action= type: 'copy', value: String(card.short_phone), label: 'Copy' 
+				action={{ type: 'copy', value: String(card.short_phone), label: 'Copy' }} 
 				delay={delayStep * i}
 			/>
 		)
@@ -268,3 +268,4 @@ export function ContactSection({ card }: { card: EmployeeCard }) {
 		</Card>
 	)
 }
+

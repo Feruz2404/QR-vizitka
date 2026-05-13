@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { Button } from '../ui/Button'
 import { Card } from '../ui/Card'
 
@@ -7,19 +7,26 @@ const allowed = ['image/png', 'image/jpg', 'image/jpeg', 'image/webp']
 export function ImageUploader({
 	label,
 	value,
-	onChange,
-	onUpload,
 	disabled,
+	onPick,
+	onClear,
 }: {
 	label: string
 	value?: string | null
-	onChange: (url: string | null) => void
-	onUpload: (file: File) => Promise<string>
 	disabled?: boolean
+	onPick: (file: File) => void
+	onClear: () => void
 }) {
 	const inputRef = useRef<HTMLInputElement | null>(null)
-	const [busy, setBusy] = useState(false)
 	const [error, setError] = useState<string | null>(null)
+
+	const accept = useMemo(() => allowed.join(','), [])
+
+	useEffect(() => {
+		return () => {
+			// no-op (preview URL is managed by parent)
+		}
+	}, [])
 
 	return (
 		<Card className="p-4">
@@ -30,18 +37,20 @@ export function ImageUploader({
 				</div>
 				<div className="flex gap-2">
 					<Button
+						type="button"
 						variant="secondary"
 						size="sm"
-						disabled={disabled || busy}
+						disabled={disabled}
 						onClick={() => inputRef.current?.click()}
 					>
-						{busy ? 'Uploading…' : 'Upload'}
+						Choose
 					</Button>
 					<Button
+						type="button"
 						variant="ghost"
 						size="sm"
-						disabled={disabled || busy}
-						onClick={() => onChange(null)}
+						disabled={disabled}
+						onClick={onClear}
 					>
 						Clear
 					</Button>
@@ -51,25 +60,19 @@ export function ImageUploader({
 			<input
 				ref={inputRef}
 				type="file"
-				accept={allowed.join(',')}
+				accept={accept}
 				hidden
-				onChange={async (e) => {
+				onChange={(e) => {
 					const file = e.target.files?.[0]
+					// allow selecting the same file again
+					e.currentTarget.value = ''
 					if (!file) return
 					setError(null)
 					if (!allowed.includes(file.type)) {
 						setError('Invalid file type')
 						return
 					}
-					setBusy(true)
-					try {
-						const url = await onUpload(file)
-						onChange(url)
-					} catch {
-						setError('Upload failed')
-					} finally {
-						setBusy(false)
-					}
+					onPick(file)
 				}}
 			/>
 

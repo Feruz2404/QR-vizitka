@@ -4,7 +4,7 @@ on:
   pull_request:
     branches: [main]
   push:
-    branches: [fix/build-stabilization]
+    branches: [fix/admin-image-upload-flow]
 
 jobs:
   build:

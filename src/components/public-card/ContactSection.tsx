@@ -47,11 +47,13 @@ function ContactRow({
 	label,
 	value,
 	action,
+	delay = 0,
 }: {
 	icon: React.ReactNode
 	label: string
 	value: string
 	action?: Action
+	delay?: number
 }) {
 	const toast = useToast()
 
@@ -59,7 +61,7 @@ function ContactRow({
 		<motion.div
 			initial= opacity: 0, y: 10 
 			animate= opacity: 1, y: 0 
-			transition= duration: 0.28 
+			transition= duration: 0.28, delay 
 			className="rounded-2xl border border-white/10 bg-white/[0.06] p-3 shadow-[0_18px_60px_rgba(0,0,0,0.35)] backdrop-blur"
 		>
 			<div className="flex items-center justify-between gap-3">
@@ -106,75 +108,87 @@ function ContactRow({
 
 export function ContactSection({ card }: { card: EmployeeCard }) {
 	const rows: Array<JSX.Element> = []
+	let i = 0
+
+	const push = (el: JSX.Element) => {
+		i += 1
+		rows.push(el)
+	}
 
 	if (card.work_email) {
-		rows.push(
+		push(
 			<ContactRow
 				key="work_email"
 				icon={<Mail className="h-4 w-4 text-brand-gold" />}
 				label="Work email"
 				value={card.work_email}
 				action={{ type: 'link', href: `mailto:${card.work_email}`, label: 'Email' }}
+				delay={0.03 * i}
 			/>
 		)
 	}
 	if (card.personal_email) {
-		rows.push(
+		push(
 			<ContactRow
 				key="personal_email"
 				icon={<Mail className="h-4 w-4 text-brand-gold" />}
 				label="Personal email"
 				value={card.personal_email}
 				action={{ type: 'link', href: `mailto:${card.personal_email}`, label: 'Email' }}
+				delay={0.03 * i}
 			/>
 		)
 	}
 	if (card.phone_primary) {
-		rows.push(
+		push(
 			<ContactRow
 				key="phone_primary"
 				icon={<Phone className="h-4 w-4 text-brand-gold" />}
 				label="Primary phone"
 				value={formatUzPhone(card.phone_primary) ?? card.phone_primary}
 				action= type: 'link', href: telHref(card.phone_primary)!, label: 'Call' 
+				delay={0.03 * i}
 			/>
 		)
 	}
 	if (card.phone_secondary) {
-		rows.push(
+		push(
 			<ContactRow
 				key="phone_secondary"
 				icon={<Phone className="h-4 w-4 text-brand-gold" />}
 				label="Secondary phone"
 				value={formatUzPhone(card.phone_secondary) ?? card.phone_secondary}
 				action= type: 'link', href: telHref(card.phone_secondary)!, label: 'Call' 
+				delay={0.03 * i}
 			/>
 		)
 	}
 	if (card.phone_extra) {
-		rows.push(
+		push(
 			<ContactRow
 				key="phone_extra"
 				icon={<Phone className="h-4 w-4 text-brand-gold" />}
 				label="Extra phone"
 				value={formatUzPhone(card.phone_extra) ?? card.phone_extra}
 				action= type: 'link', href: telHref(card.phone_extra)!, label: 'Call' 
+				delay={0.03 * i}
 			/>
 		)
 	}
 	if (card.short_phone) {
-		rows.push(
+		push(
 			<ContactRow
 				key="short_phone"
 				icon={<Phone className="h-4 w-4 text-brand-gold" />}
 				label="Internal"
 				value={`Internal: ${card.short_phone}`}
 				action= type: 'copy', value: String(card.short_phone), label: 'Copy' 
+				delay={0.03 * i}
 			/>
 		)
 	}
 	if (card.telegram_username || card.telegram_url) {
-		rows.push(
+		push(
 			<ContactRow
 				key="telegram"
 				icon={<MessageCircle className="h-4 w-4 text-brand-gold" />}
@@ -185,39 +199,43 @@ export function ContactSection({ card }: { card: EmployeeCard }) {
 						: card.telegram_url ?? ''
 				}
 				action={card.telegram_url ? { type: 'link', href: card.telegram_url, label: 'Open' } : undefined}
+				delay={0.03 * i}
 			/>
 		)
 	}
 	if (card.facebook_url) {
-		rows.push(
+		push(
 			<ContactRow
 				key="facebook"
 				icon={<Facebook className="h-4 w-4 text-brand-gold" />}
 				label="Facebook"
 				value={card.facebook_url}
 				action= type: 'link', href: card.facebook_url, label: 'Open' 
+				delay={0.03 * i}
 			/>
 		)
 	}
 	if (card.website_url) {
-		rows.push(
+		push(
 			<ContactRow
 				key="website"
 				icon={<Globe className="h-4 w-4 text-brand-gold" />}
 				label="Website"
 				value={card.website_url}
 				action= type: 'link', href: card.website_url, label: 'Open' 
+				delay={0.03 * i}
 			/>
 		)
 	}
 	if (card.address) {
-		rows.push(
+		push(
 			<ContactRow
 				key="address"
 				icon={<MapPin className="h-4 w-4 text-brand-gold" />}
 				label="Address"
 				value={card.address}
 				action= type: 'copy', value: card.address, label: 'Copy' 
+				delay={0.03 * i}
 			/>
 		)
 	}

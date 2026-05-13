@@ -1,12 +1,4 @@
-import {
-	Copy,
-	Facebook,
-	Globe,
-	Mail,
-	MapPin,
-	MessageCircle,
-	Phone,
-} from 'lucide-react'
+import { Copy, Facebook, Globe, Mail, MapPin, MessageCircle, Phone } from 'lucide-react'
 import { motion } from 'framer-motion'
 
 import type { EmployeeCard } from '../../types/employee'
@@ -65,9 +57,9 @@ function ContactRow({
 
 	return (
 		<motion.div
-			initial= opacity: 0, y: 8 
+			initial= opacity: 0, y: 10 
 			animate= opacity: 1, y: 0 
-			transition= duration: 0.25 
+			transition= duration: 0.28 
 			className="rounded-2xl border border-white/10 bg-white/[0.06] p-3 shadow-[0_18px_60px_rgba(0,0,0,0.35)] backdrop-blur"
 		>
 			<div className="flex items-center justify-between gap-3">
@@ -76,9 +68,7 @@ function ContactRow({
 						{icon}
 					</div>
 					<div className="min-w-0">
-						<div className="text-[11px] uppercase tracking-wide text-white/45">
-							{label}
-						</div>
+						<div className="text-[11px] uppercase tracking-wide text-white/45">{label}</div>
 						<div className="truncate text-sm text-white/85" title={value}>
 							{value}
 						</div>
@@ -146,7 +136,7 @@ export function ContactSection({ card }: { card: EmployeeCard }) {
 				icon={<Phone className="h-4 w-4 text-brand-gold" />}
 				label="Primary phone"
 				value={formatUzPhone(card.phone_primary) ?? card.phone_primary}
-				action= type: 'link', href: telHref(card.phone_primary) ?? '', label: 'Call' 
+				action= type: 'link', href: telHref(card.phone_primary)!, label: 'Call' 
 			/>
 		)
 	}
@@ -157,7 +147,7 @@ export function ContactSection({ card }: { card: EmployeeCard }) {
 				icon={<Phone className="h-4 w-4 text-brand-gold" />}
 				label="Secondary phone"
 				value={formatUzPhone(card.phone_secondary) ?? card.phone_secondary}
-				action= type: 'link', href: telHref(card.phone_secondary) ?? '', label: 'Call' 
+				action= type: 'link', href: telHref(card.phone_secondary)!, label: 'Call' 
 			/>
 		)
 	}
@@ -168,7 +158,7 @@ export function ContactSection({ card }: { card: EmployeeCard }) {
 				icon={<Phone className="h-4 w-4 text-brand-gold" />}
 				label="Extra phone"
 				value={formatUzPhone(card.phone_extra) ?? card.phone_extra}
-				action= type: 'link', href: telHref(card.phone_extra) ?? '', label: 'Call' 
+				action= type: 'link', href: telHref(card.phone_extra)!, label: 'Call' 
 			/>
 		)
 	}
@@ -189,7 +179,11 @@ export function ContactSection({ card }: { card: EmployeeCard }) {
 				key="telegram"
 				icon={<MessageCircle className="h-4 w-4 text-brand-gold" />}
 				label="Telegram"
-				value={card.telegram_username ? `@${String(card.telegram_username).replace(/^@/, '')}` : card.telegram_url ?? ''}
+				value={
+					card.telegram_username
+						? `@${String(card.telegram_username).replace(/^@/, '')}`
+						: card.telegram_url ?? ''
+				}
 				action={card.telegram_url ? { type: 'link', href: card.telegram_url, label: 'Open' } : undefined}
 			/>
 		)
@@ -230,11 +224,9 @@ export function ContactSection({ card }: { card: EmployeeCard }) {
 
 	return (
 		<Card className="p-5">
-			<div className="flex items-start justify-between gap-3">
-				<div>
-					<div className="text-sm font-semibold">Contact</div>
-					<div className="mt-1 text-xs text-brand-muted">Tap a row to copy or use the action button</div>
-				</div>
+			<div>
+				<div className="text-sm font-semibold">Contact</div>
+				<div className="mt-1 text-xs text-brand-muted">Action buttons adapt to each field</div>
 			</div>
 			<div className="mt-4 grid gap-3">{rows}</div>
 		</Card>

@@ -1,16 +1,19 @@
+import { Copy, Download } from 'lucide-react'
 import QRCode from 'react-qr-code'
 
-import { Card } from '../../ui/Card'
-import { Button } from '../../ui/Button'
 import { downloadSvg } from '../../lib/qr'
+import { Button } from '../../ui/Button'
+import { Card } from '../../ui/Card'
+import { useToast } from '../../ui/Toast'
 
 export function QRCodeBlock({ url, filename }: { url: string; filename: string }) {
+	const toast = useToast()
 	return (
-		<Card className="p-4">
-			<div className="flex items-center justify-between">
+		<Card className="p-5">
+			<div className="flex items-start justify-between gap-3">
 				<div>
-					<div className="text-sm font-semibold">QR Code</div>
-					<div className="text-xs text-brand-muted">Scan to open this card</div>
+					<div className="text-sm font-semibold">QR Business Card</div>
+					<div className="mt-1 text-xs text-brand-muted">Scan to open this digital card</div>
 				</div>
 				<Button
 					variant="secondary"
@@ -19,14 +22,47 @@ export function QRCodeBlock({ url, filename }: { url: string; filename: string }
 						const svg = document.getElementById('employee-qr') as SVGSVGElement | null
 						if (svg) downloadSvg(svg, filename)
 					}}
+					aria-label="Download QR"
 				>
-					Download
+					<Download className="h-4 w-4" /> Download QR
 				</Button>
 			</div>
-			<div className="mt-4 grid place-items-center rounded-xl border border-white/10 bg-white/5 p-4">
-				<QRCode id="employee-qr" value={url} size={160} bgColor="transparent" fgColor="#F5C542" />
+
+			<div className="mt-4 grid place-items-center">
+				<div className="rounded-3xl border border-white/10 bg-white/5 p-4 shadow-[0_30px_90px_rgba(0,0,0,0.55)]">
+					<div className="rounded-2xl bg-white p-4">
+						<QRCode id="employee-qr" value={url} size={188} bgColor="#ffffff" fgColor="#0b0f1a" />
+					</div>
+				</div>
 			</div>
-			<div className="mt-3 break-all text-xs text-brand-muted">{url}</div>
+
+			<div className="mt-4 flex flex-col gap-2">
+				<div className="rounded-2xl border border-white/10 bg-white/5 px-3 py-2">
+					<div className="text-[11px] uppercase tracking-wide text-white/50">Public URL</div>
+					<div className="mt-1 truncate text-sm text-white/80" title={url}>
+						{url}
+					</div>
+				</div>
+				<div className="grid grid-cols-2 gap-2">
+					<Button
+						variant="secondary"
+						onClick={async () => {
+							await navigator.clipboard.writeText(url)
+							toast.push('Link copied')
+						}}
+						aria-label="Copy link"
+					>
+						<Copy className="h-4 w-4" /> Copy Link
+					</Button>
+					<Button
+						variant="ghost"
+						onClick={() => window.open(url, '_blank', 'noreferrer')}
+						aria-label="Open link"
+					>
+						Open
+					</Button>
+				</div>
+			</div>
 		</Card>
 	)
 }

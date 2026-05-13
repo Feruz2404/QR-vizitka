@@ -84,7 +84,9 @@ export function PublicCardPage() {
 			<div className="min-h-screen grid place-items-center p-6">
 				<Card className="max-w-lg p-6 text-center">
 					<div className="text-xl font-semibold">Card unavailable</div>
-					<p className="mt-2 text-sm text-brand-muted">This employee card is currently unpublished.</p>
+					<p className="mt-2 text-sm text-brand-muted">
+						This employee card is currently unpublished.
+					</p>
 				</Card>
 			</div>
 		)
@@ -111,11 +113,17 @@ export function PublicCardPage() {
 				<div className="absolute left-1/3 bottom-[-240px] h-[520px] w-[520px] rounded-full bg-purple-500/10 blur-3xl" />
 			</div>
 
-			<EmployeeTopHeader fullName={data.full_name} position={data.position} profilePhotoUrl={data.profile_photo_url} organizationLogoUrl={data.logo_url} />
+			<EmployeeTopHeader
+				fullName={data.full_name}
+				position={data.position}
+				profilePhotoUrl={data.profile_photo_url}
+				organizationLogoUrl={data.logo_url}
+			/>
 
 			<div className="mx-auto max-w-[1100px] px-4 pb-10 pt-6">
 				<motion.div initial= opacity: 0, y: 10  animate= opacity: 1, y: 0  transition= duration: 0.35 >
 					<div className="grid gap-5 lg:grid-cols-[1.08fr_0.92fr]">
+						{/* Left column: hero */}
 						<motion.div initial= opacity: 0, y: 14  animate= opacity: 1, y: 0  transition= duration: 0.45, delay: 0.05 >
 							<Card className="relative overflow-hidden rounded-[32px] p-6">
 								<div className="pointer-events-none absolute inset-0 bg-[radial-gradient(700px_circle_at_20%_10%,rgba(245,197,66,0.16),transparent_55%),radial-gradient(900px_circle_at_90%_20%,rgba(59,130,246,0.14),transparent_60%)]" />
@@ -132,6 +140,7 @@ export function PublicCardPage() {
 													<div className="grid h-full w-full place-items-center text-4xl font-semibold text-white/90">{initials(data.full_name)}</div>
 												)}
 											</div>
+
 											{data.logo_url ? (
 												<div className="absolute -bottom-3 -right-3 rounded-2xl border border-white/15 bg-black/35 p-2 backdrop-blur-xl">
 													<img src={data.logo_url} alt="Organization logo" className="h-8 w-8 rounded-lg object-contain" loading="lazy" />
@@ -174,6 +183,7 @@ export function PublicCardPage() {
 							</Card>
 						</motion.div>
 
+						{/* Right column */}
 						<div className="grid gap-5">
 							<ContactSection card={data} />
 							<QRCodeBlock url={url} filename={`${data.slug}.svg`} />
@@ -196,7 +206,7 @@ export function PublicCardPage() {
 									>
 										Copy link
 									</Button>
-									<Button variant="ghost" className="w-full" onClick={() => window.open(url, '_blank', 'noreferrer')}>
+									<Button variant="ghost" className="w-full" onClick={() => window.open(url, '_blank', 'noreferrer')} aria-label="Open">
 										Open
 									</Button>
 								</div>

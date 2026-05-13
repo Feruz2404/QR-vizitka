@@ -4,7 +4,7 @@ on:
   pull_request:
     branches: [main]
   push:
-    branches: [fix/vercel-spa-routing]
+    branches: [fix/premium-public-card-redesign]
 
 jobs:
   build:

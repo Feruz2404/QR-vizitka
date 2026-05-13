@@ -79,11 +79,7 @@ function ContactRow({
 
 				{action ? (
 					action.type === 'link' ? (
-						<a
-							href={action.href}
-							target={action.href.startsWith('http') ? '_blank' : undefined}
-							rel="noreferrer"
-						>
+						<a href={action.href} target={action.href.startsWith('http') ? '_blank' : undefined} rel="noreferrer">
 							<Button size="sm" variant={action.href.startsWith('tel:') ? 'primary' : 'secondary'}>
 								{action.label}
 							</Button>
@@ -109,6 +105,8 @@ function ContactRow({
 export function ContactSection({ card }: { card: EmployeeCard }) {
 	const rows: Array<JSX.Element> = []
 	let i = 0
+	const delayStep = 0.03
+
 	const push = (el: JSX.Element) => {
 		i += 1
 		rows.push(el)
@@ -122,7 +120,7 @@ export function ContactSection({ card }: { card: EmployeeCard }) {
 				label="Work email"
 				value={card.work_email}
 				action={{ type: 'link', href: `mailto:${card.work_email}`, label: 'Email' }}
-				delay={0.03 * i}
+				delay={delayStep * i}
 			/>
 		)
 	}
@@ -135,7 +133,7 @@ export function ContactSection({ card }: { card: EmployeeCard }) {
 				label="Personal email"
 				value={card.personal_email}
 				action={{ type: 'link', href: `mailto:${card.personal_email}`, label: 'Email' }}
-				delay={0.03 * i}
+				delay={delayStep * i}
 			/>
 		)
 	}
@@ -149,7 +147,7 @@ export function ContactSection({ card }: { card: EmployeeCard }) {
 				label="Primary phone"
 				value={formatUzPhone(card.phone_primary) ?? card.phone_primary}
 				action={href ? { type: 'link', href, label: 'Call' } : undefined}
-				delay={0.03 * i}
+				delay={delayStep * i}
 			/>
 		)
 	}
@@ -163,7 +161,7 @@ export function ContactSection({ card }: { card: EmployeeCard }) {
 				label="Secondary phone"
 				value={formatUzPhone(card.phone_secondary) ?? card.phone_secondary}
 				action={href ? { type: 'link', href, label: 'Call' } : undefined}
-				delay={0.03 * i}
+				delay={delayStep * i}
 			/>
 		)
 	}
@@ -174,13 +172,9 @@ export function ContactSection({ card }: { card: EmployeeCard }) {
 				key="telegram"
 				icon={<MessageCircle className="h-4 w-4 text-brand-gold" />}
 				label="Telegram"
-				value={
-					card.telegram_username
-						? `@${String(card.telegram_username).replace(/^@/, '')}`
-						: card.telegram_url ?? ''
-				}
+				value={card.telegram_username ? `@${String(card.telegram_username).replace(/^@/, '')}` : card.telegram_url ?? ''}
 				action={card.telegram_url ? { type: 'link', href: card.telegram_url, label: 'Open' } : undefined}
-				delay={0.03 * i}
+				delay={delayStep * i}
 			/>
 		)
 	}
@@ -193,7 +187,7 @@ export function ContactSection({ card }: { card: EmployeeCard }) {
 				label="Facebook"
 				value={card.facebook_url}
 				action= type: 'link', href: card.facebook_url, label: 'Open' 
-				delay={0.03 * i}
+				delay={delayStep * i}
 			/>
 		)
 	}
@@ -206,7 +200,7 @@ export function ContactSection({ card }: { card: EmployeeCard }) {
 				label="Website"
 				value={card.website_url}
 				action= type: 'link', href: card.website_url, label: 'Open' 
-				delay={0.03 * i}
+				delay={delayStep * i}
 			/>
 		)
 	}
@@ -219,7 +213,7 @@ export function ContactSection({ card }: { card: EmployeeCard }) {
 				label="Address"
 				value={card.address}
 				action= type: 'copy', value: card.address, label: 'Copy' 
-				delay={0.03 * i}
+				delay={delayStep * i}
 			/>
 		)
 	}

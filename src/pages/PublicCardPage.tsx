@@ -114,7 +114,9 @@ export function PublicCardPage() {
 									<div className="text-2xl font-semibold">{data.full_name}</div>
 									<div className="mt-1 text-sm text-brand-muted">{data.position}</div>
 									{data.department ? <div className="mt-1 text-sm text-white/80">{data.department}</div> : null}
-									{data.organization_name ? <div className="mt-2 text-sm text-white/90">{data.organization_name}</div> : null}
+									{data.organization_name ? (
+										<div className="mt-2 text-sm text-white/90">{data.organization_name}</div>
+									) : null}
 									{data.bio ? <p className="mt-3 text-sm leading-relaxed text-brand-muted">{data.bio}</p> : null}
 									<div className="mt-4 flex flex-wrap items-center justify-center gap-3 lg:justify-start">
 										<SaveContactButton card={data} />

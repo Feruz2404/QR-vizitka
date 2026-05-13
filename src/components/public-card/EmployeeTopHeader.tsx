@@ -19,46 +19,42 @@ export function EmployeeTopHeader({
 	organizationLogoUrl?: string | null
 }) {
 	return (
-		<header className="sticky top-0 z-40">
-			<div className="border-b border-white/10 bg-black/25 backdrop-blur-2xl">
-				<div className="mx-auto flex max-w-[1100px] items-center gap-3 px-4 py-3">
-					<div
-						className={cn(
-							'relative grid h-11 w-11 shrink-0 place-items-center overflow-hidden rounded-2xl border border-white/15 bg-white/10 shadow-[0_12px_40px_rgba(0,0,0,0.45)]'
-						)}
-					>
-						{profilePhotoUrl ? (
-							<img
-								src={profilePhotoUrl}
-								alt={`${fullName} profile photo`}
-								className="h-full w-full object-cover"
-								loading="lazy"
-							/>
-						) : (
-							<span className="text-sm font-semibold text-white">
-								{initials(fullName)}
-							</span>
-						)}
-					</div>
-
-					<div className="min-w-0 flex-1">
-						<div className="truncate text-sm font-semibold leading-tight">{fullName}</div>
-						<div className="truncate text-xs text-white/60 leading-tight">
-							{position ?? ''}
-						</div>
-					</div>
-
-					{organizationLogoUrl ? (
-						<div className="rounded-2xl border border-white/10 bg-white/5 p-2">
-							<img
-								src={organizationLogoUrl}
-								alt="Organization logo"
-								className="h-8 w-8 rounded-xl object-contain"
-								loading="lazy"
-							/>
-						</div>
-					) : null}
+		<header className="sticky top-0 z-40 border-b border-white/10 bg-black/35 backdrop-blur-xl">
+			<div className="mx-auto flex max-w-5xl items-center gap-3 px-4 py-3">
+				<div
+					className={cn(
+						'grid h-10 w-10 shrink-0 place-items-center overflow-hidden rounded-full border border-white/15 bg-white/10'
+					)}
+				>
+					{profilePhotoUrl ? (
+						<img
+							src={profilePhotoUrl}
+							alt={`${fullName} profile photo`}
+							className="h-full w-full object-cover"
+							loading="lazy"
+						/>
+					) : (
+						<span className="text-sm font-semibold text-white">
+							{initials(fullName)}
+						</span>
+					)}
 				</div>
+
+				<div className="min-w-0 flex-1">
+					<div className="truncate text-sm font-semibold leading-tight">{fullName}</div>
+					<div className="truncate text-xs text-brand-muted leading-tight">
+						{position ?? ''}
+					</div>
+				</div>
+
+				{organizationLogoUrl ? (
+					<img
+						src={organizationLogoUrl}
+						alt="Organization logo"
+						className="h-8 w-8 rounded-lg object-contain"
+						loading="lazy"
+					/>
+				) : null}
 			</div>
 		</header>
 	)

@@ -1,13 +1,13 @@
 import { motion } from 'framer-motion'
-import { useParams } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
+import { useParams } from 'react-router-dom'
 
-import { useGetCardBySlugQuery } from '../services/employeeCardsApi'
 import { EmployeeTopHeader } from '../components/public-card/EmployeeTopHeader'
-import { QRCodeBlock } from '../components/public-card/QRCodeBlock'
 import { ContactSection } from '../components/public-card/ContactSection'
+import { QRCodeBlock } from '../components/public-card/QRCodeBlock'
 import { SaveContactButton } from '../components/public-card/SaveContactButton'
 import { ShareButton } from '../components/public-card/ShareButton'
+import { useGetCardBySlugQuery } from '../services/employeeCardsApi'
 import { Card } from '../ui/Card'
 import { Skeleton } from '../ui/Skeleton'
 

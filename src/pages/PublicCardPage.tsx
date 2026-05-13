@@ -99,9 +99,15 @@ export function PublicCardPage() {
 		<div className="min-h-screen text-white">
 			<Helmet>
 				<title>{data.full_name} | Digital Business Card</title>
-				<meta name="description" content={`Contact information for ${data.full_name}, ${data.position}.`} />
+				<meta
+					name="description"
+					content={`Contact information for ${data.full_name}, ${data.position}.`}
+				/>
 				<meta property="og:title" content={`${data.full_name} | Digital Business Card`} />
-				<meta property="og:description" content={`Contact information for ${data.full_name}, ${data.position}.`} />
+				<meta
+					property="og:description"
+					content={`Contact information for ${data.full_name}, ${data.position}.`}
+				/>
 			</Helmet>
 
 			{/* Premium background */}
@@ -143,14 +149,26 @@ export function PublicCardPage() {
 											<div className="absolute -inset-2 rounded-[28px] bg-gradient-to-b from-yellow-300/25 to-blue-400/10 blur-xl" />
 											<div className="relative h-36 w-36 overflow-hidden rounded-[28px] border border-white/15 bg-white/10 shadow-[0_30px_80px_rgba(0,0,0,0.55)]">
 												{heroPhoto ? (
-													<img src={heroPhoto} alt={`${data.full_name} photo`} className="h-full w-full object-cover" loading="lazy" />
+													<img
+														src={heroPhoto}
+														alt={`${data.full_name} photo`}
+														className="h-full w-full object-cover"
+														loading="lazy"
+													/>
 												) : (
-													<div className="grid h-full w-full place-items-center text-4xl font-semibold text-white/90">{initials(data.full_name)}</div>
+													<div className="grid h-full w-full place-items-center text-4xl font-semibold text-white/90">
+														{initials(data.full_name)}
+													</div>
 												)}
 											</div>
 											{data.logo_url ? (
 												<div className="absolute -bottom-3 -right-3 rounded-2xl border border-white/15 bg-black/35 p-2 backdrop-blur-xl">
-													<img src={data.logo_url} alt="Organization logo" className="h-8 w-8 rounded-lg object-contain" loading="lazy" />
+													<img
+														src={data.logo_url}
+														alt="Organization logo"
+														className="h-8 w-8 rounded-lg object-contain"
+														loading="lazy"
+													/>
 												</div>
 											) : null}
 										</div>
@@ -160,32 +178,60 @@ export function PublicCardPage() {
 												<span className="h-1.5 w-1.5 rounded-full bg-yellow-300/80" />
 												Premium digital card
 											</div>
-											<div className="mt-3 text-3xl font-semibold tracking-tight">{data.full_name}</div>
+											<div className="mt-3 text-3xl font-semibold tracking-tight">
+												{data.full_name}
+											</div>
 											<div className="mt-1 text-sm text-white/80">{data.position}</div>
 											{org ? <div className="mt-2 text-sm text-white/90">{org}</div> : null}
-											{data.department ? <div className="mt-1 text-sm text-white/70">{data.department}</div> : null}
-											{data.bio ? <p className="mt-3 text-sm leading-relaxed text-white/70">{data.bio}</p> : null}
+											{data.department ? (
+												<div className="mt-1 text-sm text-white/70">{data.department}</div>
+											) : null}
+											{data.bio ? (
+												<p className="mt-3 text-sm leading-relaxed text-white/70">{data.bio}</p>
+											) : null}
 
 											<div className="mt-5 grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:items-center">
 												{quick?.phone ? (
-													<a href={`tel:${telNormalize(quick.phone) ?? quick.phone}`} className="w-full sm:w-auto">
-														<Button className="w-full sm:w-auto" aria-label="Call">Call</Button>
+													<a
+														href={`tel:${telNormalize(quick.phone) ?? quick.phone}`}
+														className="w-full sm:w-auto"
+													>
+														<Button className="w-full sm:w-auto" aria-label="Call">
+															Call
+														</Button>
 													</a>
 												) : null}
 												{quick?.email ? (
 													<a href={`mailto:${quick.email}`} className="w-full sm:w-auto">
-														<Button className="w-full sm:w-auto" variant="secondary" aria-label="Email">Email</Button>
+														<Button
+															className="w-full sm:w-auto"
+															variant="secondary"
+															aria-label="Email"
+														>
+															Email
+														</Button>
 													</a>
 												) : null}
 												{quick?.tg ? (
-													<a href={quick.tg} target="_blank" rel="noreferrer" className="w-full sm:w-auto">
-														<Button className="w-full sm:w-auto" variant="secondary" aria-label="Telegram">Telegram</Button>
+													<a
+														href={quick.tg}
+														target="_blank"
+														rel="noreferrer"
+														className="w-full sm:w-auto"
+													>
+														<Button
+															className="w-full sm:w-auto"
+															variant="secondary"
+															aria-label="Telegram"
+														>
+															Telegram
+														</Button>
 													</a>
 												) : null}
 												<div className="w-full sm:w-auto">
 													<SaveContactButton card={data} className="w-full sm:w-auto" />
 												</div>
-										</div>
+											</div>
 									</div>
 								</div>
 							</Card>

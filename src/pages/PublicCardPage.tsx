@@ -89,9 +89,9 @@ export function PublicCardPage() {
 
 			<div className="mx-auto max-w-5xl p-4">
 				<motion.div
-					initial={ { opacity: 0, y: 8 } }
-					animate={ { opacity: 1, y: 0 } }
-					transition={ { duration: 0.35 } }
+					initial= opacity: 0, y: 8 
+					animate= opacity: 1, y: 0 
+					transition= duration: 0.35 
 				>
 					<div className="grid gap-4 lg:grid-cols-[1.1fr_0.9fr]">
 						<Card className="p-5">

@@ -106,7 +106,6 @@ export function ContactSection({ card }: { card: EmployeeCard }) {
 	const rows: Array<JSX.Element> = []
 	let i = 0
 	const delayStep = 0.03
-
 	const push = (el: JSX.Element) => {
 		i += 1
 		rows.push(el)
@@ -212,7 +211,7 @@ export function ContactSection({ card }: { card: EmployeeCard }) {
 				icon={<MapPin className="h-4 w-4 text-brand-gold" />}
 				label="Address"
 				value={card.address}
-				action= type: 'copy', value: card.address, label: 'Copy' 
+				action={card.address ? { type: 'copy', value: card.address, label: 'Copy' } : undefined}
 				delay={delayStep * i}
 			/>
 		)

@@ -99,15 +99,9 @@ export function PublicCardPage() {
 		<div className="min-h-screen text-white">
 			<Helmet>
 				<title>{data.full_name} | Digital Business Card</title>
-				<meta
-					name="description"
-					content={`Contact information for ${data.full_name}, ${data.position}.`}
-				/>
+				<meta name="description" content={`Contact information for ${data.full_name}, ${data.position}.`} />
 				<meta property="og:title" content={`${data.full_name} | Digital Business Card`} />
-				<meta
-					property="og:description"
-					content={`Contact information for ${data.full_name}, ${data.position}.`}
-				/>
+				<meta property="og:description" content={`Contact information for ${data.full_name}, ${data.position}.`} />
 			</Helmet>
 
 			<div className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
@@ -147,27 +141,15 @@ export function PublicCardPage() {
 											<div className="absolute -inset-2 rounded-[28px] bg-gradient-to-b from-yellow-300/25 to-blue-400/10 blur-xl" />
 											<div className="relative h-36 w-36 overflow-hidden rounded-[28px] border border-white/15 bg-white/10 shadow-[0_30px_80px_rgba(0,0,0,0.55)]">
 												{heroPhoto ? (
-													<img
-														src={heroPhoto}
-														alt={`${data.full_name} photo`}
-														className="h-full w-full object-cover"
-														loading="lazy"
-													/>
+													<img src={heroPhoto} alt={`${data.full_name} photo`} className="h-full w-full object-cover" loading="lazy" />
 												) : (
-													<div className="grid h-full w-full place-items-center text-4xl font-semibold text-white/90">
-														{initials(data.full_name)}
-													</div>
+													<div className="grid h-full w-full place-items-center text-4xl font-semibold text-white/90">{initials(data.full_name)}</div>
 												)}
 											</div>
 
 											{data.logo_url ? (
 												<div className="absolute -bottom-3 -right-3 rounded-2xl border border-white/15 bg-black/35 p-2 backdrop-blur-xl">
-													<img
-														src={data.logo_url}
-														alt="Organization logo"
-														className="h-8 w-8 rounded-lg object-contain"
-														loading="lazy"
-													/>
+													<img src={data.logo_url} alt="Organization logo" className="h-8 w-8 rounded-lg object-contain" loading="lazy" />
 												</div>
 											) : null}
 										</div>
@@ -176,10 +158,7 @@ export function PublicCardPage() {
 											<div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-white/80">
 												<span className="h-1.5 w-1.5 rounded-full bg-yellow-300/80" /> Premium digital card
 											</div>
-
-											<div className="mt-3 text-3xl font-semibold tracking-tight">
-												{data.full_name}
-											</div>
+											<div className="mt-3 text-3xl font-semibold tracking-tight">{data.full_name}</div>
 											<div className="mt-1 text-sm text-white/80">{data.position}</div>
 											{org ? <div className="mt-2 text-sm text-white/90">{org}</div> : null}
 											{data.department ? <div className="mt-1 text-sm text-white/70">{data.department}</div> : null}

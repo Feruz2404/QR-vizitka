@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { ExternalLink } from 'lucide-react'
 
 import type { EmployeeCardInsert, EmployeeCardUpdate } from '../types/employee'
@@ -14,6 +14,10 @@ import {
 	useUploadProfilePhotoMutation,
 } from '../services/employeeCardsApi'
 import { ImageUploader } from './ImageUploader'
+
+function safeObjectUrl(file: File) {
+	return URL.createObjectURL(file)
+}
 
 export function CardForm({
 	mode,
@@ -32,7 +36,32 @@ export function CardForm({
 	const [values, setValues] = useState<EmployeeCardUpdate>(initialValues)
 	const [slugTouched, setSlugTouched] = useState(false)
 
-	useEffect(() => setValues(initialValues), [initialValues])
+	// Selected (new) files live in local state. DB is not updated until Save.
+	const [profilePhotoFile, setProfilePhotoFile] = useState<File | null>(null)
+	const [logoFile, setLogoFile] = useState<File | null>(null)
+	const [profilePreview, setProfilePreview] = useState<string | null>(null)
+	const [logoPreview, setLogoPreview] = useState<string | null>(null)
+
+	const [submitting, setSubmitting] = useState(false)
+	const busy = saving || submitting
+
+	const lastObjectUrlsRef = useRef<{ profile?: string; logo?: string }>({})
+
+	useEffect(() => {
+		setValues(initialValues)
+		setSlugTouched(false)
+		setProfilePhotoFile(null)
+		setLogoFile(null)
+		setProfilePreview(null)
+		setLogoPreview(null)
+	}, [initialValues])
+
+	useEffect(() => {
+		return () => {
+			if (lastObjectUrlsRef.current.profile) URL.revokeObjectURL(lastObjectUrlsRef.current.profile)
+			if (lastObjectUrlsRef.current.logo) URL.revokeObjectURL(lastObjectUrlsRef.current.logo)
+		}
+	}, [])
 
 	const [checkSlug, slugState] = useLazyCheckSlugAvailabilityQuery()
 	const [uploadProfilePhoto] = useUploadProfilePhotoMutation()
@@ -46,11 +75,22 @@ export function CardForm({
 		return null
 	}, [values.slug, slugState, mode])
 
+	const cardKey = useMemo(() => {
+		// We need a stable storage folder key even in create mode (before the DB row exists).
+		// Prefer existing id in edit mode; otherwise fall back to slug (or timestamp if slug is empty).
+		const existingId = (initialValues as any)?.id as string | undefined
+		if (existingId) return existingId
+		if (values.slug) return values.slug
+		return `draft-${Date.now()}`
+	}, [initialValues, values.slug])
+
 	return (
 		<form
 			className="grid gap-4"
 			onSubmit={async (e) => {
 				e.preventDefault()
+				if (busy) return
+
 				if (!values.full_name || !values.slug || !values.position) {
 					toast.push('Please fill required fields')
 					return
@@ -59,8 +99,32 @@ export function CardForm({
 					toast.push(slugError)
 					return
 				}
-				await onSave(values)
-				toast.push('Saved')
+
+				setSubmitting(true)
+				try {
+					let nextValues: EmployeeCardUpdate = { ...values }
+
+					// 1) Upload images first (if new files exist)
+					if (profilePhotoFile) {
+						const url = await uploadProfilePhoto({ file: profilePhotoFile, cardId: cardKey }).unwrap()
+						nextValues = { ...nextValues, profile_photo_url: url }
+					}
+					if (logoFile) {
+						const url = await uploadLogo({ file: logoFile, cardId: cardKey }).unwrap()
+						nextValues = { ...nextValues, logo_url: url }
+					}
+
+					// 2) Save DB record only after uploads succeed
+					await onSave(nextValues)
+
+					toast.push('Saved')
+				} catch (err: any) {
+					// If upload fails, do NOT save.
+					const message = err?.message || 'Save failed'
+					toast.push(message)
+				} finally {
+					setSubmitting(false)
+				}
 			}}
 		>
 			<Card className="p-5">
@@ -228,8 +292,8 @@ export function CardForm({
 							<ExternalLink className="h-4 w-4" /> Preview
 						</Button>
 					</a>
-					<Button type="submit" disabled={saving}>
-						{saving ? 'Saving…' : 'Save'}
+					<Button type="submit" disabled={busy}>
+						{busy ? 'Saving…' : 'Save'}
 					</Button>
 				</div>
 			</Card>
@@ -237,22 +301,37 @@ export function CardForm({
 			<div className="grid gap-4 md:grid-cols-2">
 				<ImageUploader
 					label="Profile photo"
-					value={values.profile_photo_url}
-					disabled={saving}
-					onChange={(url) => setValues((p) => ({ ...p, profile_photo_url: url }))}
-					onUpload={async (file) => {
-						if (!('id' in initialValues) || !initialValues.id) throw new Error('Save card first')
-						return await uploadProfilePhoto({ file, cardId: initialValues.id }).unwrap()
+					value={profilePreview ?? (values.profile_photo_url as any)}
+					disabled={busy}
+					onPick={(file) => {
+						setProfilePhotoFile(file)
+						if (lastObjectUrlsRef.current.profile) URL.revokeObjectURL(lastObjectUrlsRef.current.profile)
+						const u = safeObjectUrl(file)
+						lastObjectUrlsRef.current.profile = u
+						setProfilePreview(u)
+					}}
+					onClear={() => {
+						setProfilePhotoFile(null)
+						setProfilePreview(null)
+						setValues((p) => ({ ...p, profile_photo_url: null }))
 					}}
 				/>
+
 				<ImageUploader
 					label="Organization logo"
-					value={values.logo_url}
-					disabled={saving}
-					onChange={(url) => setValues((p) => ({ ...p, logo_url: url }))}
-					onUpload={async (file) => {
-						if (!('id' in initialValues) || !initialValues.id) throw new Error('Save card first')
-						return await uploadLogo({ file, cardId: initialValues.id }).unwrap()
+					value={logoPreview ?? (values.logo_url as any)}
+					disabled={busy}
+					onPick={(file) => {
+						setLogoFile(file)
+						if (lastObjectUrlsRef.current.logo) URL.revokeObjectURL(lastObjectUrlsRef.current.logo)
+						const u = safeObjectUrl(file)
+						lastObjectUrlsRef.current.logo = u
+						setLogoPreview(u)
+					}}
+					onClear={() => {
+						setLogoFile(null)
+						setLogoPreview(null)
+						setValues((p) => ({ ...p, logo_url: null }))
 					}}
 				/>
 			</div>

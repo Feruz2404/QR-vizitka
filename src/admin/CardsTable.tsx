@@ -59,7 +59,7 @@ export function CardsTable() {
 		<>
 			<Card className="overflow-hidden">
 				<div className="overflow-x-auto">
-					<table className="min-w-[900px] w-full text-sm">
+					<table className="w-full min-w-[820px] text-sm">
 						<thead className="bg-black/20">
 							<tr className="text-left text-brand-muted">
 								<th className="px-4 py-3">Employee</th>
@@ -67,7 +67,7 @@ export function CardsTable() {
 								<th className="px-4 py-3">Slug</th>
 								<th className="px-4 py-3">Status</th>
 								<th className="px-4 py-3">Updated</th>
-								<th className="px-4 py-3 text-right">Actions</th>
+								<th className="px-4 py-3 text-right whitespace-nowrap">Actions</th>
 							</tr>
 						</thead>
 						<tbody>
@@ -77,7 +77,12 @@ export function CardsTable() {
 										<div className="flex items-center gap-3">
 											<div className="h-9 w-9 overflow-hidden rounded-full border border-white/15 bg-white/10">
 												{r.profile_photo_url ? (
-													<img src={r.profile_photo_url} alt="Profile" className="h-full w-full object-cover" loading="lazy" />
+													<img
+														src={r.profile_photo_url}
+														alt="Profile"
+														className="h-full w-full object-cover"
+														loading="lazy"
+													/>
 												) : null}
 											</div>
 											<div className="min-w-0">
@@ -92,10 +97,12 @@ export function CardsTable() {
 											{r.slug}
 										</span>
 									</td>
-									<td className="px-4 py-3"><StatusBadge active={r.is_active} /></td>
+									<td className="px-4 py-3">
+										<StatusBadge active={r.is_active} />
+									</td>
 									<td className="px-4 py-3 text-brand-muted">{new Date(r.updated_at).toLocaleString()}</td>
 									<td className="px-4 py-3">
-										<div className="flex justify-end gap-2">
+										<div className="flex justify-end gap-2 whitespace-nowrap">
 											<Link to={`/v/${r.slug}`} target="_blank">
 												<Button size="sm" variant="secondary" aria-label="View">
 													<Eye className="h-4 w-4" />

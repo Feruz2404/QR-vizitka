@@ -4,16 +4,23 @@ import type { EmployeeCard } from '../../types/employee'
 import { Button } from '../../ui/Button'
 import { downloadVCardFile, generateVCard } from '../../lib/vcard'
 
-export function SaveContactButton({ card }: { card: EmployeeCard }) {
+export function SaveContactButton({
+	card,
+	className,
+}: {
+	card: EmployeeCard
+	className?: string
+}) {
 	return (
 		<Button
-			aria-label="Download vCard"
+			className={className}
+			aria-label="Save contact"
 			onClick={() => {
 				const vcf = generateVCard(card)
 				downloadVCardFile(vcf, `${card.slug}.vcf`)
 			}}
 		>
-			<Download className="h-4 w-4" /> Download vCard
+			<Download className="h-4 w-4" /> Save Contact
 		</Button>
 	)
 }

@@ -10,10 +10,13 @@ import { Textarea } from '../ui/Textarea'
 import { useToast } from '../ui/Toast'
 import {
 	useLazyCheckSlugAvailabilityQuery,
+	useUploadBackgroundImageMutation,
 	useUploadLogoMutation,
 	useUploadProfilePhotoMutation,
 } from '../services/employeeCardsApi'
 import { ImageUploader } from './ImageUploader'
+
+const BACKGROUND_MAX_BYTES = 8 * 1024 * 1024
 
 function safeObjectUrl(file: File) {
 	return URL.createObjectURL(file)
@@ -39,33 +42,39 @@ export function CardForm({
 	// Selected (new) files live in local state. DB is not updated until Save.
 	const [profilePhotoFile, setProfilePhotoFile] = useState<File | null>(null)
 	const [logoFile, setLogoFile] = useState<File | null>(null)
+	const [backgroundFile, setBackgroundFile] = useState<File | null>(null)
 	const [profilePreview, setProfilePreview] = useState<string | null>(null)
 	const [logoPreview, setLogoPreview] = useState<string | null>(null)
+	const [backgroundPreview, setBackgroundPreview] = useState<string | null>(null)
 
 	const [submitting, setSubmitting] = useState(false)
 	const busy = saving || submitting
 
-	const lastObjectUrlsRef = useRef<{ profile?: string; logo?: string }>({})
+	const lastObjectUrlsRef = useRef<{ profile?: string; logo?: string; background?: string }>({})
 
 	useEffect(() => {
 		setValues(initialValues)
 		setSlugTouched(false)
 		setProfilePhotoFile(null)
 		setLogoFile(null)
+		setBackgroundFile(null)
 		setProfilePreview(null)
 		setLogoPreview(null)
+		setBackgroundPreview(null)
 	}, [initialValues])
 
 	useEffect(() => {
 		return () => {
 			if (lastObjectUrlsRef.current.profile) URL.revokeObjectURL(lastObjectUrlsRef.current.profile)
 			if (lastObjectUrlsRef.current.logo) URL.revokeObjectURL(lastObjectUrlsRef.current.logo)
+			if (lastObjectUrlsRef.current.background) URL.revokeObjectURL(lastObjectUrlsRef.current.background)
 		}
 	}, [])
 
 	const [checkSlug, slugState] = useLazyCheckSlugAvailabilityQuery()
 	const [uploadProfilePhoto] = useUploadProfilePhotoMutation()
 	const [uploadLogo] = useUploadLogoMutation()
+	const [uploadBackgroundImage] = useUploadBackgroundImageMutation()
 
 	const slugError = useMemo(() => {
 		if (!values.slug) return 'Slug is required'
@@ -113,6 +122,10 @@ export function CardForm({
 						const url = await uploadLogo({ file: logoFile, cardId: cardKey }).unwrap()
 						nextValues = { ...nextValues, logo_url: url }
 					}
+					if (backgroundFile) {
+						const url = await uploadBackgroundImage({ file: backgroundFile, cardId: cardKey }).unwrap()
+						nextValues = { ...nextValues, background_image_url: url }
+					}
 
 					// 2) Save DB record only after uploads succeed
 					await onSave(nextValues)
@@ -120,7 +133,7 @@ export function CardForm({
 					toast.push('Saved')
 				} catch (err: any) {
 					// If upload fails, do NOT save.
-					const message = err?.message || 'Save failed'
+					const message = err?.message || err?.error?.message || 'Save failed'
 					toast.push(message)
 				} finally {
 					setSubmitting(false)
@@ -236,7 +249,7 @@ export function CardForm({
 							onChange={(e) => {
 								const telegram_username = e.target.value || null
 								const clean = telegram_username?.replace(/^@/, '')
-								const telegram_url = clean ? `https://t.me/${clean}` : null
+								const telegram_url = clean ? `{{https://t.me/${clean}}}` : null
 								setValues((p) => ({ ...p, telegram_username, telegram_url }))
 							}}
 						/>
@@ -335,6 +348,27 @@ export function CardForm({
 					}}
 				/>
 			</div>
+
+			<ImageUploader
+				label="Background image"
+				helperText="Recommended: wide 16:9 or 21:9 image, WebP/JPG, dark premium background. Max 8MB."
+				maxSizeBytes={BACKGROUND_MAX_BYTES}
+				previewClassName="h-56 w-full object-cover"
+				value={backgroundPreview ?? (values.background_image_url as any)}
+				disabled={busy}
+				onPick={(file) => {
+					setBackgroundFile(file)
+					if (lastObjectUrlsRef.current.background) URL.revokeObjectURL(lastObjectUrlsRef.current.background)
+					const u = safeObjectUrl(file)
+					lastObjectUrlsRef.current.background = u
+					setBackgroundPreview(u)
+				}}
+				onClear={() => {
+					setBackgroundFile(null)
+					setBackgroundPreview(null)
+					setValues((p) => ({ ...p, background_image_url: null }))
+				}}
+			/>
 		</form>
 	)
 }

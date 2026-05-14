@@ -29,6 +29,12 @@ type Translations = ContactLabels & {
 
 const TG_BASE = 'https://' + 't.me/'
 
+const MOTION_FROM = { y: 16, opacity: 0 } as const
+const MOTION_TO = { y: 0, opacity: 1 } as const
+const T_HERO = { duration: 0.45, ease: 'easeOut' as const }
+const T_CONTACT = { duration: 0.5, ease: 'easeOut' as const, delay: 0.05 }
+const T_BIO = { duration: 0.55, ease: 'easeOut' as const, delay: 0.1 }
+
 const T: Record<PublicLang, Translations> = {
 	uz: {
 		brandTitle: "O'ZGIDROMET",
@@ -245,9 +251,9 @@ function PublicCardPage() {
 
 				<div className="mt-6 grid gap-6 lg:grid-cols-[1.05fr_0.95fr]">
 					<motion.section
-						initial= y: 16, opacity: 0 
-						animate= y: 0, opacity: 1 
-						transition= duration: 0.45, ease: 'easeOut' 
+						initial={MOTION_FROM}
+						animate={MOTION_TO}
+						transition={T_HERO}
 						className="relative overflow-hidden rounded-[28px] border border-yellow-500/25 bg-black/45 p-6 shadow-[0_30px_90px_rgba(0,0,0,0.5)] sm:p-7"
 					>
 						<div className="pointer-events-none absolute inset-0 bg-[radial-gradient(900px_circle_at_50%_-10%,rgba(245,197,66,0.12),transparent_60%)]" />
@@ -347,18 +353,18 @@ function PublicCardPage() {
 					</motion.section>
 
 					<motion.section
-						initial= y: 16, opacity: 0 
-						animate= y: 0, opacity: 1 
-						transition= duration: 0.5, ease: 'easeOut', delay: 0.05 
+						initial={MOTION_FROM}
+						animate={MOTION_TO}
+						transition={T_CONTACT}
 					>
 						<ContactSection card={card} labels={labels} />
 					</motion.section>
 
 					{bioBullets.length > 0 ? (
 						<motion.section
-							initial= y: 16, opacity: 0 
-							animate= y: 0, opacity: 1 
-							transition= duration: 0.55, ease: 'easeOut', delay: 0.1 
+							initial={MOTION_FROM}
+							animate={MOTION_TO}
+							transition={T_BIO}
 							className="lg:col-span-2"
 						>
 							<div className="relative overflow-hidden rounded-[28px] border border-yellow-500/20 bg-black/45 p-6 shadow-[0_30px_90px_rgba(0,0,0,0.45)] sm:p-7">

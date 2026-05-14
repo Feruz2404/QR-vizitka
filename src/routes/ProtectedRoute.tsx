@@ -9,13 +9,20 @@ export function ProtectedRoute() {
 	if (loading) {
 		return (
 			<div className="min-h-screen grid place-items-center text-brand-muted">
-				Loading…
+				<div className="flex flex-col items-center gap-3">
+					<div
+						className="h-10 w-10 rounded-full border-2 border-white/15 border-t-brand-gold animate-spin"
+						aria-label="Loading"
+						role="status"
+					/>
+					<span className="text-sm tracking-wide">Loading…</span>
+				</div>
 			</div>
 		)
 	}
 
 	if (!session) {
-		return <Navigate to="/admin/login" replace state={ { from: location } } />
+		return <Navigate to="/admin/login" replace state={{ from: location }} />
 	}
 
 	return <Outlet />

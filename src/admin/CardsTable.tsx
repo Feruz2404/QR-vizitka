@@ -34,6 +34,46 @@ export function CardsTable() {
 	const baseUrl = typeof window !== 'undefined' ? window.location.origin : ''
 	const qrUrl = qrTarget ? baseUrl + '/v/' + qrTarget.slug : ''
 
+	const onCopy = async (slug: string) => {
+		await navigator.clipboard.writeText(baseUrl + '/v/' + slug)
+		toast.push('Link copied')
+	}
+
+	const onOpenQr = (r: { id: string; full_name: string; slug: string }) => {
+		setQrTarget({ id: r.id, full_name: r.full_name, slug: r.slug })
+		setQrOpen(true)
+	}
+
+	const onCloseQr = () => setQrOpen(false)
+
+	const onCopyQrLink = async () => {
+		if (!qrUrl) return
+		await navigator.clipboard.writeText(qrUrl)
+		toast.push('Link copied')
+	}
+
+	const onDownloadQr = () => {
+		const svg = document.getElementById('admin-qr-svg') as SVGSVGElement | null
+		if (!svg || !qrTarget) return
+		downloadSvg(svg, qrTarget.slug + '.svg')
+	}
+
+	const onTogglePublish = (id: string, isActive: boolean) => {
+		toggleStatus({ id, is_active: !isActive })
+	}
+
+	const onAskDelete = (id: string, name: string) => {
+		setDeleteTarget({ id, name })
+		setDeleteOpen(true)
+	}
+
+	const onConfirmDelete = async () => {
+		if (!deleteTarget) return
+		await deleteCard(deleteTarget.id)
+		toast.push('Deleted')
+		setDeleteOpen(false)
+	}
+
 	if (isLoading) {
 		return (
 			<Card className="p-4">
@@ -75,81 +115,43 @@ export function CardsTable() {
 								<th className="px-4 py-3">Position</th>
 								<th className="px-4 py-3">Slug</th>
 								<th className="px-4 py-3">Status</th>
-								<th className="px-4 py-3">Updated</th>
-								<th className="px-4 py-3 text-right whitespace-nowrap">Actions</th>
+								<th className="px-4 py-3 text-right">Actions</th>
 							</tr>
 						</thead>
 						<tbody>
 							{rows.map((r) => {
 								const publicPath = '/v/' + r.slug
-								const publicFullUrl = baseUrl + publicPath
 								const publishLabel = r.is_active ? 'Unpublish' : 'Publish'
+								const editPath = '/admin/cards/' + r.id + '/edit'
 								return (
 									<tr key={r.id} className="border-t border-white/10">
 										<td className="px-4 py-3">
-											<div className="flex items-center gap-3">
-												<div className="h-9 w-9 overflow-hidden rounded-full border border-white/15 bg-white/10">
-													{r.profile_photo_url ? (
-														<img
-															src={r.profile_photo_url}
-															alt="Profile"
-															className="h-full w-full object-cover"
-															loading="lazy"
-														/>
-													) : null}
-												</div>
-												<div className="min-w-0">
-													<div className="truncate font-medium text-white">{r.full_name}</div>
-													<div className="truncate text-xs text-brand-muted">
-														{r.department ?? ''}
-													</div>
-												</div>
-											</div>
+											<div className="font-medium text-white">{r.full_name}</div>
+											<div className="text-xs text-brand-muted">{r.department ?? ''}</div>
 										</td>
 										<td className="px-4 py-3 text-brand-muted">{r.position}</td>
 										<td className="px-4 py-3">
-											<span className="rounded-lg border border-white/10 bg-white/5 px-2 py-1 text-xs">
-												{r.slug}
-											</span>
+											<span className="rounded-lg border border-white/10 bg-white/5 px-2 py-1 text-xs">{r.slug}</span>
 										</td>
 										<td className="px-4 py-3">
 											<StatusBadge active={r.is_active} />
 										</td>
-										<td className="px-4 py-3 text-brand-muted">
-											{new Date(r.updated_at).toLocaleString()}
-										</td>
 										<td className="px-4 py-3">
-											<div className="flex flex-wrap justify-end gap-2 whitespace-nowrap">
+											<div className="flex flex-wrap justify-end gap-2">
 												<Link to={publicPath} target="_blank">
 													<Button size="sm" variant="secondary" aria-label="View">
 														<Eye className="h-4 w-4" />
 													</Button>
 												</Link>
-												<Link to={'/admin/cards/' + r.id + '/edit'}>
+												<Link to={editPath}>
 													<Button size="sm" variant="secondary" aria-label="Edit">
 														<Pencil className="h-4 w-4" />
 													</Button>
 												</Link>
-												<Button
-													size="sm"
-													variant="secondary"
-													aria-label="Copy link"
-													onClick={async () => {
-														await navigator.clipboard.writeText(publicFullUrl)
-														toast.push('Link copied')
-													}}
-												>
+												<Button size="sm" variant="secondary" aria-label="Copy link" onClick={() => onCopy(r.slug)}>
 													<Copy className="h-4 w-4" />
 												</Button>
-												<Button
-													size="sm"
-													variant="secondary"
-													aria-label="QR code"
-													onClick={() => {
-														setQrTarget({ id: r.id, full_name: r.full_name, slug: r.slug })
-														setQrOpen(true)
-													}}
-												>
+												<Button size="sm" variant="secondary" aria-label="QR code" onClick={() => onOpenQr(r)}>
 													<QrCode className="h-4 w-4" />
 												</Button>
 												<Button
@@ -157,19 +159,11 @@ export function CardsTable() {
 													variant={r.is_active ? 'primary' : 'secondary'}
 													aria-label={publishLabel}
 													disabled={toggleState.isLoading}
-													onClick={() => toggleStatus({ id: r.id, is_active: !r.is_active })}
+													onClick={() => onTogglePublish(r.id, r.is_active)}
 												>
 													<Power className="h-4 w-4" />
 												</Button>
-												<Button
-													size="sm"
-													variant="danger"
-													aria-label="Delete"
-													onClick={() => {
-														setDeleteTarget({ id: r.id, name: r.full_name })
-														setDeleteOpen(true)
-													}}
-												>
+												<Button size="sm" variant="danger" aria-label="Delete" onClick={() => onAskDelete(r.id, r.full_name)}>
 													<Trash2 className="h-4 w-4" />
 												</Button>
 											</div>
@@ -187,47 +181,53 @@ export function CardsTable() {
 				onClose={() => setDeleteOpen(false)}
 				name={deleteTarget?.name ?? ''}
 				loading={deleteState.isLoading}
-				onConfirm={async () => {
-					if (!deleteTarget) return
-					await deleteCard(deleteTarget.id)
-					toast.push('Deleted')
-					setDeleteOpen(false)
-				}}
+				onConfirm={onConfirmDelete}
 			/>
 
 			{qrOpen && qrTarget ? (
 				<div
 					className="fixed inset-0 z-50 grid place-items-center bg-black/70 p-4"
-					onClick={() => setQrOpen(false)}
+					onClick={onCloseQr}
 					role="dialog"
 					aria-modal="true"
 				>
 					<div
-						className="w-full max-w-md rounded-3xl border border-white/10 bg-[#0b0f1a] p-5 shadow-[0_50px_120px_rgba(0,0,0,0.6)]"
+						className="w-full max-w-md rounded-2xl border border-white/10 bg-[#0b0f1a] p-5"
 						onClick={(e) => e.stopPropagation()}
 					>
 						<div className="flex items-start justify-between gap-3">
 							<div className="min-w-0">
-								<div className="truncate text-base font-semibold text-white">
-									{qrTarget.full_name}
-								</div>
-								<div className="mt-1 truncate text-xs text-brand-muted" title={qrUrl}>
-									{qrUrl}
-								</div>
+								<div className="truncate text-base font-semibold text-white">{qrTarget.full_name}</div>
+								<div className="mt-1 truncate text-xs text-brand-muted" title={qrUrl}>{qrUrl}</div>
 							</div>
 							<button
 								type="button"
-								onClick={() => setQrOpen(false)}
+								onClick={onCloseQr}
 								aria-label="Close"
-								className="rounded-xl border border-white/10 bg-white/5 p-1.5 text-white/80 hover:bg-white/10"
+								className="rounded-lg border border-white/10 bg-white/5 p-1.5 text-white/80 hover:bg-white/10"
 							>
 								<X className="h-4 w-4" />
 							</button>
 						</div>
 
 						<div className="mt-4 grid place-items-center">
-							<div className="rounded-2xl bg-white p-4">
-								<QRCode
-									id="admin-qr-svg"
-									value={qrUrl}
-						
+							<div className="rounded-xl bg-white p-4">
+								<QRCode id="admin-qr-svg" value={qrUrl} size={200} bgColor="#ffffff" fgColor="#000000" />
+							</div>
+						</div>
+
+						<div className="mt-4 flex flex-wrap justify-end gap-2">
+							<Button size="sm" variant="secondary" aria-label="Copy link" onClick={onCopyQrLink}>
+								<Copy className="mr-1 h-4 w-4" /> Copy Link
+							</Button>
+							<Button size="sm" variant="secondary" aria-label="Download QR" onClick={onDownloadQr}>
+								<Download className="mr-1 h-4 w-4" /> Download QR
+							</Button>
+							<Button size="sm" aria-label="Close" onClick={onCloseQr}>Close</Button>
+						</div>
+					</div>
+				</div>
+			) : null}
+		</>
+	)
+}

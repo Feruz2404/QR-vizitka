@@ -1,6 +1,7 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Copy, Eye, Pencil, Trash2, QrCode } from 'lucide-react'
+import { Copy, Download, Eye, Pencil, Power, QrCode, Trash2, X } from 'lucide-react'
+import QRCode from 'react-qr-code'
 
 import {
 	useDeleteCardMutation,
@@ -13,6 +14,14 @@ import { Skeleton } from '../ui/Skeleton'
 import { StatusBadge } from './StatusBadge'
 import { DeleteConfirmModal } from './DeleteConfirmModal'
 import { useToast } from '../ui/Toast'
+import { downloadSvg } from '../lib/qr'
+
+function publicBaseUrl() {
+	if (typeof window !== 'undefined') return window.location.origin
+	return ''
+}
+
+type QrTarget = { id: string; name: string; slug: string; url: string }
 
 export function CardsTable() {
 	const toast = useToast()
@@ -22,6 +31,9 @@ export function CardsTable() {
 
 	const [deleteOpen, setDeleteOpen] = useState(false)
 	const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string } | null>(null)
+
+	const [qrTarget, setQrTarget] = useState<QrTarget | null>(null)
+	const qrBoxRef = useRef<HTMLDivElement | null>(null)
 
 	const rows = useMemo(() => data ?? [], [data])
 
@@ -55,11 +67,30 @@ export function CardsTable() {
 		)
 	}
 
+	async function copyPublicUrl(slug: string) {
+		await navigator.clipboard.writeText(`${publicBaseUrl()}/v/${slug}`)
+		toast.push('Link copied')
+	}
+
+	function openQr(r: { id: string; slug: string; full_name: string }) {
+		setQrTarget({ id: r.id, slug: r.slug, name: r.full_name, url: `${publicBaseUrl()}/v/${r.slug}` })
+	}
+
+	function closeQr() {
+		setQrTarget(null)
+	}
+
+	function handleDownloadQr() {
+		if (!qrTarget || !qrBoxRef.current) return
+		const svg = qrBoxRef.current.querySelector('svg')
+		if (svg) downloadSvg(svg as SVGSVGElement, `${qrTarget.slug}.svg`)
+	}
+
 	return (
 		<>
 			<Card className="overflow-hidden">
 				<div className="overflow-x-auto">
-					<table className="w-full min-w-[820px] text-sm">
+					<table className="w-full min-w-[920px] text-sm">
 						<thead className="bg-black/20">
 							<tr className="text-left text-brand-muted">
 								<th className="px-4 py-3">Employee</th>
@@ -96,75 +127,4 @@ export function CardsTable() {
 										<span className="rounded-lg border border-white/10 bg-white/5 px-2 py-1 text-xs">
 											{r.slug}
 										</span>
-									</td>
-									<td className="px-4 py-3">
-										<StatusBadge active={r.is_active} />
-									</td>
-									<td className="px-4 py-3 text-brand-muted">{new Date(r.updated_at).toLocaleString()}</td>
-									<td className="px-4 py-3">
-										<div className="flex justify-end gap-2 whitespace-nowrap">
-											<Link to={`/v/${r.slug}`} target="_blank">
-												<Button size="sm" variant="secondary" aria-label="View">
-													<Eye className="h-4 w-4" />
-												</Button>
-											</Link>
-											<Link to={`/admin/cards/${r.id}/edit`}>
-												<Button size="sm" variant="secondary" aria-label="Edit">
-													<Pencil className="h-4 w-4" />
-												</Button>
-											</Link>
-											<Button
-												size="sm"
-												variant="secondary"
-												aria-label="Copy link"
-												onClick={async () => {
-													await navigator.clipboard.writeText(`${window.location.origin}/v/${r.slug}`)
-													toast.push('Link copied')
-												}}
-											>
-												<Copy className="h-4 w-4" />
-											</Button>
-											<Button
-												size="sm"
-												variant="secondary"
-												aria-label="Toggle status"
-												disabled={toggleState.isLoading}
-												onClick={() => toggleStatus({ id: r.id, is_active: !r.is_active })}
-											>
-												<QrCode className="h-4 w-4" />
-											</Button>
-											<Button
-												size="sm"
-												variant="danger"
-												aria-label="Delete"
-												onClick={() => {
-													setDeleteTarget({ id: r.id, name: r.full_name })
-													setDeleteOpen(true)
-												}}
-											>
-												<Trash2 className="h-4 w-4" />
-											</Button>
-										</div>
-									</td>
-								</tr>
-							))}
-						</tbody>
-					</table>
-				</div>
-			</Card>
-
-			<DeleteConfirmModal
-				open={deleteOpen}
-				onClose={() => setDeleteOpen(false)}
-				name={deleteTarget?.name ?? ''}
-				loading={deleteState.isLoading}
-				onConfirm={async () => {
-					if (!deleteTarget) return
-					await deleteCard(deleteTarget.id)
-					toast.push('Deleted')
-					setDeleteOpen(false)
-				}}
-			/>
-		</>
-	)
-}
+									

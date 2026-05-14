@@ -24,11 +24,7 @@ function formatUzPhone(value?: string | null) {
 	let digits = raw
 	if (digits.startsWith('998')) digits = digits.slice(3)
 	if (digits.length === 9) {
-		const a = digits.slice(0, 2)
-		const b = digits.slice(2, 5)
-		const c = digits.slice(5, 7)
-		const d = digits.slice(7, 9)
-		return `+998 ${a} ${b} ${c} ${d}`
+		return `+998 ${digits.slice(0, 2)} ${digits.slice(2, 5)} ${digits.slice(5, 7)} ${digits.slice(7, 9)}`
 	}
 	return value
 }
@@ -73,9 +69,7 @@ function ContactRow({
 				{icon}
 			</div>
 			<div className="min-w-0 flex-1">
-				<div className="text-[11px] font-medium uppercase tracking-wide text-white/45">
-					{label}
-				</div>
+				<div className="text-[11px] font-medium uppercase tracking-wide text-white/45">{label}</div>
 				<div className="mt-0.5 truncate text-sm text-white/90" title={value}>
 					{value}
 				</div>
@@ -93,13 +87,7 @@ function ContactRow({
 	)
 }
 
-export function ContactSection({
-	card,
-	labels,
-}: {
-	card: EmployeeCard
-	labels: ContactLabels
-}) {
+export function ContactSection({ card, labels }: { card: EmployeeCard; labels: ContactLabels }) {
 	const rows: Array<JSX.Element> = []
 
 	if (card.work_email) {
@@ -128,58 +116,32 @@ export function ContactSection({
 		)
 	}
 
-	if (card.phone_primary) {
-		const href = telHref(card.phone_primary)
-		if (href) {
-			rows.push(
-				<ContactRow
-					key="phone_primary"
-					icon={<Phone className="h-4 w-4" />}
-					actionIcon={<Phone className="h-4 w-4" />}
-					label={labels.primaryPhone}
-					value={formatUzPhone(card.phone_primary) ?? card.phone_primary}
-					href={href}
-				/>
-			)
-		}
+	const pushPhone = (key: string, label: string, raw: string | null) => {
+		if (!raw) return
+		const href = telHref(raw)
+		if (!href) return
+		rows.push(
+			<ContactRow
+				key={key}
+				icon={<Phone className="h-4 w-4" />}
+				actionIcon={<Phone className="h-4 w-4" />}
+				label={label}
+				value={formatUzPhone(raw) ?? raw}
+				href={href}
+			/>
+		)
 	}
-
-	if (card.phone_secondary) {
-		const href = telHref(card.phone_secondary)
-		if (href) {
-			rows.push(
-				<ContactRow
-					key="phone_secondary"
-					icon={<Phone className="h-4 w-4" />}
-					actionIcon={<Phone className="h-4 w-4" />}
-					label={labels.secondaryPhone}
-					value={formatUzPhone(card.phone_secondary) ?? card.phone_secondary}
-					href={href}
-				/>
-			)
-		}
-	}
-
-	if (card.phone_extra) {
-		const href = telHref(card.phone_extra)
-		if (href) {
-			rows.push(
-				<ContactRow
-					key="phone_extra"
-					icon={<Phone className="h-4 w-4" />}
-					actionIcon={<Phone className="h-4 w-4" />}
-					label={labels.extraPhone}
-					value={formatUzPhone(card.phone_extra) ?? card.phone_extra}
-					href={href}
-				/>
-			)
-		}
-	}
+	pushPhone('phone_primary', labels.primaryPhone, card.phone_primary)
+	pushPhone('phone_secondary', labels.secondaryPhone, card.phone_secondary)
+	pushPhone('phone_extra', labels.extraPhone, card.phone_extra)
 
 	const tgUrl = (() => {
 		if (isHttpUrl(card.telegram_url)) return card.telegram_url as string
-		const handle = (card.telegram_username ?? '').trim().replace(/^@/, '')
-		return handle ? `https://t.me/${handle}` : null
+		const fromUser = (card.telegram_username ?? '').trim().replace(/^@/, '')
+		if (fromUser) return `https://t.me/${fromUser}`
+		const fromUrlField = (card.telegram_url ?? '').trim().replace(/^@/, '')
+		if (fromUrlField && /^[a-zA-Z0-9_]{3,}$/.test(fromUrlField)) return `https://t.me/${fromUrlField}`
+		return null
 	})()
 	const tgDisplay = (() => {
 		const handle = (card.telegram_username ?? '').trim().replace(/^@/, '')

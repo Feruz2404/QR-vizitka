@@ -10,12 +10,18 @@ export function ImageUploader({
 	disabled,
 	onPick,
 	onClear,
+	helperText,
+	maxSizeBytes,
+	previewClassName,
 }: {
 	label: string
 	value?: string | null
 	disabled?: boolean
 	onPick: (file: File) => void
 	onClear: () => void
+	helperText?: string
+	maxSizeBytes?: number
+	previewClassName?: string
 }) {
 	const inputRef = useRef<HTMLInputElement | null>(null)
 	const [error, setError] = useState<string | null>(null)
@@ -33,7 +39,7 @@ export function ImageUploader({
 			<div className="flex items-center justify-between gap-3">
 				<div>
 					<div className="text-sm font-semibold">{label}</div>
-					<div className="text-xs text-brand-muted">PNG/JPG/JPEG/WEBP</div>
+					<div className="text-xs text-brand-muted">{helperText ?? 'PNG/JPG/JPEG/WEBP'}</div>
 				</div>
 				<div className="flex gap-2">
 					<Button
@@ -50,9 +56,12 @@ export function ImageUploader({
 						variant="ghost"
 						size="sm"
 						disabled={disabled}
-						onClick={onClear}
+						onClick={() => {
+							setError(null)
+							onClear()
+						}}
 					>
-						Clear
+						Remove
 					</Button>
 				</div>
 			</div>
@@ -69,7 +78,12 @@ export function ImageUploader({
 					if (!file) return
 					setError(null)
 					if (!allowed.includes(file.type)) {
-						setError('Invalid file type')
+						setError('Invalid file type. Use PNG, JPG, or WEBP.')
+						return
+					}
+					if (maxSizeBytes && file.size > maxSizeBytes) {
+						const mb = Math.round(maxSizeBytes / (1024 * 1024))
+						setError(`File is too large. Max ${mb}MB.`)
 						return
 					}
 					onPick(file)
@@ -78,7 +92,12 @@ export function ImageUploader({
 
 			{value ? (
 				<div className="mt-4 overflow-hidden rounded-xl border border-white/10 bg-white/5">
-					<img src={value} alt={`${label} preview`} className="h-40 w-full object-cover" loading="lazy" />
+					<img
+						src={value}
+						alt={`${label} preview`}
+						className={previewClassName ?? 'h-40 w-full object-cover'}
+						loading="lazy"
+					/>
 				</div>
 			) : (
 				<div className="mt-4 grid h-40 place-items-center rounded-xl border border-white/10 bg-white/5 text-sm text-brand-muted">

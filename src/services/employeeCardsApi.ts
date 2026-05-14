@@ -6,6 +6,14 @@ import type { EmployeeCard, EmployeeCardInsert, EmployeeCardUpdate } from '../ty
 const EmployeeCardsTag = 'EmployeeCards' as const
 const EmployeeCardTag = 'EmployeeCard' as const
 
+const BACKGROUND_ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp']
+const BACKGROUND_MAX_BYTES = 8 * 1024 * 1024
+
+function safeFileName(name: string) {
+	const cleaned = name.replace(/[^a-zA-Z0-9._-]+/g, '-').replace(/^-+|-+$/g, '')
+	return cleaned || 'image'
+}
+
 export const employeeCardsApi = createApi({
 	reducerPath: 'employeeCardsApi',
 	baseQuery: fakeBaseQuery(),
@@ -138,6 +146,28 @@ export const employeeCardsApi = createApi({
 			},
 		}),
 
+		uploadBackgroundImage: builder.mutation<string, { file: File; cardId: string }>({
+			async queryFn({ file, cardId }) {
+				if (!BACKGROUND_ALLOWED_TYPES.includes(file.type)) {
+					return {
+						error: { message: 'Unsupported background image type. Use JPG, PNG, or WEBP.' } as any,
+					}
+				}
+				if (file.size > BACKGROUND_MAX_BYTES) {
+					return {
+						error: { message: 'Background image is too large (max 8MB).' } as any,
+					}
+				}
+				const path = `backgrounds/${cardId}/${Date.now()}-${safeFileName(file.name)}`
+				const { error: uploadError } = await supabase.storage
+					.from('card-backgrounds')
+					.upload(path, file, { upsert: true, contentType: file.type })
+				if (uploadError) return { error: uploadError }
+				const { data } = supabase.storage.from('card-backgrounds').getPublicUrl(path)
+				return { data: data.publicUrl }
+			},
+		}),
+
 		checkSlugAvailability: builder.query<boolean, string>({
 			async queryFn(slug) {
 				const { data, error } = await supabase
@@ -162,5 +192,6 @@ export const {
 	useToggleCardStatusMutation,
 	useUploadProfilePhotoMutation,
 	useUploadLogoMutation,
+	useUploadBackgroundImageMutation,
 	useLazyCheckSlugAvailabilityQuery,
 } = employeeCardsApi

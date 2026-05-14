@@ -13,6 +13,8 @@ export type ContactLabels = {
 	facebook: string
 }
 
+const TG_BASE = 'https://' + 't.me/'
+
 function digitsOnly(input: string) {
 	return input.replace(/\D/g, '')
 }
@@ -29,13 +31,13 @@ function formatUzPhone(value?: string | null) {
 	return value
 }
 
-function telHref(value?: string | null) {
+function telHrefBuilder(value?: string | null) {
 	if (!value) return null
 	const raw = digitsOnly(value)
-	if (!raw) return `tel:${value}`
-	if (raw.startsWith('998')) return `tel:+${raw}`
-	if (raw.length === 9) return `tel:+998${raw}`
-	return value.startsWith('+') ? `tel:${value}` : `tel:+${raw}`
+	if (!raw) return 'tel:' + value
+	if (raw.startsWith('998')) return 'tel:+' + raw
+	if (raw.length === 9) return 'tel:+998' + raw
+	return value.startsWith('+') ? 'tel:' + value : 'tel:+' + raw
 }
 
 function isHttpUrl(value?: string | null) {
@@ -91,6 +93,7 @@ export function ContactSection({ card, labels }: { card: EmployeeCard; labels: C
 	const rows: Array<JSX.Element> = []
 
 	if (card.work_email) {
+		const mailtoHref = 'mailto:' + card.work_email
 		rows.push(
 			<ContactRow
 				key="work_email"
@@ -98,12 +101,13 @@ export function ContactSection({ card, labels }: { card: EmployeeCard; labels: C
 				actionIcon={<Mail className="h-4 w-4" />}
 				label={labels.workEmail}
 				value={card.work_email}
-				href={`mailto:${card.work_email}`}
+				href={mailtoHref}
 			/>
 		)
 	}
 
 	if (card.personal_email) {
+		const mailtoHref = 'mailto:' + card.personal_email
 		rows.push(
 			<ContactRow
 				key="personal_email"
@@ -111,14 +115,14 @@ export function ContactSection({ card, labels }: { card: EmployeeCard; labels: C
 				actionIcon={<Mail className="h-4 w-4" />}
 				label={labels.personalEmail}
 				value={card.personal_email}
-				href={`mailto:${card.personal_email}`}
+				href={mailtoHref}
 			/>
 		)
 	}
 
 	const pushPhone = (key: string, label: string, raw: string | null) => {
 		if (!raw) return
-		const href = telHref(raw)
+		const href = telHrefBuilder(raw)
 		if (!href) return
 		rows.push(
 			<ContactRow
@@ -138,14 +142,14 @@ export function ContactSection({ card, labels }: { card: EmployeeCard; labels: C
 	const tgUrl = (() => {
 		if (isHttpUrl(card.telegram_url)) return card.telegram_url as string
 		const fromUser = (card.telegram_username ?? '').trim().replace(/^@/, '')
-		if (fromUser) return `https://t.me/${fromUser}`
+		if (fromUser) return TG_BASE + fromUser
 		const fromUrlField = (card.telegram_url ?? '').trim().replace(/^@/, '')
-		if (fromUrlField && /^[a-zA-Z0-9_]{3,}$/.test(fromUrlField)) return `https://t.me/${fromUrlField}`
+		if (fromUrlField && /^[a-zA-Z0-9_]{3,}$/.test(fromUrlField)) return TG_BASE + fromUrlField
 		return null
 	})()
 	const tgDisplay = (() => {
 		const handle = (card.telegram_username ?? '').trim().replace(/^@/, '')
-		if (handle) return `@${handle}`
+		if (handle) return '@' + handle
 		return card.telegram_url ?? ''
 	})()
 	if (tgUrl) {

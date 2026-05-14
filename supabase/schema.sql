@@ -11,6 +11,7 @@ create table if not exists employee_cards (
 	organization_name text,
 	profile_photo_url text,
 	logo_url text,
+	background_image_url text,
 	work_email text,
 	personal_email text,
 	phone_primary text,
@@ -28,6 +29,10 @@ create table if not exists employee_cards (
 	created_at timestamptz default now(),
 	updated_at timestamptz default now()
 );
+
+-- Safe upgrade for existing databases (no-op if column already exists)
+alter table employee_cards
+add column if not exists background_image_url text;
 
 create or replace function update_updated_at_column()
 returns trigger as $$

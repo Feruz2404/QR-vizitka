@@ -1,4 +1,4 @@
-﻿import { motion } from 'framer-motion'
+import { motion } from 'framer-motion'
 import { Helmet } from 'react-helmet-async'
 import { useMemo } from 'react'
 import { useParams } from 'react-router-dom'
@@ -115,6 +115,7 @@ export function PublicCardPage() {
 	}
 
 	const heroPhoto = data.profile_photo_url
+	const backgroundImage = data.background_image_url
 
 	return (
 		<div className="min-h-screen text-white">
@@ -131,14 +132,30 @@ export function PublicCardPage() {
 				/>
 			</Helmet>
 
-			{/* Premium background */}
-			<div className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
-				<div className="absolute inset-0 bg-[radial-gradient(1200px_circle_at_10%_20%,rgba(59,130,246,0.18),transparent_55%),radial-gradient(1000px_circle_at_90%_30%,rgba(245,197,66,0.20),transparent_55%),radial-gradient(800px_circle_at_40%_90%,rgba(167,139,250,0.12),transparent_55%),linear-gradient(180deg,#050712_0%,#070A14_30%,#02030A_100%)]" />
-				<div className="absolute inset-0 opacity-[0.08] [background-image:radial-gradient(rgba(255,255,255,0.35)_1px,transparent_1px)] [background-size:18px_18px]" />
-				<div className="absolute -left-40 top-20 h-[420px] w-[420px] rounded-full bg-blue-500/10 blur-3xl" />
-				<div className="absolute -right-40 top-10 h-[520px] w-[520px] rounded-full bg-yellow-400/10 blur-3xl" />
-				<div className="absolute left-1/3 bottom-[-240px] h-[520px] w-[520px] rounded-full bg-purple-500/10 blur-3xl" />
-			</div>
+			{/* Background: optional employee background image, otherwise premium gradient fallback */}
+			{backgroundImage ? (
+				<div
+					className="pointer-events-none fixed inset-0 -z-10 overflow-hidden"
+					aria-hidden="true"
+				>
+					<img
+						src={backgroundImage}
+						alt=""
+						className="absolute inset-0 h-full w-full object-cover"
+						loading="eager"
+					/>
+					<div className="absolute inset-0 bg-gradient-to-b from-black/65 via-black/70 to-black/85" />
+					<div className="absolute inset-0 bg-[radial-gradient(900px_circle_at_10%_20%,rgba(59,130,246,0.22),transparent_55%),radial-gradient(800px_circle_at_90%_30%,rgba(245,197,66,0.20),transparent_55%)]" />
+				</div>
+			) : (
+				<div className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
+					<div className="absolute inset-0 bg-[radial-gradient(1200px_circle_at_10%_20%,rgba(59,130,246,0.18),transparent_55%),radial-gradient(1000px_circle_at_90%_30%,rgba(245,197,66,0.20),transparent_55%),radial-gradient(800px_circle_at_40%_90%,rgba(167,139,250,0.12),transparent_55%),linear-gradient(180deg,#050712_0%,#070A14_30%,#02030A_100%)]" />
+					<div className="absolute inset-0 opacity-[0.08] [background-image:radial-gradient(rgba(255,255,255,0.35)_1px,transparent_1px)] [background-size:18px_18px]" />
+					<div className="absolute -left-40 top-20 h-[420px] w-[420px] rounded-full bg-blue-500/10 blur-3xl" />
+					<div className="absolute -right-40 top-10 h-[520px] w-[520px] rounded-full bg-yellow-400/10 blur-3xl" />
+					<div className="absolute left-1/3 bottom-[-240px] h-[520px] w-[520px] rounded-full bg-purple-500/10 blur-3xl" />
+				</div>
+			)}
 
 			<EmployeeTopHeader
 				fullName={data.full_name}
@@ -225,8 +242,8 @@ export function PublicCardPage() {
 											<div className="mt-4 flex items-center justify-center sm:justify-start">
 												<ShareButton url={url} title={`${data.full_name} | Digital Business Card`} />
 											</div>
+										</div>
 									</div>
-								</div>
 								</div>
 							</Card>
 						</motion.div>

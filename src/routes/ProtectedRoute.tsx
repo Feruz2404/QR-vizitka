@@ -22,7 +22,8 @@ export function ProtectedRoute() {
 	}
 
 	if (!session) {
-		return <Navigate to="/admin/login" replace state={{ from: location }} />
+		const redirectState = { from: location }
+		return <Navigate to="/admin/login" replace state={redirectState} />
 	}
 
 	return <Outlet />

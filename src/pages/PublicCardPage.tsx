@@ -1,25 +1,139 @@
 import { motion } from 'framer-motion'
 import { Helmet } from 'react-helmet-async'
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { useParams } from 'react-router-dom'
 
 import { EmployeeTopHeader } from '../components/public-card/EmployeeTopHeader'
-import { ContactSection } from '../components/public-card/ContactSection'
-import { QRCodeBlock } from '../components/public-card/QRCodeBlock'
+import { ContactSection, type ContactLabels } from '../components/public-card/ContactSection'
 import { SaveContactButton } from '../components/public-card/SaveContactButton'
 import { ShareButton } from '../components/public-card/ShareButton'
+import { useGetAppSettingsQuery } from '../services/appSettingsApi'
 import { useGetCardBySlugQuery } from '../services/employeeCardsApi'
 import { Button } from '../ui/Button'
 import { Card } from '../ui/Card'
 import { Skeleton } from '../ui/Skeleton'
 
+type PublicLang = 'uz' | 'ru' | 'en'
+
+type Translations = ContactLabels & {
+	brandBadge: string
+	languageLabel: string
+	call: string
+	email: string
+	telegram: string
+	notFound: string
+	notFoundDescription: string
+	unavailable: string
+	unavailableDescription: string
+}
+
+const T: Record<PublicLang, Translations> = {
+	uz: {
+		brandBadge: 'Raqamli vizitka',
+		languageLabel: 'Til',
+		contactsTitle: 'Aloqa',
+		workEmail: 'Ish email',
+		personalEmail: 'Shaxsiy email',
+		primaryPhone: 'Bosh telefon',
+		secondaryPhone: "Qo'shimcha telefon",
+		extraPhone: 'Zaxira telefon',
+		internalPhone: 'Ichki raqam',
+		telegram: 'Telegram',
+		facebook: 'Facebook',
+		website: 'Veb-sayt',
+		address: 'Manzil',
+		openAction: 'Ochish',
+		callAction: "Qo'ng'iroq",
+		emailAction: 'Yozish',
+		copyAction: 'Nusxalash',
+		call: "Qo'ng'iroq",
+		email: 'Email',
+		notFound: 'Karta topilmadi',
+		notFoundDescription: 'Bu xodim kartasi mavjud emas yoki havola yaroqsiz.',
+		unavailable: 'Karta mavjud emas',
+		unavailableDescription: 'Bu xodim kartasi hozircha nashr etilmagan.',
+	},
+	ru: {
+		brandBadge: 'Цифровая визитка',
+		languageLabel: 'Язык',
+		contactsTitle: 'Контакты',
+		workEmail: 'Рабочий email',
+		personalEmail: 'Личный email',
+		primaryPhone: 'Основной телефон',
+		secondaryPhone: 'Дополнительный телефон',
+		extraPhone: 'Резервный телефон',
+		internalPhone: 'Внутренний номер',
+		telegram: 'Telegram',
+		facebook: 'Facebook',
+		website: 'Веб-сайт',
+		address: 'Адрес',
+		openAction: 'Открыть',
+		callAction: 'Позвонить',
+		emailAction: 'Написать',
+		copyAction: 'Копировать',
+		call: 'Позвонить',
+		email: 'Email',
+		notFound: 'Карта не найдена',
+		notFoundDescription: 'Эта карта сотрудника не существует или ссылка недействительна.',
+		unavailable: 'Карта недоступна',
+		unavailableDescription: 'Эта карта сотрудника пока не опубликована.',
+	},
+	en: {
+		brandBadge: 'Digital business card',
+		languageLabel: 'Language',
+		contactsTitle: 'Contact',
+		workEmail: 'Work email',
+		personalEmail: 'Personal email',
+		primaryPhone: 'Primary phone',
+		secondaryPhone: 'Secondary phone',
+		extraPhone: 'Extra phone',
+		internalPhone: 'Internal',
+		telegram: 'Telegram',
+		facebook: 'Facebook',
+		website: 'Website',
+		address: 'Address',
+		openAction: 'Open',
+		callAction: 'Call',
+		emailAction: 'Email',
+		copyAction: 'Copy',
+		call: 'Call',
+		email: 'Email',
+		notFound: 'Card not found',
+		notFoundDescription: 'This employee card does not exist or the link is invalid.',
+		unavailable: 'Card unavailable',
+		unavailableDescription: 'This employee card is currently unpublished.',
+	},
+}
+
+const PAGE_MOTION = {
+	initial: { opacity: 0, y: 12 },
+	animate: { opacity: 1, y: 0 },
+	transition: { duration: 0.35 },
+}
+
+const HERO_MOTION = {
+	initial: { opacity: 0, y: 16 },
+	animate: { opacity: 1, y: 0 },
+	transition: { duration: 0.45, delay: 0.05 },
+}
+
+const RIGHT_MOTION = {
+	initial: { opacity: 0, y: 18 },
+	animate: { opacity: 1, y: 0 },
+	transition: { duration: 0.5, delay: 0.09 },
+}
+
+const LANG_CODES = ['uz', 'ru', 'en'] as const
+
 function fullUrl(publicBaseUrl: string, slug: string) {
-	return `${publicBaseUrl.replace(/\/$/, '')}/v/${slug}`
+	return publicBaseUrl.replace(/\/$/, '') + '/v/' + slug
 }
 
 function initials(fullName: string) {
 	const parts = fullName.trim().split(/\s+/).filter(Boolean)
-	return `${parts[0]?.[0] ?? ''}${parts[1]?.[0] ?? ''}`.toUpperCase()
+	const a = parts[0]?.[0] ?? ''
+	const b = parts[1]?.[0] ?? ''
+	return (a + b).toUpperCase()
 }
 
 function digitsOnly(v: string) {
@@ -30,48 +144,66 @@ function telNormalize(value?: string | null) {
 	if (!value) return null
 	const raw = digitsOnly(value)
 	if (!raw) return null
-
-	if (raw.startsWith('998')) return `+${raw}`
-	if (raw.length === 9) return `+998${raw}`
-
-	return value.startsWith('+') ? value : `+${raw}`
+	if (raw.startsWith('998')) return '+' + raw
+	if (raw.length === 9) return '+998' + raw
+	return value.startsWith('+') ? value : '+' + raw
 }
 
-const pageMotion = {
-	initial: { opacity: 0, y: 12 },
-	animate: { opacity: 1, y: 0 },
-	transition: { duration: 0.35 },
+function isHttpUrl(value?: string | null) {
+	if (!value) return false
+	try {
+		const u = new URL(value)
+		return u.protocol === 'http:' || u.protocol === 'https:'
+	} catch {
+		return false
+	}
 }
 
-const heroMotion = {
-	initial: { opacity: 0, y: 16 },
-	animate: { opacity: 1, y: 0 },
-	transition: { duration: 0.45, delay: 0.05 },
-}
+const TG_BASE = 'https://' + 't.me/'
 
-const rightMotion = {
-	initial: { opacity: 0, y: 18 },
-	animate: { opacity: 1, y: 0 },
-	transition: { duration: 0.5, delay: 0.09 },
+function telegramHref(card: { telegram_url?: string | null; telegram_username?: string | null }) {
+	if (isHttpUrl(card.telegram_url)) return card.telegram_url as string
+	const u = (card.telegram_username ?? '').trim().replace(/^@/, '')
+	if (u) return TG_BASE + u
+	const f = (card.telegram_url ?? '').trim().replace(/^@/, '')
+	if (f && /^[a-zA-Z0-9_]{3,}$/.test(f)) return TG_BASE + f
+	return null
 }
 
 export function PublicCardPage() {
 	const { slug } = useParams()
 	const safeSlug = slug ?? ''
 	const { data, isLoading, isError } = useGetCardBySlugQuery(safeSlug)
+	const { data: settings } = useGetAppSettingsQuery()
+
+	const [lang, setLang] = useState<PublicLang>('uz')
+	const labels = T[lang]
 
 	const publicBaseUrl =
 		(import.meta.env.VITE_PUBLIC_BASE_URL as string | undefined) ?? window.location.origin
 	const url = safeSlug ? fullUrl(publicBaseUrl, safeSlug) : window.location.href
 
-	const quick = useMemo(() => {
-		if (!data) return null
-		return {
-			phone: data.phone_primary ?? data.phone_secondary ?? data.phone_extra ?? null,
-			email: data.work_email ?? data.personal_email ?? null,
-			tg: data.telegram_url ?? null,
-		}
-	}, [data])
+	const tgHref = useMemo(() => (data ? telegramHref(data) : null), [data])
+
+	const phoneRaw = data?.phone_primary ?? data?.phone_secondary ?? data?.phone_extra ?? null
+	const phoneHref = useMemo(() => {
+		if (!phoneRaw) return null
+		const n = telNormalize(phoneRaw)
+		return n ? 'tel:' + n : 'tel:' + phoneRaw
+	}, [phoneRaw])
+
+	const emailRaw = data?.work_email ?? data?.personal_email ?? null
+	const emailHref = emailRaw ? 'mailto:' + emailRaw : null
+
+	const globalBg = isHttpUrl(settings?.background_image_url) ? settings!.background_image_url : null
+	const employeeBg = isHttpUrl(data?.background_image_url) ? data!.background_image_url : null
+	const backgroundImage = globalBg ?? employeeBg ?? null
+
+	const globalLogo = isHttpUrl(settings?.organization_logo_url)
+		? settings!.organization_logo_url
+		: null
+	const employeeLogo = isHttpUrl(data?.logo_url) ? data!.logo_url : null
+	const orgLogo = globalLogo ?? employeeLogo ?? null
 
 	if (isLoading) {
 		return (
@@ -92,10 +224,8 @@ export function PublicCardPage() {
 		return (
 			<div className="min-h-screen grid place-items-center p-6">
 				<Card className="max-w-lg p-6 text-center">
-					<div className="text-xl font-semibold">Card not found</div>
-					<p className="mt-2 text-sm text-brand-muted">
-						This employee card does not exist or the link is invalid.
-					</p>
+					<div className="text-xl font-semibold">{labels.notFound}</div>
+					<p className="mt-2 text-sm text-brand-muted">{labels.notFoundDescription}</p>
 				</Card>
 			</div>
 		)
@@ -105,34 +235,26 @@ export function PublicCardPage() {
 		return (
 			<div className="min-h-screen grid place-items-center p-6">
 				<Card className="max-w-lg p-6 text-center">
-					<div className="text-xl font-semibold">Card unavailable</div>
-					<p className="mt-2 text-sm text-brand-muted">
-						This employee card is currently unpublished.
-					</p>
+					<div className="text-xl font-semibold">{labels.unavailable}</div>
+					<p className="mt-2 text-sm text-brand-muted">{labels.unavailableDescription}</p>
 				</Card>
 			</div>
 		)
 	}
 
 	const heroPhoto = data.profile_photo_url
-	const backgroundImage = data.background_image_url
+	const pageTitle = data.full_name + ' | ' + labels.brandBadge
+	const pageDesc = data.full_name + ', ' + data.position
 
 	return (
-		<div className="min-h-screen text-white">
+		<div className="min-h-screen overflow-x-hidden text-white">
 			<Helmet>
-				<title>{data.full_name} | Digital Business Card</title>
-				<meta
-					name="description"
-					content={`Contact information for ${data.full_name}, ${data.position}.`}
-				/>
-				<meta property="og:title" content={`${data.full_name} | Digital Business Card`} />
-				<meta
-					property="og:description"
-					content={`Contact information for ${data.full_name}, ${data.position}.`}
-				/>
+				<title>{pageTitle}</title>
+				<meta name="description" content={pageDesc} />
+				<meta property="og:title" content={pageTitle} />
+				<meta property="og:description" content={pageDesc} />
 			</Helmet>
 
-			{/* Background: optional employee background image, otherwise premium gradient fallback */}
 			{backgroundImage ? (
 				<div
 					className="pointer-events-none fixed inset-0 -z-10 overflow-hidden"
@@ -144,7 +266,7 @@ export function PublicCardPage() {
 						className="absolute inset-0 h-full w-full object-cover"
 						loading="eager"
 					/>
-					<div className="absolute inset-0 bg-gradient-to-b from-black/65 via-black/70 to-black/85" />
+					<div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/65 to-black/75" />
 					<div className="absolute inset-0 bg-[radial-gradient(900px_circle_at_10%_20%,rgba(59,130,246,0.22),transparent_55%),radial-gradient(800px_circle_at_90%_30%,rgba(245,197,66,0.20),transparent_55%)]" />
 				</div>
 			) : (
@@ -161,14 +283,41 @@ export function PublicCardPage() {
 				fullName={data.full_name}
 				position={data.position}
 				profilePhotoUrl={data.profile_photo_url}
-				organizationLogoUrl={data.logo_url}
+				organizationLogoUrl={orgLogo}
 			/>
 
-			<div className="mx-auto max-w-[1100px] px-4 pb-10 pt-6">
-				<motion.div {...pageMotion}>
+			<div className="mx-auto max-w-[1100px] px-4 pt-4">
+				<div className="flex items-center justify-end gap-2">
+					<span className="text-[11px] uppercase tracking-wide text-white/55">
+						{labels.languageLabel}
+					</span>
+					<div className="inline-flex overflow-hidden rounded-full border border-white/10 bg-white/5 p-0.5">
+						{LANG_CODES.map((code) => {
+							const active = lang === code
+							const cls =
+								'px-3 py-1 text-xs font-semibold uppercase tracking-wide transition ' +
+								(active
+									? 'rounded-full bg-yellow-300/20 text-yellow-100'
+									: 'text-white/70 hover:text-white')
+							return (
+								<button
+									key={code}
+									type="button"
+									onClick={() => setLang(code)}
+									className={cls}
+								>
+									{code}
+								</button>
+							)
+						})}
+					</div>
+				</div>
+			</div>
+
+			<div className="mx-auto max-w-[1100px] px-4 pb-10 pt-4">
+				<motion.div {...PAGE_MOTION}>
 					<div className="grid gap-5 lg:grid-cols-[1.08fr_0.92fr]">
-						{/* Left / Hero */}
-						<motion.div {...heroMotion}>
+						<motion.div {...HERO_MOTION}>
 							<Card className="relative overflow-hidden rounded-[32px] p-6">
 								<div className="pointer-events-none absolute inset-0 bg-[radial-gradient(700px_circle_at_20%_10%,rgba(245,197,66,0.16),transparent_55%),radial-gradient(900px_circle_at_90%_20%,rgba(59,130,246,0.14),transparent_60%)]" />
 								<div className="pointer-events-none absolute inset-0 border border-white/10" />
@@ -181,7 +330,7 @@ export function PublicCardPage() {
 												{heroPhoto ? (
 													<img
 														src={heroPhoto}
-														alt={`${data.full_name} photo`}
+														alt={data.full_name + ' photo'}
 														className="h-full w-full object-cover"
 														loading="lazy"
 													/>
@@ -196,40 +345,57 @@ export function PublicCardPage() {
 										<div className="min-w-0 flex-1">
 											<div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-white/80">
 												<span className="h-1.5 w-1.5 rounded-full bg-yellow-300/80" />
-												Digital business card
+												{labels.brandBadge}
 											</div>
 
-											<div className="mt-3 text-3xl font-semibold tracking-tight">{data.full_name}</div>
+											<div className="mt-3 text-3xl font-semibold tracking-tight">
+												{data.full_name}
+											</div>
 											<div className="mt-1 text-sm text-white/80">{data.position}</div>
 											{data.organization_name ? (
 												<div className="mt-2 text-sm text-white/90">{data.organization_name}</div>
 											) : null}
-											{data.department ? <div className="mt-1 text-sm text-white/70">{data.department}</div> : null}
+											{data.department ? (
+												<div className="mt-1 text-sm text-white/70">{data.department}</div>
+											) : null}
 											{data.bio ? (
 												<p className="mt-3 text-sm leading-relaxed text-white/70">{data.bio}</p>
 											) : null}
 
 											<div className="mt-5 grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:items-center">
-												{quick?.phone ? (
-													<a href={`tel:${telNormalize(quick.phone) ?? quick.phone}`} className="w-full sm:w-auto">
-														<Button className="w-full sm:w-auto" aria-label="Call">
-															Call
+												{phoneHref ? (
+													<a href={phoneHref} className="w-full sm:w-auto">
+														<Button className="w-full sm:w-auto" aria-label={labels.call}>
+															{labels.call}
 														</Button>
 													</a>
 												) : null}
 
-												{quick?.email ? (
-													<a href={`mailto:${quick.email}`} className="w-full sm:w-auto">
-														<Button className="w-full sm:w-auto" variant="secondary" aria-label="Email">
-															Email
+												{emailHref ? (
+													<a href={emailHref} className="w-full sm:w-auto">
+														<Button
+															className="w-full sm:w-auto"
+															variant="secondary"
+															aria-label={labels.email}
+														>
+															{labels.email}
 														</Button>
 													</a>
 												) : null}
 
-												{quick?.tg ? (
-													<a href={quick.tg} target="_blank" rel="noreferrer" className="w-full sm:w-auto">
-														<Button className="w-full sm:w-auto" variant="secondary" aria-label="Telegram">
-															Telegram
+												{tgHref ? (
+													<a
+														href={tgHref}
+														target="_blank"
+														rel="noreferrer noopener"
+														className="w-full sm:w-auto"
+													>
+														<Button
+															className="w-full sm:w-auto"
+															variant="secondary"
+															aria-label={labels.telegram}
+														>
+															{labels.telegram}
 														</Button>
 													</a>
 												) : null}
@@ -240,7 +406,7 @@ export function PublicCardPage() {
 											</div>
 
 											<div className="mt-4 flex items-center justify-center sm:justify-start">
-												<ShareButton url={url} title={`${data.full_name} | Digital Business Card`} />
+												<ShareButton url={url} title={pageTitle} />
 											</div>
 										</div>
 									</div>
@@ -248,10 +414,8 @@ export function PublicCardPage() {
 							</Card>
 						</motion.div>
 
-						{/* Right column */}
-						<motion.div {...rightMotion} className="grid gap-5">
-							<ContactSection card={data} />
-							<QRCodeBlock url={url} filename={`${data.slug}.svg`} />
+						<motion.div {...RIGHT_MOTION} className="grid gap-5">
+							<ContactSection card={data} labels={labels} />
 						</motion.div>
 					</div>
 				</motion.div>

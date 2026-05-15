@@ -81,7 +81,7 @@ function formatUzPhone(value?: string | null) {
 	return value
 }
 
-function telHref(value?: string | null) {
+function telHrefFor(value?: string | null) {
 	if (!value) return null
 	const raw = digitsOnly(value)
 	if (!raw) return 'tel:' + value
@@ -98,6 +98,10 @@ function isHttpUrl(value?: string | null) {
 	} catch {
 		return false
 	}
+}
+
+function prettyUrl(value: string) {
+	return value.replace(/^https?:\/\//i, '').replace(/\/+$/, '')
 }
 
 function telegramHref(card: { telegram_url?: string | null; telegram_username?: string | null }) {
@@ -120,29 +124,32 @@ function ContactRow({
 	icon,
 	label,
 	value,
+	displayValue,
 	action,
 }: {
 	icon: ReactNode
 	label: string
 	value: string
+	displayValue?: string
 	action?: RowAction
 }) {
 	const toast = useToast()
+	const shown = displayValue ?? value
 	return (
 		<motion.div
 			initial={ROW_FROM}
 			animate={ROW_TO}
-			className="group flex items-center gap-3 rounded-2xl border border-yellow-300/15 bg-gradient-to-br from-white/[0.05] via-white/[0.02] to-transparent px-3 py-2 transition hover:border-yellow-300/35 hover:from-yellow-300/[0.06]"
+			className="group flex w-full min-w-0 max-w-full items-center gap-2.5 overflow-hidden rounded-2xl border border-yellow-300/15 bg-gradient-to-br from-white/[0.05] via-white/[0.02] to-transparent px-2.5 py-2 transition hover:border-yellow-300/35 hover:from-yellow-300/[0.06] sm:gap-3 sm:px-3 sm:py-2.5"
 		>
 			<div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-yellow-300/30 bg-gradient-to-br from-yellow-300/20 via-yellow-300/5 to-transparent text-yellow-200 shadow-[0_8px_30px_rgba(0,0,0,0.45)]">
 				{icon}
 			</div>
-			<div className="min-w-0 flex-1">
-				<div className="text-[10px] font-semibold uppercase tracking-[0.2em] text-yellow-200/65">
+			<div className="min-w-0 flex-1 overflow-hidden">
+				<div className="truncate text-[10px] font-semibold uppercase tracking-[0.18em] text-yellow-200/65 sm:text-[10px] sm:tracking-[0.2em]">
 					{label}
 				</div>
-				<div className="truncate text-sm text-white/90" title={value}>
-					{value}
+				<div className="truncate text-[13px] text-white/90 sm:text-sm" title={value}>
+					{shown}
 				</div>
 			</div>
 
@@ -212,7 +219,7 @@ export function ContactSection({
 	}
 
 	if (card.phone_primary) {
-		const href = telHref(card.phone_primary)
+		const href = telHrefFor(card.phone_primary)
 		const a: LinkAction | undefined = href
 			? { kind: 'link', href, label: L.callAction ?? 'Call', actionIcon: PHONE_ICON }
 			: undefined
@@ -228,7 +235,7 @@ export function ContactSection({
 	}
 
 	if (card.phone_secondary) {
-		const href = telHref(card.phone_secondary)
+		const href = telHrefFor(card.phone_secondary)
 		const a: LinkAction | undefined = href
 			? { kind: 'link', href, label: L.callAction ?? 'Call', actionIcon: PHONE_ICON }
 			: undefined
@@ -244,7 +251,7 @@ export function ContactSection({
 	}
 
 	if (card.phone_extra) {
-		const href = telHref(card.phone_extra)
+		const href = telHrefFor(card.phone_extra)
 		const a: LinkAction | undefined = href
 			? { kind: 'link', href, label: L.callAction ?? 'Call', actionIcon: PHONECALL_ICON }
 			: undefined
@@ -272,7 +279,7 @@ export function ContactSection({
 	if (tgHref) {
 		const display = card.telegram_username
 			? '@' + String(card.telegram_username).replace(/^@/, '')
-			: tgHref
+			: prettyUrl(tgHref)
 		const a: LinkAction = {
 			kind: 'link',
 			href: tgHref,
@@ -281,7 +288,7 @@ export function ContactSection({
 			actionIcon: SEND_ICON,
 		}
 		rows.push(
-			<ContactRow key="telegram" icon={SEND_ICON} label={L.telegram} value={display} action={a} />,
+			<ContactRow key="telegram" icon={SEND_ICON} label={L.telegram} value={tgHref} displayValue={display} action={a} />,
 		)
 	}
 
@@ -294,7 +301,14 @@ export function ContactSection({
 			actionIcon: EXT_ICON,
 		}
 		rows.push(
-			<ContactRow key="facebook" icon={FACEBOOK_ICON} label={L.facebook} value={card.facebook_url} action={a} />,
+			<ContactRow
+				key="facebook"
+				icon={FACEBOOK_ICON}
+				label={L.facebook}
+				value={card.facebook_url}
+				displayValue={prettyUrl(card.facebook_url)}
+				action={a}
+			/>,
 		)
 	}
 
@@ -307,7 +321,14 @@ export function ContactSection({
 			actionIcon: EXT_ICON,
 		}
 		rows.push(
-			<ContactRow key="website" icon={GLOBE_ICON} label={L.website ?? 'Website'} value={card.website_url} action={a} />,
+			<ContactRow
+				key="website"
+				icon={GLOBE_ICON}
+				label={L.website ?? 'Website'}
+				value={card.website_url}
+				displayValue={prettyUrl(card.website_url)}
+				action={a}
+			/>,
 		)
 	}
 
@@ -326,16 +347,16 @@ export function ContactSection({
 	}
 
 	return (
-		<Card className="relative h-full overflow-hidden rounded-[28px] border border-yellow-300/25 bg-[#06090f]/85 p-5 shadow-[0_30px_80px_rgba(0,0,0,0.55)] sm:p-6">
+		<Card className="relative h-full w-full min-w-0 max-w-full overflow-hidden rounded-[20px] border border-yellow-300/25 bg-[#06090f]/85 p-4 shadow-[0_30px_80px_rgba(0,0,0,0.55)] sm:rounded-[24px] sm:p-5 lg:rounded-[28px] lg:p-6">
 			<div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-yellow-300/70 to-transparent" />
 			<div className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-yellow-300/25 to-transparent" />
 			<div className="pointer-events-none absolute inset-0 bg-[radial-gradient(500px_circle_at_-5%_-10%,rgba(245,197,66,0.10),transparent_55%)]" />
-			<div className="relative">
-				<div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.24em] text-yellow-200/90">
-					<span className="h-1.5 w-1.5 rounded-full bg-yellow-300 shadow-[0_0_12px_rgba(245,197,66,0.8)]" />
-					{L.contactsTitle}
+			<div className="relative w-full min-w-0 max-w-full">
+				<div className="flex min-w-0 items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.22em] text-yellow-200/90 sm:text-[11px] sm:tracking-[0.24em]">
+					<span className="h-1.5 w-1.5 shrink-0 rounded-full bg-yellow-300 shadow-[0_0_12px_rgba(245,197,66,0.8)]" />
+					<span className="min-w-0 truncate">{L.contactsTitle}</span>
 				</div>
-				<div className="mt-4 grid gap-2">{rows}</div>
+				<div className="mt-4 grid w-full min-w-0 max-w-full gap-2">{rows}</div>
 			</div>
 		</Card>
 	)

@@ -4,7 +4,6 @@ import { useMemo, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import {
 	BarChart3,
-	ChevronRight,
 	Cpu,
 	Database,
 	Landmark,
@@ -157,23 +156,17 @@ const TR_MOTION = {
 	transition: { duration: 0.5, delay: 0.1 },
 } as const
 
-const BL_MOTION = {
-	initial: { opacity: 0, y: 16 },
-	animate: { opacity: 1, y: 0 },
-	transition: { duration: 0.5, delay: 0.14 },
-} as const
-
 const CTA_PRIMARY =
-	'inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-yellow-300/55 bg-gradient-to-b from-yellow-300/45 via-yellow-300/22 to-yellow-300/8 px-4 py-2.5 text-sm font-semibold text-yellow-50 shadow-[0_12px_36px_rgba(245,197,66,0.25)] transition hover:from-yellow-300/55 hover:via-yellow-300/28 hover:to-yellow-300/14 active:scale-[0.98]'
+	'inline-flex w-full min-w-0 items-center justify-center gap-2 rounded-2xl border border-yellow-300/55 bg-gradient-to-b from-yellow-300/45 via-yellow-300/22 to-yellow-300/8 px-3 py-2.5 text-sm font-semibold text-yellow-50 shadow-[0_12px_36px_rgba(245,197,66,0.25)] transition hover:from-yellow-300/55 hover:via-yellow-300/28 hover:to-yellow-300/14 active:scale-[0.98] sm:px-4'
 
 const CTA_SECONDARY =
-	'inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-yellow-300/30 bg-black/45 px-4 py-2.5 text-sm font-semibold text-yellow-100 transition hover:border-yellow-300/55 hover:bg-yellow-300/10 active:scale-[0.98]'
+	'inline-flex w-full min-w-0 items-center justify-center gap-2 rounded-2xl border border-yellow-300/30 bg-black/45 px-3 py-2.5 text-sm font-semibold text-yellow-100 transition hover:border-yellow-300/55 hover:bg-yellow-300/10 active:scale-[0.98] sm:px-4'
 
-const ROW_GLASS =
-	'group flex items-center gap-3 rounded-2xl border border-yellow-300/12 bg-gradient-to-br from-white/[0.05] via-white/[0.02] to-transparent px-3 py-2.5 transition hover:border-yellow-300/30'
+const SPEC_CHIP =
+	'flex min-w-0 items-center gap-2 rounded-xl border border-yellow-300/20 bg-gradient-to-br from-white/[0.05] via-white/[0.02] to-transparent px-2.5 py-1.5 transition hover:border-yellow-300/40'
 
-const ICON_BOX =
-	'grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-yellow-300/35 bg-gradient-to-br from-yellow-300/20 via-yellow-300/5 to-transparent text-yellow-200 shadow-[0_8px_30px_rgba(0,0,0,0.45)]'
+const SPEC_ICON_BOX =
+	'grid h-7 w-7 shrink-0 place-items-center rounded-lg border border-yellow-300/30 bg-gradient-to-br from-yellow-300/20 via-yellow-300/5 to-transparent text-yellow-200'
 
 const SPEC_ICONS = [Cpu, Network, BarChart3, ShieldCheck, Lightbulb, Workflow, Database, Settings2]
 
@@ -315,13 +308,13 @@ export function PublicCardPage() {
 
 	if (isLoading) {
 		return (
-			<div className="min-h-screen overflow-x-hidden">
+			<div className="min-h-screen w-full max-w-full overflow-x-hidden">
 				<div className="sticky top-0 z-40 border-b border-yellow-300/20 bg-black/45 backdrop-blur-xl">
-					<div className="mx-auto max-w-[1320px] px-4 py-4">
+					<div className="mx-auto w-full max-w-[1320px] px-4 py-4">
 						<Skeleton className="h-12 w-56" />
 					</div>
 				</div>
-				<div className="mx-auto max-w-[1320px] p-4">
+				<div className="mx-auto w-full max-w-[1320px] p-4">
 					<Skeleton className="h-72 w-full" />
 				</div>
 			</div>
@@ -330,8 +323,8 @@ export function PublicCardPage() {
 
 	if (isError || !data) {
 		return (
-			<div className="min-h-screen grid place-items-center overflow-x-hidden p-6">
-				<Card className="max-w-lg p-6 text-center">
+			<div className="min-h-screen grid w-full max-w-full place-items-center overflow-x-hidden p-6">
+				<Card className="w-full max-w-lg p-6 text-center">
 					<div className="text-xl font-semibold">{labels.notFound}</div>
 					<p className="mt-2 text-sm text-brand-muted">{labels.notFoundDescription}</p>
 				</Card>
@@ -341,8 +334,8 @@ export function PublicCardPage() {
 
 	if (!data.is_active) {
 		return (
-			<div className="min-h-screen grid place-items-center overflow-x-hidden p-6">
-				<Card className="max-w-lg p-6 text-center">
+			<div className="min-h-screen grid w-full max-w-full place-items-center overflow-x-hidden p-6">
+				<Card className="w-full max-w-lg p-6 text-center">
 					<div className="text-xl font-semibold">{labels.unavailable}</div>
 					<p className="mt-2 text-sm text-brand-muted">{labels.unavailableDescription}</p>
 				</Card>
@@ -367,7 +360,7 @@ export function PublicCardPage() {
 	const hasSpecialties = localized.specialties.length > 0
 
 	return (
-		<div className="min-h-screen overflow-x-hidden text-white">
+		<div className="min-h-screen w-full max-w-full overflow-x-hidden text-white">
 			<Helmet>
 				<title>{pageTitle}</title>
 				<meta name="description" content={pageDesc} />
@@ -410,17 +403,17 @@ export function PublicCardPage() {
 
 			<div className="mx-auto w-full max-w-[1320px] px-3 pb-12 pt-5 sm:px-5 sm:pt-7 lg:px-6 lg:pt-8">
 				<motion.div {...PAGE_MOTION}>
-					<div className="grid gap-5 sm:gap-6 lg:grid-cols-[1.15fr_0.85fr] lg:gap-6">
-						<motion.div {...HERO_MOTION}>
-							<Card className="relative h-full overflow-hidden rounded-[28px] border border-yellow-300/30 bg-[#06090f]/82 p-5 shadow-[0_40px_120px_rgba(0,0,0,0.65)] sm:p-6 lg:p-7">
+					<div className="grid w-full max-w-full gap-5 sm:gap-6 lg:grid-cols-2 lg:items-start lg:gap-6">
+						<motion.div {...HERO_MOTION} className="min-w-0">
+							<Card className="relative h-full w-full min-w-0 max-w-full overflow-hidden rounded-[24px] border border-yellow-300/30 bg-[#06090f]/82 p-4 shadow-[0_40px_120px_rgba(0,0,0,0.65)] sm:rounded-[28px] sm:p-6 lg:p-7">
 								<div className="pointer-events-none absolute inset-0 bg-[radial-gradient(700px_circle_at_10%_5%,rgba(245,197,66,0.18),transparent_55%),radial-gradient(900px_circle_at_95%_15%,rgba(59,130,246,0.14),transparent_60%)]" />
 								<div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-yellow-300/75 to-transparent" />
 								<div className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-yellow-300/30 to-transparent" />
 
-								<div className="relative flex flex-col items-center gap-5 text-center sm:flex-row sm:items-start sm:gap-6 sm:text-left">
+								<div className="relative flex w-full min-w-0 flex-col items-center gap-5 text-center sm:flex-row sm:items-start sm:gap-6 sm:text-left">
 									<div className="relative shrink-0">
 										<div className="pointer-events-none absolute -inset-4 rounded-full bg-gradient-to-br from-yellow-300/40 via-yellow-300/15 to-blue-400/10 blur-2xl" />
-										<div className="relative h-36 w-36 overflow-hidden rounded-full border-[3px] border-yellow-300/55 bg-white/10 shadow-[0_30px_90px_rgba(0,0,0,0.7)] sm:h-40 sm:w-40 lg:h-44 lg:w-44">
+										<div className="relative h-28 w-28 overflow-hidden rounded-full border-[3px] border-yellow-300/55 bg-white/10 shadow-[0_30px_90px_rgba(0,0,0,0.7)] sm:h-36 sm:w-36 lg:h-44 lg:w-44">
 											{heroPhoto ? (
 												<img
 													src={heroPhoto}
@@ -429,7 +422,7 @@ export function PublicCardPage() {
 													loading="lazy"
 												/>
 											) : (
-												<div className="grid h-full w-full place-items-center text-5xl font-semibold text-white/90">
+												<div className="grid h-full w-full place-items-center text-4xl font-semibold text-white/90 sm:text-5xl">
 													{initials(displayFullName)}
 												</div>
 											)}
@@ -437,42 +430,64 @@ export function PublicCardPage() {
 										<div className="pointer-events-none absolute -inset-1 rounded-full border border-yellow-300/30" />
 									</div>
 
-									<div className="min-w-0 flex-1">
-										<div className="inline-flex items-center gap-2 rounded-full border border-yellow-300/40 bg-yellow-300/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.22em] text-yellow-100">
-											<ShieldCheck className="h-3.5 w-3.5 text-yellow-200" aria-hidden="true" />
-											{labels.profileBadge}
+									<div className="flex w-full min-w-0 max-w-full flex-1 flex-col items-center sm:items-start">
+										<div className="inline-flex max-w-full items-center gap-1.5 rounded-full border border-yellow-300/40 bg-yellow-300/10 px-2.5 py-1 text-[9px] font-semibold uppercase tracking-[0.18em] text-yellow-100 sm:gap-2 sm:px-3 sm:text-[10px] sm:tracking-[0.22em]">
+											<ShieldCheck className="h-3 w-3 shrink-0 text-yellow-200 sm:h-3.5 sm:w-3.5" aria-hidden="true" />
+											<span className="min-w-0 truncate">{labels.profileBadge}</span>
 										</div>
 
-										<h1 className="mt-3 break-words text-2xl font-bold tracking-tight text-white sm:text-3xl lg:text-[32px]">
+										<h1 className="mt-3 w-full break-words text-xl font-bold tracking-tight text-white sm:text-2xl lg:text-[30px]">
 											{displayFullName}
 										</h1>
-										<div className="mt-1.5 text-sm text-yellow-100/90 sm:text-base">
+										<div className="mt-1.5 w-full break-words text-sm text-yellow-100/90 sm:text-base">
 											{displayPosition}
 										</div>
 										{displayDepartment ? (
-											<div className="mt-1 text-xs text-white/65 sm:text-sm">{displayDepartment}</div>
+											<div className="mt-1 w-full break-words text-xs text-white/65 sm:text-sm">{displayDepartment}</div>
 										) : null}
-										<div className="mt-3 inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-yellow-200 sm:text-xs">
-											<Landmark className="h-3.5 w-3.5 text-yellow-200/85" aria-hidden="true" />
-											<span className="break-words">{displayOrgName}</span>
+										<div className="mt-3 inline-flex max-w-full items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-yellow-200 sm:text-[11px] sm:tracking-[0.22em]">
+											<Landmark className="h-3.5 w-3.5 shrink-0 text-yellow-200/85" aria-hidden="true" />
+											<span className="min-w-0 break-words">{displayOrgName}</span>
 										</div>
 										{displayBio ? (
-											<p className="mt-3 max-w-prose break-words text-sm leading-relaxed text-white/70 sm:text-[15px]">
+											<p className="mt-3 w-full max-w-prose break-words text-sm leading-relaxed text-white/70 sm:text-[15px]">
 												{displayBio}
 											</p>
 										) : null}
 
-										<div className="mt-5 grid grid-cols-1 gap-2 sm:grid-cols-3">
+										{hasSpecialties ? (
+											<div className="mt-4 w-full min-w-0 max-w-full">
+												<div className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.22em] text-yellow-200/90 sm:text-[11px] sm:tracking-[0.24em]">
+													<span className="h-1.5 w-1.5 shrink-0 rounded-full bg-yellow-300 shadow-[0_0_12px_rgba(245,197,66,0.8)]" />
+													<span className="min-w-0 break-words">{labels.specialtiesTitle}</span>
+												</div>
+												<div className="mt-2.5 grid w-full min-w-0 max-w-full grid-cols-1 gap-2 sm:grid-cols-2">
+													{localized.specialties.map((item, idx) => {
+														const Icon = SPEC_ICONS[idx % SPEC_ICONS.length]
+														return (
+															<div key={idx} className={SPEC_CHIP}>
+																<span className={SPEC_ICON_BOX}>
+																	<Icon className="h-3.5 w-3.5" aria-hidden="true" />
+																</span>
+																<span className="min-w-0 flex-1 break-words text-left text-xs text-white/90 sm:text-[13px]">{item}</span>
+															</div>
+														)
+													})}
+												</div>
+											</div>
+										) : null}
+
+										<div className="mt-5 grid w-full min-w-0 max-w-full grid-cols-1 gap-2 sm:grid-cols-3">
 											{phoneHref ? (
 												<a href={phoneHref} className={CTA_PRIMARY} aria-label={labels.call}>
-													<Phone className="h-4 w-4" aria-hidden="true" />
-													<span>{labels.call}</span>
+													<Phone className="h-4 w-4 shrink-0" aria-hidden="true" />
+													<span className="truncate">{labels.call}</span>
 												</a>
 											) : null}
 											{emailHref ? (
 												<a href={emailHref} className={CTA_SECONDARY} aria-label={labels.email}>
-													<Mail className="h-4 w-4" aria-hidden="true" />
-													<span>{labels.email}</span>
+													<Mail className="h-4 w-4 shrink-0" aria-hidden="true" />
+													<span className="truncate">{labels.email}</span>
 												</a>
 											) : null}
 											{tgHref ? (
@@ -483,13 +498,13 @@ export function PublicCardPage() {
 													className={CTA_SECONDARY}
 													aria-label={labels.telegram}
 												>
-													<Send className="h-4 w-4" aria-hidden="true" />
-													<span>{labels.telegram}</span>
+													<Send className="h-4 w-4 shrink-0" aria-hidden="true" />
+													<span className="truncate">{labels.telegram}</span>
 												</a>
 											) : null}
 										</div>
 
-										<div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-2">
+										<div className="mt-2 grid w-full min-w-0 max-w-full grid-cols-1 gap-2 sm:grid-cols-2">
 											<SaveContactButton card={data} className="w-full" overrides={saveOverrides} />
 											<ShareButton url={url} title={pageTitle} />
 										</div>
@@ -498,39 +513,9 @@ export function PublicCardPage() {
 							</Card>
 						</motion.div>
 
-						<motion.div {...TR_MOTION}>
+						<motion.div {...TR_MOTION} className="min-w-0">
 							<ContactSection card={data} labels={labels} />
 						</motion.div>
-
-						{hasSpecialties ? (
-							<motion.div {...BL_MOTION} className="lg:col-span-2">
-								<Card className="relative h-full overflow-hidden rounded-[28px] border border-yellow-300/25 bg-[#06090f]/85 p-5 shadow-[0_30px_80px_rgba(0,0,0,0.55)] sm:p-6">
-									<div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-yellow-300/70 to-transparent" />
-									<div className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-yellow-300/25 to-transparent" />
-									<div className="pointer-events-none absolute inset-0 bg-[radial-gradient(500px_circle_at_-5%_-10%,rgba(245,197,66,0.10),transparent_55%)]" />
-									<div className="relative">
-										<div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.24em] text-yellow-200/90">
-											<span className="h-1.5 w-1.5 rounded-full bg-yellow-300 shadow-[0_0_12px_rgba(245,197,66,0.8)]" />
-											{labels.specialtiesTitle}
-										</div>
-										<ul className="mt-4 grid gap-2 sm:grid-cols-2">
-											{localized.specialties.map((item, idx) => {
-												const Icon = SPEC_ICONS[idx % SPEC_ICONS.length]
-												return (
-													<li key={idx} className={ROW_GLASS}>
-														<span className={ICON_BOX}>
-															<Icon className="h-4 w-4" aria-hidden="true" />
-														</span>
-														<span className="min-w-0 flex-1 break-words text-sm text-white/90">{item}</span>
-														<ChevronRight className="h-4 w-4 shrink-0 text-yellow-200/70 transition group-hover:text-yellow-200" aria-hidden="true" />
-													</li>
-												)
-											})}
-										</ul>
-									</div>
-								</Card>
-							</motion.div>
-						) : null}
 					</div>
 				</motion.div>
 			</div>

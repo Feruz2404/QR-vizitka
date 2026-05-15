@@ -1,14 +1,13 @@
-import { Copy, Facebook, Globe, Mail, MapPin, MessageCircle, Phone } from 'lucide-react'
+import { ArrowUpRight, Copy, Facebook, Globe, Mail, MapPin, MessageCircle, Phone } from 'lucide-react'
 import { motion } from 'framer-motion'
 
 import type { EmployeeCard } from '../../types/employee'
-import { Button } from '../../ui/Button'
 import { Card } from '../../ui/Card'
 import { useToast } from '../../ui/Toast'
 
 const TG_BASE = 'https://' + 't.me/'
 
-const ROW_FROM = { opacity: 0, y: 10 } as const
+const ROW_FROM = { opacity: 0, y: 8 } as const
 const ROW_TO = { opacity: 1, y: 0 } as const
 
 export type ContactLabels = {
@@ -95,9 +94,12 @@ function telegramHref(card: { telegram_url?: string | null; telegram_username?: 
 	return null
 }
 
-type LinkAction = { type: 'link'; href: string; label: string; external?: boolean }
-type CopyAction = { type: 'copy'; value: string; label: string }
+type LinkAction = { kind: 'link'; href: string; label: string; external?: boolean }
+type CopyAction = { kind: 'copy'; value: string; label: string }
 type RowAction = LinkAction | CopyAction
+
+const ROW_BTN_CLS =
+	'grid h-9 w-9 shrink-0 place-items-center rounded-xl border border-yellow-300/30 bg-black/40 text-yellow-200 transition hover:border-yellow-300/55 hover:bg-yellow-300/15 active:scale-95'
 
 function ContactRow({
 	icon,
@@ -115,51 +117,45 @@ function ContactRow({
 		<motion.div
 			initial={ROW_FROM}
 			animate={ROW_TO}
-			className="rounded-2xl border border-white/10 bg-white/[0.06] p-3 shadow-[0_18px_60px_rgba(0,0,0,0.35)] backdrop-blur"
+			className="group flex items-center gap-3 rounded-2xl border border-white/8 bg-gradient-to-br from-white/[0.05] via-white/[0.02] to-transparent px-3 py-2.5 transition hover:border-yellow-300/30 hover:from-yellow-300/[0.04]"
 		>
-			<div className="flex items-center justify-between gap-3">
-				<div className="flex min-w-0 items-center gap-3">
-					<div className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl border border-white/10 bg-black/25">
-						{icon}
-					</div>
-					<div className="min-w-0">
-						<div className="text-[11px] uppercase tracking-wide text-white/45">{label}</div>
-						<div className="truncate text-sm text-white/85" title={value}>
-							{value}
-						</div>
-					</div>
-				</div>
-
-				{action ? (
-					action.type === 'link' ? (
-						<a
-							href={action.href}
-							target={action.external ? '_blank' : undefined}
-							rel={action.external ? 'noreferrer noopener' : undefined}
-						>
-							<Button
-								size="sm"
-								variant={action.href.startsWith('tel:') ? 'primary' : 'secondary'}
-								aria-label={action.label}
-							>
-								{action.label}
-							</Button>
-						</a>
-					) : (
-						<Button
-							size="sm"
-							variant="secondary"
-							aria-label={action.label}
-							onClick={async () => {
-								await navigator.clipboard.writeText(action.value)
-								toast.push('Copied')
-							}}
-						>
-							<Copy className="h-4 w-4" /> {action.label}
-						</Button>
-					)
-				) : null}
+			<div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-yellow-300/30 bg-gradient-to-br from-yellow-300/20 via-yellow-300/5 to-transparent text-yellow-200 shadow-[0_8px_30px_rgba(0,0,0,0.45)]">
+				{icon}
 			</div>
+			<div className="min-w-0 flex-1">
+				<div className="text-[10px] font-semibold uppercase tracking-[0.2em] text-yellow-200/65">
+					{label}
+				</div>
+				<div className="truncate text-sm text-white/90" title={value}>
+					{value}
+				</div>
+			</div>
+
+			{action ? (
+				action.kind === 'link' ? (
+					<a
+						href={action.href}
+						target={action.external ? '_blank' : undefined}
+						rel={action.external ? 'noreferrer noopener' : undefined}
+						aria-label={action.label}
+						className={ROW_BTN_CLS}
+					>
+						<ArrowUpRight className="h-4 w-4" />
+					</a>
+				) : (
+					<button
+						type="button"
+						aria-label={action.label}
+						onClick={async () => {
+							await navigator.clipboard.writeText(action.value)
+							toast.push('Copied')
+						}}
+						className={ROW_BTN_CLS}
+					>
+						<Copy className="h-4 w-4" />
+					</button>
+				)
+			) : null}
 		</motion.div>
 	)
 }
@@ -176,11 +172,11 @@ export function ContactSection({
 
 	if (card.work_email) {
 		const href = 'mailto:' + card.work_email
-		const a: LinkAction = { type: 'link', href, label: L.emailAction ?? 'Email' }
+		const a: LinkAction = { kind: 'link', href, label: L.emailAction ?? 'Email' }
 		rows.push(
 			<ContactRow
 				key="work_email"
-				icon={<Mail className="h-4 w-4 text-brand-gold" />}
+				icon={<Mail className="h-4 w-4" />}
 				label={L.workEmail}
 				value={card.work_email}
 				action={a}
@@ -190,11 +186,11 @@ export function ContactSection({
 
 	if (card.personal_email) {
 		const href = 'mailto:' + card.personal_email
-		const a: LinkAction = { type: 'link', href, label: L.emailAction ?? 'Email' }
+		const a: LinkAction = { kind: 'link', href, label: L.emailAction ?? 'Email' }
 		rows.push(
 			<ContactRow
 				key="personal_email"
-				icon={<Mail className="h-4 w-4 text-brand-gold" />}
+				icon={<Mail className="h-4 w-4" />}
 				label={L.personalEmail}
 				value={card.personal_email}
 				action={a}
@@ -205,12 +201,12 @@ export function ContactSection({
 	if (card.phone_primary) {
 		const href = telHref(card.phone_primary)
 		const a: LinkAction | undefined = href
-			? { type: 'link', href, label: L.callAction ?? 'Call' }
+			? { kind: 'link', href, label: L.callAction ?? 'Call' }
 			: undefined
 		rows.push(
 			<ContactRow
 				key="phone_primary"
-				icon={<Phone className="h-4 w-4 text-brand-gold" />}
+				icon={<Phone className="h-4 w-4" />}
 				label={L.primaryPhone}
 				value={formatUzPhone(card.phone_primary) ?? card.phone_primary}
 				action={a}
@@ -221,12 +217,12 @@ export function ContactSection({
 	if (card.phone_secondary) {
 		const href = telHref(card.phone_secondary)
 		const a: LinkAction | undefined = href
-			? { type: 'link', href, label: L.callAction ?? 'Call' }
+			? { kind: 'link', href, label: L.callAction ?? 'Call' }
 			: undefined
 		rows.push(
 			<ContactRow
 				key="phone_secondary"
-				icon={<Phone className="h-4 w-4 text-brand-gold" />}
+				icon={<Phone className="h-4 w-4" />}
 				label={L.secondaryPhone}
 				value={formatUzPhone(card.phone_secondary) ?? card.phone_secondary}
 				action={a}
@@ -237,12 +233,12 @@ export function ContactSection({
 	if (card.phone_extra) {
 		const href = telHref(card.phone_extra)
 		const a: LinkAction | undefined = href
-			? { type: 'link', href, label: L.callAction ?? 'Call' }
+			? { kind: 'link', href, label: L.callAction ?? 'Call' }
 			: undefined
 		rows.push(
 			<ContactRow
 				key="phone_extra"
-				icon={<Phone className="h-4 w-4 text-brand-gold" />}
+				icon={<Phone className="h-4 w-4" />}
 				label={L.extraPhone}
 				value={formatUzPhone(card.phone_extra) ?? card.phone_extra}
 				action={a}
@@ -253,13 +249,13 @@ export function ContactSection({
 	if (card.short_phone) {
 		const internalLabel = L.internalPhone ?? 'Internal'
 		const copyValue = String(card.short_phone)
-		const a: CopyAction = { type: 'copy', value: copyValue, label: L.copyAction ?? 'Copy' }
+		const a: CopyAction = { kind: 'copy', value: copyValue, label: L.copyAction ?? 'Copy' }
 		rows.push(
 			<ContactRow
 				key="short_phone"
-				icon={<Phone className="h-4 w-4 text-brand-gold" />}
+				icon={<Phone className="h-4 w-4" />}
 				label={internalLabel}
-				value={internalLabel + ': ' + copyValue}
+				value={copyValue}
 				action={a}
 			/>,
 		)
@@ -271,7 +267,7 @@ export function ContactSection({
 			? '@' + String(card.telegram_username).replace(/^@/, '')
 			: tgHref
 		const a: LinkAction = {
-			type: 'link',
+			kind: 'link',
 			href: tgHref,
 			label: L.openAction ?? 'Open',
 			external: true,
@@ -279,7 +275,7 @@ export function ContactSection({
 		rows.push(
 			<ContactRow
 				key="telegram"
-				icon={<MessageCircle className="h-4 w-4 text-brand-gold" />}
+				icon={<MessageCircle className="h-4 w-4" />}
 				label={L.telegram}
 				value={display}
 				action={a}
@@ -289,7 +285,7 @@ export function ContactSection({
 
 	if (card.facebook_url && isHttpUrl(card.facebook_url)) {
 		const a: LinkAction = {
-			type: 'link',
+			kind: 'link',
 			href: card.facebook_url,
 			label: L.openAction ?? 'Open',
 			external: true,
@@ -297,7 +293,7 @@ export function ContactSection({
 		rows.push(
 			<ContactRow
 				key="facebook"
-				icon={<Facebook className="h-4 w-4 text-brand-gold" />}
+				icon={<Facebook className="h-4 w-4" />}
 				label={L.facebook}
 				value={card.facebook_url}
 				action={a}
@@ -307,7 +303,7 @@ export function ContactSection({
 
 	if (card.website_url && isHttpUrl(card.website_url)) {
 		const a: LinkAction = {
-			type: 'link',
+			kind: 'link',
 			href: card.website_url,
 			label: L.openAction ?? 'Open',
 			external: true,
@@ -315,7 +311,7 @@ export function ContactSection({
 		rows.push(
 			<ContactRow
 				key="website"
-				icon={<Globe className="h-4 w-4 text-brand-gold" />}
+				icon={<Globe className="h-4 w-4" />}
 				label={L.website ?? 'Website'}
 				value={card.website_url}
 				action={a}
@@ -324,11 +320,11 @@ export function ContactSection({
 	}
 
 	if (card.address) {
-		const a: CopyAction = { type: 'copy', value: card.address, label: L.copyAction ?? 'Copy' }
+		const a: CopyAction = { kind: 'copy', value: card.address, label: L.copyAction ?? 'Copy' }
 		rows.push(
 			<ContactRow
 				key="address"
-				icon={<MapPin className="h-4 w-4 text-brand-gold" />}
+				icon={<MapPin className="h-4 w-4" />}
 				label={L.address ?? 'Address'}
 				value={card.address}
 				action={a}
@@ -337,12 +333,18 @@ export function ContactSection({
 	}
 
 	return (
-		<Card className="p-5">
-			<div>
-				<div className="text-sm font-semibold">{L.contactsTitle}</div>
-				<div className="mt-1 text-xs text-brand-muted">Action buttons adapt to each field</div>
+		<Card className="relative h-full overflow-hidden rounded-[28px] border border-yellow-300/25 bg-[#06090f]/85 p-5 shadow-[0_30px_80px_rgba(0,0,0,0.55)] sm:p-6">
+			<div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-yellow-300/70 to-transparent" />
+			<div className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-yellow-300/25 to-transparent" />
+			<div className="pointer-events-none absolute inset-0 bg-[radial-gradient(600px_circle_at_85%_-10%,rgba(245,197,66,0.12),transparent_55%)]" />
+
+			<div className="relative">
+				<div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.24em] text-yellow-200/90">
+					<span className="h-1.5 w-1.5 rounded-full bg-yellow-300 shadow-[0_0_12px_rgba(245,197,66,0.8)]" />
+					{L.contactsTitle}
+				</div>
+				<div className="mt-4 grid gap-2">{rows}</div>
 			</div>
-			<div className="mt-4 grid gap-3">{rows}</div>
 		</Card>
 	)
 }

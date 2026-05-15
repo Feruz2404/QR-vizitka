@@ -44,7 +44,6 @@ export function AdminCardEditorPage({ mode }: { mode: 'create' | 'edit' }) {
 			address: null,
 			bio: null,
 			theme: 'premium-dark-gold',
-			translations: {},
 			is_active: true,
 		}
 		return empty

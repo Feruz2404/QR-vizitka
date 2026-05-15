@@ -1,3 +1,4 @@
+import { Globe2, Landmark, UserCircle } from 'lucide-react'
 import { cn } from '../../lib/utils'
 
 type Lang = 'uz' | 'ru' | 'en'
@@ -58,9 +59,7 @@ export function EmployeeTopHeader({
 										loading="eager"
 									/>
 								) : (
-									<span className="text-base font-bold tracking-wide text-yellow-200">
-										{orgName.slice(0, 2).toUpperCase()}
-									</span>
+									<Landmark className="h-5 w-5 text-yellow-200 sm:h-6 sm:w-6 lg:h-7 lg:w-7" aria-hidden="true" />
 								)}
 							</div>
 						</div>
@@ -77,7 +76,8 @@ export function EmployeeTopHeader({
 
 					<div className="flex w-full items-center justify-between gap-3 sm:w-auto sm:gap-4">
 						<div className="flex items-center gap-2">
-							<span className="hidden text-[10px] font-medium uppercase tracking-[0.28em] text-white/50 sm:inline">
+							<Globe2 className="h-4 w-4 text-yellow-200/80 sm:h-[18px] sm:w-[18px]" aria-hidden="true" />
+							<span className="hidden text-[10px] font-medium uppercase tracking-[0.28em] text-white/55 sm:inline">
 								{languageLabel}
 							</span>
 							<div className="inline-flex overflow-hidden rounded-full border border-yellow-300/30 bg-black/45 p-0.5 backdrop-blur">
@@ -102,7 +102,7 @@ export function EmployeeTopHeader({
 							</div>
 						</div>
 
-						<div className="hidden items-center gap-2.5 rounded-2xl border border-yellow-300/20 bg-black/35 px-2.5 py-1.5 shadow-[0_8px_30px_rgba(0,0,0,0.45)] sm:flex">
+						<div className="hidden items-center gap-2.5 rounded-2xl border border-yellow-300/25 bg-black/40 px-2.5 py-1.5 shadow-[0_8px_30px_rgba(0,0,0,0.45)] sm:flex">
 							<div className="relative grid h-9 w-9 shrink-0 place-items-center overflow-hidden rounded-xl border border-yellow-300/35 bg-white/5">
 								{profilePhotoUrl ? (
 									<img
@@ -111,8 +111,10 @@ export function EmployeeTopHeader({
 										className="h-full w-full object-cover"
 										loading="lazy"
 									/>
-								) : (
+								) : fullName ? (
 									<span className="text-xs font-semibold text-yellow-200">{initials(fullName)}</span>
+								) : (
+									<UserCircle className="h-5 w-5 text-yellow-200" aria-hidden="true" />
 								)}
 							</div>
 							<div className="hidden min-w-0 md:block">

@@ -2,7 +2,24 @@ import { motion } from 'framer-motion'
 import { Helmet } from 'react-helmet-async'
 import { useMemo, useState } from 'react'
 import { useParams } from 'react-router-dom'
-import { ArrowUpRight, Building2, Globe, MapPin } from 'lucide-react'
+import {
+	ArrowUpRight,
+	BarChart3,
+	ChevronRight,
+	Cpu,
+	Database,
+	Globe2,
+	Landmark,
+	Lightbulb,
+	Mail,
+	MapPin,
+	Network,
+	Phone,
+	Send,
+	Settings2,
+	ShieldCheck,
+	Workflow,
+} from 'lucide-react'
 
 import { EmployeeTopHeader } from '../components/public-card/EmployeeTopHeader'
 import { ContactSection, type ContactLabels } from '../components/public-card/ContactSection'
@@ -11,7 +28,6 @@ import { ShareButton } from '../components/public-card/ShareButton'
 import { useGetAppSettingsQuery } from '../services/appSettingsApi'
 import { useGetCardBySlugQuery } from '../services/employeeCardsApi'
 import type { EmployeeCard, EmployeeCardTranslation } from '../types/employee'
-import { Button } from '../ui/Button'
 import { Card } from '../ui/Card'
 import { Skeleton } from '../ui/Skeleton'
 
@@ -168,6 +184,20 @@ const BR_MOTION = {
 	animate: { opacity: 1, y: 0 },
 	transition: { duration: 0.55, delay: 0.18 },
 } as const
+
+const CTA_PRIMARY =
+	'inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-yellow-300/55 bg-gradient-to-b from-yellow-300/45 via-yellow-300/22 to-yellow-300/8 px-4 py-2.5 text-sm font-semibold text-yellow-50 shadow-[0_12px_36px_rgba(245,197,66,0.25)] transition hover:from-yellow-300/55 hover:via-yellow-300/28 hover:to-yellow-300/14 active:scale-[0.98]'
+
+const CTA_SECONDARY =
+	'inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-yellow-300/30 bg-black/45 px-4 py-2.5 text-sm font-semibold text-yellow-100 transition hover:border-yellow-300/55 hover:bg-yellow-300/10 active:scale-[0.98]'
+
+const ROW_GLASS =
+	'group flex items-center gap-3 rounded-2xl border border-yellow-300/12 bg-gradient-to-br from-white/[0.05] via-white/[0.02] to-transparent px-3 py-2.5 transition hover:border-yellow-300/30'
+
+const ICON_BOX =
+	'grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-yellow-300/35 bg-gradient-to-br from-yellow-300/20 via-yellow-300/5 to-transparent text-yellow-200 shadow-[0_8px_30px_rgba(0,0,0,0.45)]'
+
+const SPEC_ICONS = [Cpu, Network, BarChart3, ShieldCheck, Lightbulb, Workflow, Database, Settings2]
 
 function fullUrl(publicBaseUrl: string, slug: string) {
 	return publicBaseUrl.replace(/\/$/, '') + '/v/' + slug
@@ -371,10 +401,7 @@ export function PublicCardPage() {
 			</Helmet>
 
 			{backgroundImage ? (
-				<div
-					className="pointer-events-none fixed inset-0 -z-10 overflow-hidden"
-					aria-hidden="true"
-				>
+				<div className="pointer-events-none fixed inset-0 -z-10 overflow-hidden" aria-hidden="true">
 					<img
 						src={backgroundImage}
 						alt=""
@@ -406,19 +433,19 @@ export function PublicCardPage() {
 				languageLabel={labels.languageLabel}
 			/>
 
-			<div className="mx-auto w-full max-w-[1320px] px-3 pb-12 pt-5 sm:px-5 sm:pt-7 lg:px-6 lg:pt-9">
+			<div className="mx-auto w-full max-w-[1320px] px-3 pb-12 pt-5 sm:px-5 sm:pt-7 lg:px-6 lg:pt-8">
 				<motion.div {...PAGE_MOTION}>
-					<div className="grid gap-5 sm:gap-6 lg:grid-cols-[1.15fr_0.85fr] lg:gap-7">
+					<div className="grid gap-5 sm:gap-6 lg:grid-cols-[1.15fr_0.85fr] lg:gap-6">
 						<motion.div {...HERO_MOTION}>
-							<Card className="relative h-full overflow-hidden rounded-[28px] border border-yellow-300/30 bg-[#06090f]/82 p-5 shadow-[0_40px_120px_rgba(0,0,0,0.65)] sm:p-7 lg:p-8">
+							<Card className="relative h-full overflow-hidden rounded-[28px] border border-yellow-300/30 bg-[#06090f]/82 p-5 shadow-[0_40px_120px_rgba(0,0,0,0.65)] sm:p-6 lg:p-7">
 								<div className="pointer-events-none absolute inset-0 bg-[radial-gradient(700px_circle_at_10%_5%,rgba(245,197,66,0.18),transparent_55%),radial-gradient(900px_circle_at_95%_15%,rgba(59,130,246,0.14),transparent_60%)]" />
 								<div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-yellow-300/75 to-transparent" />
 								<div className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-yellow-300/30 to-transparent" />
 
-								<div className="relative flex flex-col items-center gap-6 text-center sm:flex-row sm:items-start sm:gap-7 sm:text-left">
+								<div className="relative flex flex-col items-center gap-5 text-center sm:flex-row sm:items-start sm:gap-6 sm:text-left">
 									<div className="relative shrink-0">
 										<div className="pointer-events-none absolute -inset-4 rounded-full bg-gradient-to-br from-yellow-300/40 via-yellow-300/15 to-blue-400/10 blur-2xl" />
-										<div className="relative h-44 w-44 overflow-hidden rounded-full border-[3px] border-yellow-300/55 bg-white/10 shadow-[0_30px_90px_rgba(0,0,0,0.7)] sm:h-48 sm:w-48 lg:h-52 lg:w-52">
+										<div className="relative h-40 w-40 overflow-hidden rounded-full border-[3px] border-yellow-300/55 bg-white/10 shadow-[0_30px_90px_rgba(0,0,0,0.7)] sm:h-44 sm:w-44 lg:h-48 lg:w-48">
 											{heroPhoto ? (
 												<img
 													src={heroPhoto}
@@ -437,11 +464,11 @@ export function PublicCardPage() {
 
 									<div className="min-w-0 flex-1">
 										<div className="inline-flex items-center gap-2 rounded-full border border-yellow-300/40 bg-yellow-300/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.22em] text-yellow-100">
-											<span className="h-1.5 w-1.5 rounded-full bg-yellow-300" />
+											<ShieldCheck className="h-3.5 w-3.5 text-yellow-200" aria-hidden="true" />
 											{labels.profileBadge}
 										</div>
 
-										<h1 className="mt-3 break-words text-3xl font-bold tracking-tight text-white sm:text-[34px] lg:text-[38px]">
+										<h1 className="mt-3 break-words text-2xl font-bold tracking-tight text-white sm:text-3xl lg:text-[34px]">
 											{displayFullName}
 										</h1>
 										<div className="mt-1.5 text-sm text-yellow-100/90 sm:text-base">
@@ -450,28 +477,27 @@ export function PublicCardPage() {
 										{displayDepartment ? (
 											<div className="mt-1 text-xs text-white/65 sm:text-sm">{displayDepartment}</div>
 										) : null}
-										<div className="mt-3 text-xs font-semibold uppercase tracking-[0.2em] text-yellow-200 sm:text-sm">
-											{displayOrgName}
+										<div className="mt-3 inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-yellow-200 sm:text-xs">
+											<Landmark className="h-3.5 w-3.5 text-yellow-200/85" aria-hidden="true" />
+											<span className="break-words">{displayOrgName}</span>
 										</div>
 										{displayBio ? (
-											<p className="mt-4 max-w-prose break-words text-sm leading-relaxed text-white/70 sm:text-[15px]">
+											<p className="mt-3 max-w-prose break-words text-sm leading-relaxed text-white/70 sm:text-[15px]">
 												{displayBio}
 											</p>
 										) : null}
 
-										<div className="mt-6 grid grid-cols-1 gap-2 sm:grid-cols-3">
+										<div className="mt-5 grid grid-cols-1 gap-2 sm:grid-cols-3">
 											{phoneHref ? (
-												<a href={phoneHref} className="w-full">
-													<Button className="w-full" aria-label={labels.call}>
-														{labels.call}
-													</Button>
+												<a href={phoneHref} className={CTA_PRIMARY} aria-label={labels.call}>
+													<Phone className="h-4 w-4" aria-hidden="true" />
+													<span>{labels.call}</span>
 												</a>
 											) : null}
 											{emailHref ? (
-												<a href={emailHref} className="w-full">
-													<Button className="w-full" variant="secondary" aria-label={labels.email}>
-														{labels.email}
-													</Button>
+												<a href={emailHref} className={CTA_SECONDARY} aria-label={labels.email}>
+													<Mail className="h-4 w-4" aria-hidden="true" />
+													<span>{labels.email}</span>
 												</a>
 											) : null}
 											{tgHref ? (
@@ -479,11 +505,11 @@ export function PublicCardPage() {
 													href={tgHref}
 													target="_blank"
 													rel="noreferrer noopener"
-													className="w-full"
+													className={CTA_SECONDARY}
+													aria-label={labels.telegram}
 												>
-													<Button className="w-full" variant="secondary" aria-label={labels.telegram}>
-														{labels.telegram}
-													</Button>
+													<Send className="h-4 w-4" aria-hidden="true" />
+													<span>{labels.telegram}</span>
 												</a>
 											) : null}
 										</div>
@@ -513,18 +539,18 @@ export function PublicCardPage() {
 											{labels.specialtiesTitle}
 										</div>
 										<ul className="mt-4 grid gap-2">
-											{localized.specialties.map((item, idx) => (
-												<li
-													key={idx}
-													className="group flex items-center gap-3 rounded-2xl border border-white/8 bg-gradient-to-br from-white/[0.05] via-white/[0.02] to-transparent px-3 py-2.5 transition hover:border-yellow-300/30"
-												>
-													<span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl border border-yellow-300/35 bg-gradient-to-br from-yellow-300/20 via-yellow-300/5 to-transparent">
-														<span className="h-1.5 w-1.5 rounded-full bg-yellow-300 shadow-[0_0_10px_rgba(245,197,66,0.7)]" />
-													</span>
-													<span className="min-w-0 flex-1 break-words text-sm text-white/90">{item}</span>
-													<ArrowUpRight className="h-4 w-4 shrink-0 text-yellow-200/70 transition group-hover:text-yellow-200" />
-												</li>
-											))}
+											{localized.specialties.map((item, idx) => {
+												const Icon = SPEC_ICONS[idx % SPEC_ICONS.length]
+												return (
+													<li key={idx} className={ROW_GLASS}>
+														<span className={ICON_BOX}>
+															<Icon className="h-4 w-4" aria-hidden="true" />
+														</span>
+														<span className="min-w-0 flex-1 break-words text-sm text-white/90">{item}</span>
+														<ChevronRight className="h-4 w-4 shrink-0 text-yellow-200/70 transition group-hover:text-yellow-200" aria-hidden="true" />
+													</li>
+												)
+											})}
 										</ul>
 									</div>
 								</Card>
@@ -539,17 +565,17 @@ export function PublicCardPage() {
 
 								<div className="relative">
 									<div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.24em] text-yellow-200/90">
-										<span className="h-1.5 w-1.5 rounded-full bg-yellow-300 shadow-[0_0_12px_rgba(245,197,66,0.8)]" />
+										<ShieldCheck className="h-3.5 w-3.5 text-yellow-200" aria-hidden="true" />
 										{labels.officialProfileTitle}
 									</div>
 
 									<div className="mt-4 grid gap-2">
-										<div className="flex items-start gap-3 rounded-2xl border border-white/8 bg-gradient-to-br from-white/[0.05] via-white/[0.02] to-transparent px-3 py-2.5">
-											<div className="grid h-10 w-10 shrink-0 place-items-center overflow-hidden rounded-xl border border-yellow-300/35 bg-gradient-to-br from-yellow-300/20 via-yellow-300/5 to-transparent text-yellow-200">
+										<div className={ROW_GLASS}>
+											<div className={ICON_BOX + ' overflow-hidden'}>
 												{orgLogo ? (
 													<img src={orgLogo} alt="" className="h-full w-full object-contain p-1.5" />
 												) : (
-													<Building2 className="h-4 w-4" />
+													<Landmark className="h-4 w-4" aria-hidden="true" />
 												)}
 											</div>
 											<div className="min-w-0 flex-1">
@@ -565,10 +591,11 @@ export function PublicCardPage() {
 												href={websiteUrl}
 												target="_blank"
 												rel="noreferrer noopener"
-												className="group flex items-center gap-3 rounded-2xl border border-white/8 bg-gradient-to-br from-white/[0.05] via-white/[0.02] to-transparent px-3 py-2.5 transition hover:border-yellow-300/30"
+												className={ROW_GLASS}
+												aria-label={labels.websiteLabel}
 											>
-												<div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-yellow-300/35 bg-gradient-to-br from-yellow-300/20 via-yellow-300/5 to-transparent text-yellow-200">
-													<Globe className="h-4 w-4" />
+												<div className={ICON_BOX}>
+													<Globe2 className="h-4 w-4" aria-hidden="true" />
 												</div>
 												<div className="min-w-0 flex-1">
 													<div className="text-[10px] font-semibold uppercase tracking-[0.2em] text-yellow-200/65">
@@ -578,14 +605,14 @@ export function PublicCardPage() {
 														{websiteUrl}
 													</div>
 												</div>
-												<ArrowUpRight className="h-4 w-4 shrink-0 text-yellow-200/70 transition group-hover:text-yellow-200" />
+												<ArrowUpRight className="h-4 w-4 shrink-0 text-yellow-200/70 transition group-hover:text-yellow-200" aria-hidden="true" />
 											</a>
 										) : null}
 
 										{addressValue ? (
-											<div className="flex items-start gap-3 rounded-2xl border border-white/8 bg-gradient-to-br from-white/[0.05] via-white/[0.02] to-transparent px-3 py-2.5">
-												<div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-yellow-300/35 bg-gradient-to-br from-yellow-300/20 via-yellow-300/5 to-transparent text-yellow-200">
-													<MapPin className="h-4 w-4" />
+											<div className={ROW_GLASS}>
+												<div className={ICON_BOX}>
+													<MapPin className="h-4 w-4" aria-hidden="true" />
 												</div>
 												<div className="min-w-0 flex-1">
 													<div className="text-[10px] font-semibold uppercase tracking-[0.2em] text-yellow-200/65">

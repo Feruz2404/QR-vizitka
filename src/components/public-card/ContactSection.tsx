@@ -1,5 +1,17 @@
-import { ArrowUpRight, Copy, Facebook, Globe, Mail, MapPin, MessageCircle, Phone } from 'lucide-react'
+import {
+	ArrowUpRight,
+	Copy,
+	ExternalLink,
+	Facebook,
+	Globe2,
+	Mail,
+	MapPin,
+	Phone,
+	PhoneCall,
+	Send,
+} from 'lucide-react'
 import { motion } from 'framer-motion'
+import type { ReactNode } from 'react'
 
 import type { EmployeeCard } from '../../types/employee'
 import { Card } from '../../ui/Card'
@@ -94,8 +106,8 @@ function telegramHref(card: { telegram_url?: string | null; telegram_username?: 
 	return null
 }
 
-type LinkAction = { kind: 'link'; href: string; label: string; external?: boolean }
-type CopyAction = { kind: 'copy'; value: string; label: string }
+type LinkAction = { kind: 'link'; href: string; label: string; external?: boolean; actionIcon?: ReactNode }
+type CopyAction = { kind: 'copy'; value: string; label: string; actionIcon?: ReactNode }
 type RowAction = LinkAction | CopyAction
 
 const ROW_BTN_CLS =
@@ -107,7 +119,7 @@ function ContactRow({
 	value,
 	action,
 }: {
-	icon: React.ReactNode
+	icon: ReactNode
 	label: string
 	value: string
 	action?: RowAction
@@ -117,7 +129,7 @@ function ContactRow({
 		<motion.div
 			initial={ROW_FROM}
 			animate={ROW_TO}
-			className="group flex items-center gap-3 rounded-2xl border border-white/8 bg-gradient-to-br from-white/[0.05] via-white/[0.02] to-transparent px-3 py-2.5 transition hover:border-yellow-300/30 hover:from-yellow-300/[0.04]"
+			className="group flex items-center gap-3 rounded-2xl border border-yellow-300/12 bg-gradient-to-br from-white/[0.05] via-white/[0.02] to-transparent px-3 py-2 transition hover:border-yellow-300/30 hover:from-yellow-300/[0.05]"
 		>
 			<div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-yellow-300/30 bg-gradient-to-br from-yellow-300/20 via-yellow-300/5 to-transparent text-yellow-200 shadow-[0_8px_30px_rgba(0,0,0,0.45)]">
 				{icon}
@@ -140,7 +152,7 @@ function ContactRow({
 						aria-label={action.label}
 						className={ROW_BTN_CLS}
 					>
-						<ArrowUpRight className="h-4 w-4" />
+						{action.actionIcon ?? <ArrowUpRight className="h-4 w-4" />}
 					</a>
 				) : (
 					<button
@@ -152,13 +164,23 @@ function ContactRow({
 						}}
 						className={ROW_BTN_CLS}
 					>
-						<Copy className="h-4 w-4" />
+						{action.actionIcon ?? <Copy className="h-4 w-4" />}
 					</button>
 				)
 			) : null}
 		</motion.div>
 	)
 }
+
+const MAIL_ICON = <Mail className="h-4 w-4" />
+const PHONE_ICON = <Phone className="h-4 w-4" />
+const PHONECALL_ICON = <PhoneCall className="h-4 w-4" />
+const SEND_ICON = <Send className="h-4 w-4" />
+const EXT_ICON = <ExternalLink className="h-4 w-4" />
+const COPY_ICON = <Copy className="h-4 w-4" />
+const FACEBOOK_ICON = <Facebook className="h-4 w-4" />
+const GLOBE_ICON = <Globe2 className="h-4 w-4" />
+const PIN_ICON = <MapPin className="h-4 w-4" />
 
 export function ContactSection({
 	card,
@@ -172,41 +194,29 @@ export function ContactSection({
 
 	if (card.work_email) {
 		const href = 'mailto:' + card.work_email
-		const a: LinkAction = { kind: 'link', href, label: L.emailAction ?? 'Email' }
+		const a: LinkAction = { kind: 'link', href, label: L.emailAction ?? 'Email', actionIcon: MAIL_ICON }
 		rows.push(
-			<ContactRow
-				key="work_email"
-				icon={<Mail className="h-4 w-4" />}
-				label={L.workEmail}
-				value={card.work_email}
-				action={a}
-			/>,
+			<ContactRow key="work_email" icon={MAIL_ICON} label={L.workEmail} value={card.work_email} action={a} />,
 		)
 	}
 
 	if (card.personal_email) {
 		const href = 'mailto:' + card.personal_email
-		const a: LinkAction = { kind: 'link', href, label: L.emailAction ?? 'Email' }
+		const a: LinkAction = { kind: 'link', href, label: L.emailAction ?? 'Email', actionIcon: MAIL_ICON }
 		rows.push(
-			<ContactRow
-				key="personal_email"
-				icon={<Mail className="h-4 w-4" />}
-				label={L.personalEmail}
-				value={card.personal_email}
-				action={a}
-			/>,
+			<ContactRow key="personal_email" icon={MAIL_ICON} label={L.personalEmail} value={card.personal_email} action={a} />,
 		)
 	}
 
 	if (card.phone_primary) {
 		const href = telHref(card.phone_primary)
 		const a: LinkAction | undefined = href
-			? { kind: 'link', href, label: L.callAction ?? 'Call' }
+			? { kind: 'link', href, label: L.callAction ?? 'Call', actionIcon: PHONE_ICON }
 			: undefined
 		rows.push(
 			<ContactRow
 				key="phone_primary"
-				icon={<Phone className="h-4 w-4" />}
+				icon={PHONE_ICON}
 				label={L.primaryPhone}
 				value={formatUzPhone(card.phone_primary) ?? card.phone_primary}
 				action={a}
@@ -217,12 +227,12 @@ export function ContactSection({
 	if (card.phone_secondary) {
 		const href = telHref(card.phone_secondary)
 		const a: LinkAction | undefined = href
-			? { kind: 'link', href, label: L.callAction ?? 'Call' }
+			? { kind: 'link', href, label: L.callAction ?? 'Call', actionIcon: PHONE_ICON }
 			: undefined
 		rows.push(
 			<ContactRow
 				key="phone_secondary"
-				icon={<Phone className="h-4 w-4" />}
+				icon={PHONE_ICON}
 				label={L.secondaryPhone}
 				value={formatUzPhone(card.phone_secondary) ?? card.phone_secondary}
 				action={a}
@@ -233,12 +243,12 @@ export function ContactSection({
 	if (card.phone_extra) {
 		const href = telHref(card.phone_extra)
 		const a: LinkAction | undefined = href
-			? { kind: 'link', href, label: L.callAction ?? 'Call' }
+			? { kind: 'link', href, label: L.callAction ?? 'Call', actionIcon: PHONECALL_ICON }
 			: undefined
 		rows.push(
 			<ContactRow
 				key="phone_extra"
-				icon={<Phone className="h-4 w-4" />}
+				icon={PHONECALL_ICON}
 				label={L.extraPhone}
 				value={formatUzPhone(card.phone_extra) ?? card.phone_extra}
 				action={a}
@@ -249,15 +259,9 @@ export function ContactSection({
 	if (card.short_phone) {
 		const internalLabel = L.internalPhone ?? 'Internal'
 		const copyValue = String(card.short_phone)
-		const a: CopyAction = { kind: 'copy', value: copyValue, label: L.copyAction ?? 'Copy' }
+		const a: CopyAction = { kind: 'copy', value: copyValue, label: L.copyAction ?? 'Copy', actionIcon: COPY_ICON }
 		rows.push(
-			<ContactRow
-				key="short_phone"
-				icon={<Phone className="h-4 w-4" />}
-				label={internalLabel}
-				value={copyValue}
-				action={a}
-			/>,
+			<ContactRow key="short_phone" icon={PHONE_ICON} label={internalLabel} value={copyValue} action={a} />,
 		)
 	}
 
@@ -271,15 +275,10 @@ export function ContactSection({
 			href: tgHref,
 			label: L.openAction ?? 'Open',
 			external: true,
+			actionIcon: SEND_ICON,
 		}
 		rows.push(
-			<ContactRow
-				key="telegram"
-				icon={<MessageCircle className="h-4 w-4" />}
-				label={L.telegram}
-				value={display}
-				action={a}
-			/>,
+			<ContactRow key="telegram" icon={SEND_ICON} label={L.telegram} value={display} action={a} />,
 		)
 	}
 
@@ -289,15 +288,10 @@ export function ContactSection({
 			href: card.facebook_url,
 			label: L.openAction ?? 'Open',
 			external: true,
+			actionIcon: EXT_ICON,
 		}
 		rows.push(
-			<ContactRow
-				key="facebook"
-				icon={<Facebook className="h-4 w-4" />}
-				label={L.facebook}
-				value={card.facebook_url}
-				action={a}
-			/>,
+			<ContactRow key="facebook" icon={FACEBOOK_ICON} label={L.facebook} value={card.facebook_url} action={a} />,
 		)
 	}
 
@@ -307,28 +301,17 @@ export function ContactSection({
 			href: card.website_url,
 			label: L.openAction ?? 'Open',
 			external: true,
+			actionIcon: EXT_ICON,
 		}
 		rows.push(
-			<ContactRow
-				key="website"
-				icon={<Globe className="h-4 w-4" />}
-				label={L.website ?? 'Website'}
-				value={card.website_url}
-				action={a}
-			/>,
+			<ContactRow key="website" icon={GLOBE_ICON} label={L.website ?? 'Website'} value={card.website_url} action={a} />,
 		)
 	}
 
 	if (card.address) {
-		const a: CopyAction = { kind: 'copy', value: card.address, label: L.copyAction ?? 'Copy' }
+		const a: CopyAction = { kind: 'copy', value: card.address, label: L.copyAction ?? 'Copy', actionIcon: COPY_ICON }
 		rows.push(
-			<ContactRow
-				key="address"
-				icon={<MapPin className="h-4 w-4" />}
-				label={L.address ?? 'Address'}
-				value={card.address}
-				action={a}
-			/>,
+			<ContactRow key="address" icon={PIN_ICON} label={L.address ?? 'Address'} value={card.address} action={a} />,
 		)
 	}
 

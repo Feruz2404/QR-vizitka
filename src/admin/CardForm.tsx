@@ -1,7 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { ExternalLink } from 'lucide-react'
 
-import type { EmployeeCardInsert, EmployeeCardUpdate } from '../types/employee'
+import type {
+	EmployeeCardInsert,
+	EmployeeCardUpdate,
+	EmployeeCardTranslation,
+	EmployeeCardTranslations,
+} from '../types/employee'
 import { slugify, isValidSlug } from '../lib/slug'
 import { Button } from '../ui/Button'
 import { Card } from '../ui/Card'
@@ -14,9 +19,24 @@ import {
 	useUploadProfilePhotoMutation,
 } from '../services/employeeCardsApi'
 import { ImageUploader } from './ImageUploader'
+import { CardTranslationsEditor } from './CardTranslationsEditor'
 
 function safeObjectUrl(file: File) {
 	return URL.createObjectURL(file)
+}
+
+function deriveInitialTranslations(iv: any): EmployeeCardTranslations {
+	const existing: EmployeeCardTranslations = (iv && iv.translations) || {}
+	if (existing.uz) return existing
+	const uz: EmployeeCardTranslation = {
+		full_name: iv?.full_name ?? '',
+		position: iv?.position ?? '',
+		department: iv?.department ?? null,
+		organization_name: iv?.organization_name ?? null,
+		bio: iv?.bio ?? null,
+		specialties: [],
+	}
+	return { ...existing, uz }
 }
 
 export function CardForm({
@@ -34,6 +54,9 @@ export function CardForm({
 }) {
 	const toast = useToast()
 	const [values, setValues] = useState<EmployeeCardUpdate>(initialValues)
+	const [translations, setTranslations] = useState<EmployeeCardTranslations>(() =>
+		deriveInitialTranslations(initialValues),
+	)
 	const [slugTouched, setSlugTouched] = useState(false)
 
 	// Selected (new) files live in local state. DB is not updated until Save.
@@ -49,6 +72,7 @@ export function CardForm({
 
 	useEffect(() => {
 		setValues(initialValues)
+		setTranslations(deriveInitialTranslations(initialValues))
 		setSlugTouched(false)
 		setProfilePhotoFile(null)
 		setLogoFile(null)
@@ -88,8 +112,21 @@ export function CardForm({
 				e.preventDefault()
 				if (busy) return
 
-				if (!values.full_name || !values.slug || !values.position) {
-					toast.push('Please fill required fields')
+				// Sync uz translation -> base fields for backward compatibility
+				const uz = translations.uz
+				const baseSync: Partial<EmployeeCardUpdate> = {}
+				if (uz) {
+					if (uz.full_name) baseSync.full_name = uz.full_name
+					if (uz.position) baseSync.position = uz.position
+					if (uz.department !== undefined) baseSync.department = uz.department ?? null
+					if (uz.organization_name !== undefined) baseSync.organization_name = uz.organization_name ?? null
+					if (uz.bio !== undefined) baseSync.bio = uz.bio ?? null
+				}
+
+				const merged: EmployeeCardUpdate = { ...values, ...baseSync, translations }
+
+				if (!merged.full_name || !merged.slug || !merged.position) {
+					toast.push('Please fill required fields (Uzbek full name, position, slug)')
 					return
 				}
 				if (slugError) {
@@ -99,7 +136,7 @@ export function CardForm({
 
 				setSubmitting(true)
 				try {
-					let nextValues: EmployeeCardUpdate = { ...values }
+					let nextValues: EmployeeCardUpdate = merged
 
 					if (profilePhotoFile) {
 						const url = await uploadProfilePhoto({ file: profilePhotoFile, cardId: cardKey }).unwrap()
@@ -121,6 +158,12 @@ export function CardForm({
 				}
 			}}
 		>
+			<CardTranslationsEditor
+				value={translations}
+				onChange={setTranslations}
+				disabled={busy}
+			/>
+
 			<Card className="p-5">
 				<div className="text-lg font-semibold">Employee details</div>
 				<div className="mt-4 grid gap-3 md:grid-cols-2">

@@ -16,7 +16,10 @@ import { Skeleton } from '../ui/Skeleton'
 type PublicLang = 'uz' | 'ru' | 'en'
 
 type Translations = ContactLabels & {
+	orgName: string
+	orgSubtitle: string
 	brandBadge: string
+	profileBadge: string
 	languageLabel: string
 	call: string
 	email: string
@@ -29,13 +32,16 @@ type Translations = ContactLabels & {
 
 const T: Record<PublicLang, Translations> = {
 	uz: {
+		orgName: "O‘ZGIDROMET",
+		orgSubtitle: 'Rasmiy raqamli vizitka',
 		brandBadge: 'Raqamli vizitka',
+		profileBadge: 'Rasmiy raqamli profil',
 		languageLabel: 'Til',
 		contactsTitle: 'Aloqa',
 		workEmail: 'Ish email',
 		personalEmail: 'Shaxsiy email',
 		primaryPhone: 'Bosh telefon',
-		secondaryPhone: "Qo'shimcha telefon",
+		secondaryPhone: "Qo‘shimcha telefon",
 		extraPhone: 'Zaxira telefon',
 		internalPhone: 'Ichki raqam',
 		telegram: 'Telegram',
@@ -43,10 +49,10 @@ const T: Record<PublicLang, Translations> = {
 		website: 'Veb-sayt',
 		address: 'Manzil',
 		openAction: 'Ochish',
-		callAction: "Qo'ng'iroq",
+		callAction: "Qo‘ng‘iroq",
 		emailAction: 'Yozish',
 		copyAction: 'Nusxalash',
-		call: "Qo'ng'iroq",
+		call: "Qo‘ng‘iroq",
 		email: 'Email',
 		notFound: 'Karta topilmadi',
 		notFoundDescription: 'Bu xodim kartasi mavjud emas yoki havola yaroqsiz.',
@@ -54,7 +60,10 @@ const T: Record<PublicLang, Translations> = {
 		unavailableDescription: 'Bu xodim kartasi hozircha nashr etilmagan.',
 	},
 	ru: {
+		orgName: 'ЎЗГИДРОМЕТ',
+		orgSubtitle: 'Официальная цифровая визитка',
 		brandBadge: 'Цифровая визитка',
+		profileBadge: 'Официальный цифровой профиль',
 		languageLabel: 'Язык',
 		contactsTitle: 'Контакты',
 		workEmail: 'Рабочий email',
@@ -79,7 +88,10 @@ const T: Record<PublicLang, Translations> = {
 		unavailableDescription: 'Эта карта сотрудника пока не опубликована.',
 	},
 	en: {
+		orgName: 'UZHYDROMET',
+		orgSubtitle: 'Official digital business card',
 		brandBadge: 'Digital business card',
+		profileBadge: 'Official digital profile',
 		languageLabel: 'Language',
 		contactsTitle: 'Contact',
 		workEmail: 'Work email',
@@ -109,21 +121,19 @@ const PAGE_MOTION = {
 	initial: { opacity: 0, y: 12 },
 	animate: { opacity: 1, y: 0 },
 	transition: { duration: 0.35 },
-}
+} as const
 
 const HERO_MOTION = {
 	initial: { opacity: 0, y: 16 },
 	animate: { opacity: 1, y: 0 },
 	transition: { duration: 0.45, delay: 0.05 },
-}
+} as const
 
 const RIGHT_MOTION = {
 	initial: { opacity: 0, y: 18 },
 	animate: { opacity: 1, y: 0 },
 	transition: { duration: 0.5, delay: 0.09 },
-}
-
-const LANG_CODES = ['uz', 'ru', 'en'] as const
+} as const
 
 function fullUrl(publicBaseUrl: string, slug: string) {
 	return publicBaseUrl.replace(/\/$/, '') + '/v/' + slug
@@ -161,7 +171,10 @@ function isHttpUrl(value?: string | null) {
 
 const TG_BASE = 'https://' + 't.me/'
 
-function telegramHref(card: { telegram_url?: string | null; telegram_username?: string | null }) {
+function telegramHref(card: {
+	telegram_url?: string | null
+	telegram_username?: string | null
+}) {
 	if (isHttpUrl(card.telegram_url)) return card.telegram_url as string
 	const u = (card.telegram_username ?? '').trim().replace(/^@/, '')
 	if (u) return TG_BASE + u
@@ -205,15 +218,17 @@ export function PublicCardPage() {
 	const employeeLogo = isHttpUrl(data?.logo_url) ? data!.logo_url : null
 	const orgLogo = globalLogo ?? employeeLogo ?? null
 
+	const displayOrgName = data?.organization_name?.trim() || labels.orgName
+
 	if (isLoading) {
 		return (
 			<div className="min-h-screen">
-				<div className="sticky top-0 z-40 border-b border-white/10 bg-black/35 backdrop-blur-xl">
-					<div className="mx-auto max-w-[1100px] px-4 py-3">
+				<div className="sticky top-0 z-40 border-b border-yellow-300/20 bg-black/40 backdrop-blur-xl">
+					<div className="mx-auto max-w-[1180px] px-4 py-3">
 						<Skeleton className="h-10 w-52" />
 					</div>
 				</div>
-				<div className="mx-auto max-w-[1100px] p-4">
+				<div className="mx-auto max-w-[1180px] p-4">
 					<Skeleton className="h-64 w-full" />
 				</div>
 			</div>
@@ -243,7 +258,7 @@ export function PublicCardPage() {
 	}
 
 	const heroPhoto = data.profile_photo_url
-	const pageTitle = data.full_name + ' | ' + labels.brandBadge
+	const pageTitle = data.full_name + ' | ' + displayOrgName
 	const pageDesc = data.full_name + ', ' + data.position
 
 	return (
@@ -266,146 +281,124 @@ export function PublicCardPage() {
 						className="absolute inset-0 h-full w-full object-cover"
 						loading="eager"
 					/>
-					<div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/65 to-black/75" />
-					<div className="absolute inset-0 bg-[radial-gradient(900px_circle_at_10%_20%,rgba(59,130,246,0.22),transparent_55%),radial-gradient(800px_circle_at_90%_30%,rgba(245,197,66,0.20),transparent_55%)]" />
+					<div className="absolute inset-0 bg-gradient-to-b from-[#02030a]/85 via-[#04060f]/80 to-[#02030a]/90" />
+					<div className="absolute inset-0 bg-[radial-gradient(900px_circle_at_10%_20%,rgba(245,197,66,0.18),transparent_55%),radial-gradient(800px_circle_at_90%_30%,rgba(59,130,246,0.14),transparent_55%)]" />
 				</div>
 			) : (
 				<div className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
-					<div className="absolute inset-0 bg-[radial-gradient(1200px_circle_at_10%_20%,rgba(59,130,246,0.18),transparent_55%),radial-gradient(1000px_circle_at_90%_30%,rgba(245,197,66,0.20),transparent_55%),radial-gradient(800px_circle_at_40%_90%,rgba(167,139,250,0.12),transparent_55%),linear-gradient(180deg,#050712_0%,#070A14_30%,#02030A_100%)]" />
-					<div className="absolute inset-0 opacity-[0.08] [background-image:radial-gradient(rgba(255,255,255,0.35)_1px,transparent_1px)] [background-size:18px_18px]" />
-					<div className="absolute -left-40 top-20 h-[420px] w-[420px] rounded-full bg-blue-500/10 blur-3xl" />
-					<div className="absolute -right-40 top-10 h-[520px] w-[520px] rounded-full bg-yellow-400/10 blur-3xl" />
+					<div className="absolute inset-0 bg-[radial-gradient(1200px_circle_at_10%_15%,rgba(245,197,66,0.16),transparent_55%),radial-gradient(1000px_circle_at_90%_25%,rgba(59,130,246,0.16),transparent_55%),radial-gradient(800px_circle_at_45%_95%,rgba(167,139,250,0.12),transparent_55%),linear-gradient(180deg,#050712_0%,#070A14_30%,#02030A_100%)]" />
+					<div className="absolute inset-0 opacity-[0.06] [background-image:radial-gradient(rgba(255,255,255,0.35)_1px,transparent_1px)] [background-size:18px_18px]" />
+					<div className="absolute -left-40 top-20 h-[420px] w-[420px] rounded-full bg-yellow-400/10 blur-3xl" />
+					<div className="absolute -right-40 top-10 h-[520px] w-[520px] rounded-full bg-blue-500/10 blur-3xl" />
 					<div className="absolute left-1/3 bottom-[-240px] h-[520px] w-[520px] rounded-full bg-purple-500/10 blur-3xl" />
 				</div>
 			)}
 
 			<EmployeeTopHeader
+				orgName={displayOrgName}
+				subtitle={labels.orgSubtitle}
+				organizationLogoUrl={orgLogo}
 				fullName={data.full_name}
 				position={data.position}
 				profilePhotoUrl={data.profile_photo_url}
-				organizationLogoUrl={orgLogo}
+				lang={lang}
+				onLangChange={setLang}
+				languageLabel={labels.languageLabel}
 			/>
 
-			<div className="mx-auto max-w-[1100px] px-4 pt-4">
-				<div className="flex items-center justify-end gap-2">
-					<span className="text-[11px] uppercase tracking-wide text-white/55">
-						{labels.languageLabel}
-					</span>
-					<div className="inline-flex overflow-hidden rounded-full border border-white/10 bg-white/5 p-0.5">
-						{LANG_CODES.map((code) => {
-							const active = lang === code
-							const cls =
-								'px-3 py-1 text-xs font-semibold uppercase tracking-wide transition ' +
-								(active
-									? 'rounded-full bg-yellow-300/20 text-yellow-100'
-									: 'text-white/70 hover:text-white')
-							return (
-								<button
-									key={code}
-									type="button"
-									onClick={() => setLang(code)}
-									className={cls}
-								>
-									{code}
-								</button>
-							)
-						})}
-					</div>
-				</div>
-			</div>
-
-			<div className="mx-auto max-w-[1100px] px-4 pb-10 pt-4">
+			<div className="mx-auto max-w-[1180px] px-4 pb-12 pt-6 sm:pt-8">
 				<motion.div {...PAGE_MOTION}>
 					<div className="grid gap-5 lg:grid-cols-[1.08fr_0.92fr]">
 						<motion.div {...HERO_MOTION}>
-							<Card className="relative overflow-hidden rounded-[32px] p-6">
-								<div className="pointer-events-none absolute inset-0 bg-[radial-gradient(700px_circle_at_20%_10%,rgba(245,197,66,0.16),transparent_55%),radial-gradient(900px_circle_at_90%_20%,rgba(59,130,246,0.14),transparent_60%)]" />
-								<div className="pointer-events-none absolute inset-0 border border-white/10" />
+							<Card className="relative overflow-hidden rounded-[28px] border border-yellow-300/15 p-6 sm:p-7">
+								<div className="pointer-events-none absolute inset-0 bg-[radial-gradient(700px_circle_at_15%_10%,rgba(245,197,66,0.18),transparent_55%),radial-gradient(900px_circle_at_95%_15%,rgba(59,130,246,0.14),transparent_60%)]" />
+								<div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-yellow-300/60 to-transparent" />
+								<div className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-yellow-300/25 to-transparent" />
 
-								<div className="relative">
-									<div className="flex flex-col items-center gap-5 text-center sm:flex-row sm:items-start sm:text-left">
-										<div className="relative">
-											<div className="absolute -inset-2 rounded-[28px] bg-gradient-to-b from-yellow-300/25 to-blue-400/10 blur-xl" />
-											<div className="relative h-40 w-40 overflow-hidden rounded-[28px] border border-white/15 bg-white/10 shadow-[0_30px_80px_rgba(0,0,0,0.55)]">
-												{heroPhoto ? (
-													<img
-														src={heroPhoto}
-														alt={data.full_name + ' photo'}
-														className="h-full w-full object-cover"
-														loading="lazy"
-													/>
-												) : (
-													<div className="grid h-full w-full place-items-center text-4xl font-semibold text-white/90">
-														{initials(data.full_name)}
-													</div>
-												)}
-											</div>
+								<div className="relative flex flex-col items-center gap-5 text-center sm:flex-row sm:items-start sm:gap-6 sm:text-left">
+									<div className="relative">
+										<div className="absolute -inset-3 rounded-full bg-gradient-to-b from-yellow-300/25 via-yellow-300/10 to-blue-400/10 blur-xl" />
+										<div className="relative h-40 w-40 overflow-hidden rounded-full border-2 border-yellow-300/40 bg-white/10 shadow-[0_30px_80px_rgba(0,0,0,0.55)] sm:h-44 sm:w-44">
+											{heroPhoto ? (
+												<img
+													src={heroPhoto}
+													alt={data.full_name + ' photo'}
+													className="h-full w-full object-cover"
+													loading="lazy"
+												/>
+											) : (
+												<div className="grid h-full w-full place-items-center text-4xl font-semibold text-white/90">
+													{initials(data.full_name)}
+												</div>
+											)}
+										</div>
+									</div>
+
+									<div className="min-w-0 flex-1">
+										<div className="inline-flex items-center gap-2 rounded-full border border-yellow-300/30 bg-yellow-300/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-yellow-100">
+											<span className="h-1.5 w-1.5 rounded-full bg-yellow-300" />
+											{labels.profileBadge}
 										</div>
 
-										<div className="min-w-0 flex-1">
-											<div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-white/80">
-												<span className="h-1.5 w-1.5 rounded-full bg-yellow-300/80" />
-												{labels.brandBadge}
-											</div>
+										<div className="mt-3 text-3xl font-semibold tracking-tight sm:text-[34px]">
+											{data.full_name}
+										</div>
+										<div className="mt-1 text-sm text-white/80 sm:text-base">{data.position}</div>
+										<div className="mt-2 text-sm font-medium text-yellow-200/85">
+											{displayOrgName}
+										</div>
+										{data.department ? (
+											<div className="mt-1 text-sm text-white/65">{data.department}</div>
+										) : null}
+										{data.bio ? (
+											<p className="mt-3 max-w-prose text-sm leading-relaxed text-white/70">
+												{data.bio}
+											</p>
+										) : null}
 
-											<div className="mt-3 text-3xl font-semibold tracking-tight">
-												{data.full_name}
-											</div>
-											<div className="mt-1 text-sm text-white/80">{data.position}</div>
-											{data.organization_name ? (
-												<div className="mt-2 text-sm text-white/90">{data.organization_name}</div>
+										<div className="mt-6 grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:items-center sm:gap-2.5">
+											{phoneHref ? (
+												<a href={phoneHref} className="w-full sm:w-auto">
+													<Button className="w-full sm:w-auto" aria-label={labels.call}>
+														{labels.call}
+													</Button>
+												</a>
 											) : null}
-											{data.department ? (
-												<div className="mt-1 text-sm text-white/70">{data.department}</div>
-											) : null}
-											{data.bio ? (
-												<p className="mt-3 text-sm leading-relaxed text-white/70">{data.bio}</p>
-											) : null}
 
-											<div className="mt-5 grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:items-center">
-												{phoneHref ? (
-													<a href={phoneHref} className="w-full sm:w-auto">
-														<Button className="w-full sm:w-auto" aria-label={labels.call}>
-															{labels.call}
-														</Button>
-													</a>
-												) : null}
-
-												{emailHref ? (
-													<a href={emailHref} className="w-full sm:w-auto">
-														<Button
-															className="w-full sm:w-auto"
-															variant="secondary"
-															aria-label={labels.email}
-														>
-															{labels.email}
-														</Button>
-													</a>
-												) : null}
-
-												{tgHref ? (
-													<a
-														href={tgHref}
-														target="_blank"
-														rel="noreferrer noopener"
+											{emailHref ? (
+												<a href={emailHref} className="w-full sm:w-auto">
+													<Button
 														className="w-full sm:w-auto"
+														variant="secondary"
+														aria-label={labels.email}
 													>
-														<Button
-															className="w-full sm:w-auto"
-															variant="secondary"
-															aria-label={labels.telegram}
-														>
-															{labels.telegram}
-														</Button>
-													</a>
-												) : null}
+														{labels.email}
+													</Button>
+												</a>
+											) : null}
 
-												<div className="w-full sm:w-auto">
-													<SaveContactButton card={data} className="w-full sm:w-auto" />
-												</div>
+											{tgHref ? (
+												<a
+													href={tgHref}
+													target="_blank"
+													rel="noreferrer noopener"
+													className="w-full sm:w-auto"
+												>
+													<Button
+														className="w-full sm:w-auto"
+														variant="secondary"
+														aria-label={labels.telegram}
+													>
+														{labels.telegram}
+													</Button>
+												</a>
+											) : null}
+
+											<div className="w-full sm:w-auto">
+												<SaveContactButton card={data} className="w-full sm:w-auto" />
 											</div>
 
-											<div className="mt-4 flex items-center justify-center sm:justify-start">
+											<div className="col-span-2 w-full sm:w-auto">
 												<ShareButton url={url} title={pageTitle} />
 											</div>
 										</div>

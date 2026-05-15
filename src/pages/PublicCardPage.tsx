@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion'
 import { Helmet } from 'react-helmet-async'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import {
 	BarChart3,
@@ -25,7 +25,6 @@ import { useGetAppSettingsQuery } from '../services/appSettingsApi'
 import { useGetCardBySlugQuery } from '../services/employeeCardsApi'
 import type { EmployeeCard, EmployeeCardTranslation } from '../types/employee'
 import { Card } from '../ui/Card'
-import { Skeleton } from '../ui/Skeleton'
 
 type PublicLang = 'uz' | 'ru' | 'en'
 
@@ -36,6 +35,7 @@ type Translations = ContactLabels & {
 	profileBadge: string
 	languageLabel: string
 	specialtiesTitle: string
+	loadingSubtitle: string
 	call: string
 	email: string
 	telegram: string
@@ -53,6 +53,7 @@ const T: Record<PublicLang, Translations> = {
 		profileBadge: 'Rasmiy raqamli profil',
 		languageLabel: 'Til',
 		specialtiesTitle: 'Mutaxassisliklar',
+		loadingSubtitle: 'Raqamli vizitka yuklanmoqda',
 		contactsTitle: 'Aloqa ma’lumotlari',
 		workEmail: 'Ish email',
 		personalEmail: 'Shaxsiy email',
@@ -83,6 +84,7 @@ const T: Record<PublicLang, Translations> = {
 		profileBadge: 'Официальный цифровой профиль',
 		languageLabel: 'Язык',
 		specialtiesTitle: 'Специализации',
+		loadingSubtitle: 'Цифровая визитка загружается',
 		contactsTitle: 'Контакты',
 		workEmail: 'Рабочий email',
 		personalEmail: 'Личный email',
@@ -113,6 +115,7 @@ const T: Record<PublicLang, Translations> = {
 		profileBadge: 'Official digital profile',
 		languageLabel: 'Language',
 		specialtiesTitle: 'Specialties',
+		loadingSubtitle: 'Loading digital business card',
 		contactsTitle: 'Contact information',
 		workEmail: 'Work email',
 		personalEmail: 'Personal email',
@@ -156,17 +159,32 @@ const TR_MOTION = {
 	transition: { duration: 0.5, delay: 0.1 },
 } as const
 
+const LOADER_MOTION = {
+	initial: { opacity: 0, scale: 0.96, y: 8 },
+	animate: { opacity: 1, scale: 1, y: 0 },
+	transition: { duration: 0.55, ease: 'easeOut' },
+} as const
+
+const BAR_MOTION = {
+	initial: { width: '0%' },
+	animate: { width: '100%' },
+	transition: { duration: 3, ease: 'easeInOut' },
+} as const
+
+const PULSE_2 = { animationDelay: '150ms' } as const
+const PULSE_3 = { animationDelay: '300ms' } as const
+
 const CTA_PRIMARY =
-	'inline-flex w-full min-w-0 items-center justify-center gap-2 rounded-2xl border border-yellow-300/55 bg-gradient-to-b from-yellow-300/45 via-yellow-300/22 to-yellow-300/8 px-3 py-2.5 text-sm font-semibold text-yellow-50 shadow-[0_12px_36px_rgba(245,197,66,0.25)] transition hover:from-yellow-300/55 hover:via-yellow-300/28 hover:to-yellow-300/14 active:scale-[0.98] sm:px-4'
+	'inline-flex w-full min-w-0 items-center justify-center gap-2 rounded-2xl border border-yellow-300/55 bg-gradient-to-b from-yellow-300/55 via-yellow-300/28 to-yellow-300/12 px-3 py-2.5 text-sm font-semibold text-yellow-50 shadow-[0_12px_36px_rgba(245,197,66,0.28)] backdrop-blur-md transition hover:from-yellow-300/65 hover:via-yellow-300/35 hover:to-yellow-300/18 hover:shadow-[0_0_30px_rgba(245,197,66,0.32)] active:scale-[0.98] sm:px-4'
 
 const CTA_SECONDARY =
-	'inline-flex w-full min-w-0 items-center justify-center gap-2 rounded-2xl border border-yellow-300/30 bg-black/45 px-3 py-2.5 text-sm font-semibold text-yellow-100 transition hover:border-yellow-300/55 hover:bg-yellow-300/10 active:scale-[0.98] sm:px-4'
+	'inline-flex w-full min-w-0 items-center justify-center gap-2 rounded-2xl border border-yellow-300/30 bg-black/30 px-3 py-2.5 text-sm font-semibold text-yellow-100 backdrop-blur-xl transition hover:border-yellow-300/55 hover:bg-yellow-300/12 hover:shadow-[0_0_24px_rgba(245,197,66,0.18)] active:scale-[0.98] sm:px-4'
 
 const SPEC_CHIP =
-	'flex min-w-0 items-center gap-2 rounded-xl border border-yellow-300/20 bg-gradient-to-br from-white/[0.05] via-white/[0.02] to-transparent px-2.5 py-1.5 transition hover:border-yellow-300/40'
+	'flex min-w-0 items-center gap-2 rounded-xl border border-yellow-300/20 bg-gradient-to-br from-white/[0.08] via-white/[0.03] to-transparent px-2.5 py-1.5 backdrop-blur-md transition hover:border-yellow-300/45 hover:from-yellow-300/[0.08]'
 
 const SPEC_ICON_BOX =
-	'grid h-7 w-7 shrink-0 place-items-center rounded-lg border border-yellow-300/30 bg-gradient-to-br from-yellow-300/20 via-yellow-300/5 to-transparent text-yellow-200'
+	'grid h-7 w-7 shrink-0 place-items-center rounded-lg border border-yellow-300/30 bg-gradient-to-br from-yellow-300/25 via-yellow-300/8 to-transparent text-yellow-200'
 
 const SPEC_ICONS = [Cpu, Network, BarChart3, ShieldCheck, Lightbulb, Workflow, Database, Settings2]
 
@@ -248,6 +266,93 @@ function pickTranslatedSpecialties(card: EmployeeCard, lang: PublicLang): string
 	return []
 }
 
+function BackgroundLayers({ backgroundImage }: { backgroundImage: string | null }) {
+	if (backgroundImage) {
+		return (
+			<div className="pointer-events-none fixed inset-0 -z-10 overflow-hidden" aria-hidden="true">
+				<img
+					src={backgroundImage}
+					alt=""
+					className="absolute inset-0 h-full w-full object-cover object-center"
+					loading="eager"
+				/>
+				<div className="absolute inset-0 bg-gradient-to-b from-[#02030a]/72 via-[#04060f]/62 to-[#02030a]/82" />
+				<div className="absolute inset-0 bg-[radial-gradient(900px_circle_at_8%_15%,rgba(245,197,66,0.18),transparent_55%),radial-gradient(900px_circle_at_92%_28%,rgba(59,130,246,0.16),transparent_55%),radial-gradient(900px_circle_at_50%_110%,rgba(167,139,250,0.14),transparent_60%)]" />
+			</div>
+		)
+	}
+	return (
+		<div className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
+			<div className="absolute inset-0 bg-[radial-gradient(1200px_circle_at_10%_15%,rgba(245,197,66,0.18),transparent_55%),radial-gradient(1000px_circle_at_90%_25%,rgba(59,130,246,0.18),transparent_55%),radial-gradient(800px_circle_at_45%_95%,rgba(167,139,250,0.14),transparent_55%),linear-gradient(180deg,#050712_0%,#070A14_30%,#02030A_100%)]" />
+			<div className="absolute inset-0 opacity-[0.06] [background-image:radial-gradient(rgba(255,255,255,0.35)_1px,transparent_1px)] [background-size:18px_18px]" />
+			<div className="absolute -left-40 top-20 h-[420px] w-[420px] rounded-full bg-yellow-400/10 blur-3xl" />
+			<div className="absolute -right-40 top-10 h-[520px] w-[520px] rounded-full bg-blue-500/10 blur-3xl" />
+			<div className="absolute left-1/3 bottom-[-240px] h-[520px] w-[520px] rounded-full bg-purple-500/10 blur-3xl" />
+		</div>
+	)
+}
+
+function PublicCardLoader({
+	lang,
+	orgLogo,
+	backgroundImage,
+	orgName,
+}: {
+	lang: PublicLang
+	orgLogo: string | null
+	backgroundImage: string | null
+	orgName: string
+}) {
+	const subtitle = T[lang].loadingSubtitle
+	return (
+		<div className="min-h-screen w-full max-w-full overflow-x-hidden text-white">
+			<BackgroundLayers backgroundImage={backgroundImage} />
+			<div className="relative grid min-h-screen w-full max-w-full place-items-center px-4 py-10">
+				<motion.div
+					{...LOADER_MOTION}
+					className="relative w-full max-w-sm overflow-hidden rounded-[28px] border border-yellow-300/30 bg-gradient-to-br from-white/[0.10] via-white/[0.04] to-transparent p-6 text-center shadow-[0_30px_90px_rgba(0,0,0,0.55),0_0_70px_rgba(245,197,66,0.12)] backdrop-blur-2xl sm:p-7"
+				>
+					<div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-yellow-300/80 to-transparent" />
+					<div className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-yellow-300/35 to-transparent" />
+					<div className="pointer-events-none absolute inset-0 bg-[radial-gradient(420px_circle_at_50%_-10%,rgba(245,197,66,0.18),transparent_60%)]" />
+
+					<div className="relative mx-auto grid h-20 w-20 place-items-center sm:h-24 sm:w-24">
+						<div className="absolute inset-0 rounded-full border-[3px] border-yellow-300/15" />
+						<div className="absolute inset-0 animate-spin rounded-full border-[3px] border-transparent border-t-yellow-300 border-r-yellow-300/55" />
+						<div className="relative grid h-14 w-14 place-items-center overflow-hidden rounded-full border border-yellow-300/35 bg-black/35 backdrop-blur-md sm:h-16 sm:w-16">
+							{orgLogo ? (
+								<img src={orgLogo} alt="" className="h-full w-full object-cover" loading="eager" />
+							) : (
+								<ShieldCheck className="h-7 w-7 text-yellow-200" aria-hidden="true" />
+							)}
+						</div>
+					</div>
+
+					<div className="relative mt-5 break-words text-base font-bold uppercase tracking-[0.26em] text-white sm:text-lg sm:tracking-[0.3em]">
+						{orgName}
+					</div>
+					<div className="relative mt-2 break-words text-xs text-yellow-100/85 sm:text-sm">
+						{subtitle}
+					</div>
+
+					<div className="relative mx-auto mt-5 h-1 w-full max-w-[240px] overflow-hidden rounded-full bg-white/10">
+						<motion.div
+							{...BAR_MOTION}
+							className="h-full rounded-full bg-gradient-to-r from-yellow-300/70 via-yellow-300 to-yellow-200/80 shadow-[0_0_18px_rgba(245,197,66,0.6)]"
+						/>
+					</div>
+
+					<div className="relative mt-4 flex items-center justify-center gap-1.5">
+						<span className="h-1.5 w-1.5 animate-pulse rounded-full bg-yellow-300/75" />
+						<span className="h-1.5 w-1.5 animate-pulse rounded-full bg-yellow-300/55" style={PULSE_2} />
+						<span className="h-1.5 w-1.5 animate-pulse rounded-full bg-yellow-300/30" style={PULSE_3} />
+					</div>
+				</motion.div>
+			</div>
+		</div>
+	)
+}
+
 export function PublicCardPage() {
 	const { slug } = useParams()
 	const safeSlug = slug ?? ''
@@ -256,6 +361,14 @@ export function PublicCardPage() {
 
 	const [lang, setLang] = useState<PublicLang>('uz')
 	const labels = T[lang]
+
+	const [introDone, setIntroDone] = useState(false)
+	useEffect(() => {
+		const timer = window.setTimeout(() => {
+			setIntroDone(true)
+		}, 3000)
+		return () => window.clearTimeout(timer)
+	}, [])
 
 	const publicBaseUrl =
 		(import.meta.env.VITE_PUBLIC_BASE_URL as string | undefined) ?? window.location.origin
@@ -306,27 +419,25 @@ export function PublicCardPage() {
 
 	const displayOrgName = localized.organizationName || labels.orgName
 
-	if (isLoading) {
+	const showLoader = !introDone || isLoading
+	if (showLoader) {
 		return (
-			<div className="min-h-screen w-full max-w-full overflow-x-hidden">
-				<div className="sticky top-0 z-40 border-b border-yellow-300/20 bg-black/45 backdrop-blur-xl">
-					<div className="mx-auto w-full max-w-[1320px] px-4 py-4">
-						<Skeleton className="h-12 w-56" />
-					</div>
-				</div>
-				<div className="mx-auto w-full max-w-[1320px] p-4">
-					<Skeleton className="h-72 w-full" />
-				</div>
-			</div>
+			<PublicCardLoader
+				lang={lang}
+				orgLogo={orgLogo}
+				backgroundImage={backgroundImage}
+				orgName={displayOrgName}
+			/>
 		)
 	}
 
 	if (isError || !data) {
 		return (
-			<div className="min-h-screen grid w-full max-w-full place-items-center overflow-x-hidden p-6">
-				<Card className="w-full max-w-lg p-6 text-center">
+			<div className="min-h-screen grid w-full max-w-full place-items-center overflow-x-hidden p-6 text-white">
+				<BackgroundLayers backgroundImage={backgroundImage} />
+				<Card className="relative w-full max-w-lg overflow-hidden rounded-[24px] border border-yellow-300/25 bg-gradient-to-br from-white/[0.08] via-white/[0.03] to-transparent p-6 text-center shadow-[0_30px_80px_rgba(0,0,0,0.55)] backdrop-blur-2xl">
 					<div className="text-xl font-semibold">{labels.notFound}</div>
-					<p className="mt-2 text-sm text-brand-muted">{labels.notFoundDescription}</p>
+					<p className="mt-2 text-sm text-white/70">{labels.notFoundDescription}</p>
 				</Card>
 			</div>
 		)
@@ -334,10 +445,11 @@ export function PublicCardPage() {
 
 	if (!data.is_active) {
 		return (
-			<div className="min-h-screen grid w-full max-w-full place-items-center overflow-x-hidden p-6">
-				<Card className="w-full max-w-lg p-6 text-center">
+			<div className="min-h-screen grid w-full max-w-full place-items-center overflow-x-hidden p-6 text-white">
+				<BackgroundLayers backgroundImage={backgroundImage} />
+				<Card className="relative w-full max-w-lg overflow-hidden rounded-[24px] border border-yellow-300/25 bg-gradient-to-br from-white/[0.08] via-white/[0.03] to-transparent p-6 text-center shadow-[0_30px_80px_rgba(0,0,0,0.55)] backdrop-blur-2xl">
 					<div className="text-xl font-semibold">{labels.unavailable}</div>
-					<p className="mt-2 text-sm text-brand-muted">{labels.unavailableDescription}</p>
+					<p className="mt-2 text-sm text-white/70">{labels.unavailableDescription}</p>
 				</Card>
 			</div>
 		)
@@ -368,26 +480,7 @@ export function PublicCardPage() {
 				<meta property="og:description" content={pageDesc} />
 			</Helmet>
 
-			{backgroundImage ? (
-				<div className="pointer-events-none fixed inset-0 -z-10 overflow-hidden" aria-hidden="true">
-					<img
-						src={backgroundImage}
-						alt=""
-						className="absolute inset-0 h-full w-full object-cover object-center"
-						loading="eager"
-					/>
-					<div className="absolute inset-0 bg-gradient-to-b from-[#02030a]/72 via-[#04060f]/62 to-[#02030a]/82" />
-					<div className="absolute inset-0 bg-[radial-gradient(900px_circle_at_8%_15%,rgba(245,197,66,0.18),transparent_55%),radial-gradient(900px_circle_at_92%_28%,rgba(59,130,246,0.16),transparent_55%),radial-gradient(900px_circle_at_50%_110%,rgba(167,139,250,0.14),transparent_60%)]" />
-				</div>
-			) : (
-				<div className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
-					<div className="absolute inset-0 bg-[radial-gradient(1200px_circle_at_10%_15%,rgba(245,197,66,0.18),transparent_55%),radial-gradient(1000px_circle_at_90%_25%,rgba(59,130,246,0.18),transparent_55%),radial-gradient(800px_circle_at_45%_95%,rgba(167,139,250,0.14),transparent_55%),linear-gradient(180deg,#050712_0%,#070A14_30%,#02030A_100%)]" />
-					<div className="absolute inset-0 opacity-[0.06] [background-image:radial-gradient(rgba(255,255,255,0.35)_1px,transparent_1px)] [background-size:18px_18px]" />
-					<div className="absolute -left-40 top-20 h-[420px] w-[420px] rounded-full bg-yellow-400/10 blur-3xl" />
-					<div className="absolute -right-40 top-10 h-[520px] w-[520px] rounded-full bg-blue-500/10 blur-3xl" />
-					<div className="absolute left-1/3 bottom-[-240px] h-[520px] w-[520px] rounded-full bg-purple-500/10 blur-3xl" />
-				</div>
-			)}
+			<BackgroundLayers backgroundImage={backgroundImage} />
 
 			<EmployeeTopHeader
 				orgName={displayOrgName}
@@ -405,15 +498,15 @@ export function PublicCardPage() {
 				<motion.div {...PAGE_MOTION}>
 					<div className="grid w-full max-w-full gap-5 sm:gap-6 lg:grid-cols-2 lg:items-start lg:gap-6">
 						<motion.div {...HERO_MOTION} className="min-w-0">
-							<Card className="relative h-full w-full min-w-0 max-w-full overflow-hidden rounded-[24px] border border-yellow-300/30 bg-[#06090f]/82 p-4 shadow-[0_40px_120px_rgba(0,0,0,0.65)] sm:rounded-[28px] sm:p-6 lg:p-7">
-								<div className="pointer-events-none absolute inset-0 bg-[radial-gradient(700px_circle_at_10%_5%,rgba(245,197,66,0.18),transparent_55%),radial-gradient(900px_circle_at_95%_15%,rgba(59,130,246,0.14),transparent_60%)]" />
-								<div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-yellow-300/75 to-transparent" />
-								<div className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-yellow-300/30 to-transparent" />
+							<Card className="relative h-full w-full min-w-0 max-w-full overflow-hidden rounded-[24px] border border-yellow-300/30 bg-gradient-to-br from-white/[0.10] via-white/[0.04] to-[#06090f]/55 p-4 shadow-[0_40px_120px_rgba(0,0,0,0.6),0_0_70px_rgba(245,197,66,0.10)] backdrop-blur-2xl sm:rounded-[28px] sm:p-6 lg:p-7">
+								<div className="pointer-events-none absolute inset-0 bg-[radial-gradient(700px_circle_at_10%_5%,rgba(245,197,66,0.20),transparent_55%),radial-gradient(900px_circle_at_95%_15%,rgba(59,130,246,0.16),transparent_60%)]" />
+								<div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-yellow-300/80 to-transparent" />
+								<div className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-yellow-300/35 to-transparent" />
 
 								<div className="relative flex w-full min-w-0 flex-col items-center gap-5 text-center sm:flex-row sm:items-start sm:gap-6 sm:text-left">
 									<div className="relative shrink-0">
-										<div className="pointer-events-none absolute -inset-4 rounded-full bg-gradient-to-br from-yellow-300/40 via-yellow-300/15 to-blue-400/10 blur-2xl" />
-										<div className="relative h-28 w-28 overflow-hidden rounded-full border-[3px] border-yellow-300/55 bg-white/10 shadow-[0_30px_90px_rgba(0,0,0,0.7)] sm:h-36 sm:w-36 lg:h-44 lg:w-44">
+										<div className="pointer-events-none absolute -inset-4 rounded-full bg-gradient-to-br from-yellow-300/45 via-yellow-300/18 to-blue-400/12 blur-2xl" />
+										<div className="relative h-28 w-28 overflow-hidden rounded-full border-[3px] border-yellow-300/60 bg-white/10 shadow-[0_30px_90px_rgba(0,0,0,0.7)] sm:h-36 sm:w-36 lg:h-44 lg:w-44">
 											{heroPhoto ? (
 												<img
 													src={heroPhoto}
@@ -427,11 +520,11 @@ export function PublicCardPage() {
 												</div>
 											)}
 										</div>
-										<div className="pointer-events-none absolute -inset-1 rounded-full border border-yellow-300/30" />
+										<div className="pointer-events-none absolute -inset-1 rounded-full border border-yellow-300/35" />
 									</div>
 
 									<div className="flex w-full min-w-0 max-w-full flex-1 flex-col items-center sm:items-start">
-										<div className="inline-flex max-w-full items-center gap-1.5 rounded-full border border-yellow-300/40 bg-yellow-300/10 px-2.5 py-1 text-[9px] font-semibold uppercase tracking-[0.18em] text-yellow-100 sm:gap-2 sm:px-3 sm:text-[10px] sm:tracking-[0.22em]">
+										<div className="inline-flex max-w-full items-center gap-1.5 rounded-full border border-yellow-300/45 bg-yellow-300/10 px-2.5 py-1 text-[9px] font-semibold uppercase tracking-[0.18em] text-yellow-100 backdrop-blur-md sm:gap-2 sm:px-3 sm:text-[10px] sm:tracking-[0.22em]">
 											<ShieldCheck className="h-3 w-3 shrink-0 text-yellow-200 sm:h-3.5 sm:w-3.5" aria-hidden="true" />
 											<span className="min-w-0 truncate">{labels.profileBadge}</span>
 										</div>

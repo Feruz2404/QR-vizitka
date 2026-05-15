@@ -1,3 +1,16 @@
+export type CardLanguage = 'uz' | 'ru' | 'en'
+
+export type EmployeeCardTranslation = {
+	full_name?: string
+	position?: string
+	department?: string | null
+	organization_name?: string | null
+	bio?: string | null
+	specialties?: string[]
+}
+
+export type EmployeeCardTranslations = Partial<Record<CardLanguage, EmployeeCardTranslation>>
+
 export type EmployeeCard = {
 	id: string
 	full_name: string
@@ -21,6 +34,7 @@ export type EmployeeCard = {
 	address: string | null
 	bio: string | null
 	theme: string | null
+	translations: EmployeeCardTranslations
 	is_active: boolean
 	created_at: string
 	updated_at: string

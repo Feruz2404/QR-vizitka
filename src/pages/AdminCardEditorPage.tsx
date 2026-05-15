@@ -44,6 +44,7 @@ export function AdminCardEditorPage({ mode }: { mode: 'create' | 'edit' }) {
 			address: null,
 			bio: null,
 			theme: 'premium-dark-gold',
+			translations: {},
 			is_active: true,
 		}
 		return empty
@@ -83,7 +84,7 @@ export function AdminCardEditorPage({ mode }: { mode: 'create' | 'edit' }) {
 						await updateCard({ id: cardId, values }).unwrap()
 						navigate('/admin/cards')
 					}}
-					previewUrl={(slug) => `/v/${slug}`}
+					previewUrl={(slug) => '/v/' + slug}
 				/>
 			</div>
 		</AdminLayout>

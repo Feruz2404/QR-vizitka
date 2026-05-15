@@ -11,6 +11,10 @@ function initials(fullName: string) {
 	return (a + b).toUpperCase()
 }
 
+const LANG_BTN_ACTIVE =
+	'rounded-full bg-gradient-to-b from-yellow-300/40 via-yellow-300/20 to-yellow-300/10 text-yellow-100 shadow-inner ring-1 ring-yellow-300/35'
+const LANG_BTN_INACTIVE = 'text-white/65 hover:text-white'
+
 export function EmployeeTopHeader({
 	orgName,
 	subtitle,
@@ -34,34 +38,38 @@ export function EmployeeTopHeader({
 }) {
 	return (
 		<header className="sticky top-0 z-40">
-			<div className="relative border-b border-yellow-300/20 bg-gradient-to-b from-[#04060f]/85 to-[#04060f]/65 backdrop-blur-2xl">
-				<div className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-yellow-300/55 to-transparent" />
-				<div className="mx-auto flex max-w-[1180px] flex-wrap items-center gap-3 px-4 py-3 sm:gap-4 sm:py-4">
+			<div className="relative border-b border-yellow-300/30 bg-gradient-to-b from-[#02030a]/95 via-[#04060f]/85 to-[#04060f]/65 backdrop-blur-2xl">
+				<div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-yellow-300/30 to-transparent" />
+				<div className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-yellow-300/75 to-transparent" />
+				<div className="mx-auto flex max-w-[1320px] flex-wrap items-center gap-3 px-4 py-3 sm:gap-4 sm:px-5 sm:py-4 lg:px-6 lg:py-5">
 					<div className="flex min-w-0 flex-1 items-center gap-3 sm:gap-4">
-						<div
-							className={cn(
-								'relative grid h-12 w-12 shrink-0 place-items-center overflow-hidden rounded-2xl border border-yellow-300/30 bg-white/[0.04] shadow-[0_10px_30px_rgba(0,0,0,0.5)] sm:h-14 sm:w-14'
-							)}
-						>
-							{organizationLogoUrl ? (
-								<img
-									src={organizationLogoUrl}
-									alt="Organization logo"
-									className="h-full w-full object-contain p-1.5"
-									loading="eager"
-								/>
-							) : (
-								<span className="text-base font-bold tracking-wide text-yellow-200">
-									{orgName.slice(0, 2).toUpperCase()}
-								</span>
-							)}
+						<div className="relative shrink-0">
+							<div className="pointer-events-none absolute -inset-1.5 rounded-2xl bg-gradient-to-br from-yellow-300/35 via-yellow-300/10 to-blue-400/10 blur-md" />
+							<div
+								className={cn(
+									'relative grid h-12 w-12 place-items-center overflow-hidden rounded-2xl border border-yellow-300/45 bg-[#05080f] shadow-[0_18px_60px_rgba(0,0,0,0.65)] sm:h-14 sm:w-14 lg:h-16 lg:w-16'
+								)}
+							>
+								{organizationLogoUrl ? (
+									<img
+										src={organizationLogoUrl}
+										alt="Organization logo"
+										className="h-full w-full object-contain p-1.5"
+										loading="eager"
+									/>
+								) : (
+									<span className="text-base font-bold tracking-wide text-yellow-200">
+										{orgName.slice(0, 2).toUpperCase()}
+									</span>
+								)}
+							</div>
 						</div>
 
 						<div className="min-w-0">
-							<div className="truncate text-base font-semibold uppercase leading-tight tracking-[0.18em] text-yellow-200 sm:text-lg">
+							<div className="truncate text-base font-semibold uppercase leading-tight tracking-[0.22em] text-yellow-200 sm:text-lg lg:text-xl">
 								{orgName}
 							</div>
-							<div className="truncate text-[11px] font-medium uppercase leading-tight tracking-[0.22em] text-white/55 sm:text-xs">
+							<div className="truncate text-[10px] font-medium uppercase leading-tight tracking-[0.28em] text-white/55 sm:text-[11px] lg:text-xs">
 								{subtitle}
 							</div>
 						</div>
@@ -69,17 +77,15 @@ export function EmployeeTopHeader({
 
 					<div className="flex w-full items-center justify-between gap-3 sm:w-auto sm:gap-4">
 						<div className="flex items-center gap-2">
-							<span className="hidden text-[10px] font-medium uppercase tracking-[0.25em] text-white/45 sm:inline">
+							<span className="hidden text-[10px] font-medium uppercase tracking-[0.28em] text-white/50 sm:inline">
 								{languageLabel}
 							</span>
-							<div className="inline-flex overflow-hidden rounded-full border border-yellow-300/25 bg-white/[0.04] p-0.5">
+							<div className="inline-flex overflow-hidden rounded-full border border-yellow-300/30 bg-black/45 p-0.5 backdrop-blur">
 								{LANGS.map((code) => {
 									const active = lang === code
 									const cls =
-										'px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] transition ' +
-										(active
-											? 'rounded-full bg-yellow-300/20 text-yellow-100 shadow-inner'
-											: 'text-white/70 hover:text-white')
+										'rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] transition ' +
+										(active ? LANG_BTN_ACTIVE : LANG_BTN_INACTIVE)
 									return (
 										<button
 											key={code}
@@ -96,8 +102,8 @@ export function EmployeeTopHeader({
 							</div>
 						</div>
 
-						<div className="flex items-center gap-2.5 rounded-2xl border border-white/10 bg-white/[0.04] px-2.5 py-1.5">
-							<div className="relative grid h-9 w-9 shrink-0 place-items-center overflow-hidden rounded-xl border border-white/15 bg-white/10">
+						<div className="hidden items-center gap-2.5 rounded-2xl border border-yellow-300/20 bg-black/35 px-2.5 py-1.5 shadow-[0_8px_30px_rgba(0,0,0,0.45)] sm:flex">
+							<div className="relative grid h-9 w-9 shrink-0 place-items-center overflow-hidden rounded-xl border border-yellow-300/35 bg-white/5">
 								{profilePhotoUrl ? (
 									<img
 										src={profilePhotoUrl}
@@ -106,12 +112,12 @@ export function EmployeeTopHeader({
 										loading="lazy"
 									/>
 								) : (
-									<span className="text-xs font-semibold text-white">{initials(fullName)}</span>
+									<span className="text-xs font-semibold text-yellow-200">{initials(fullName)}</span>
 								)}
 							</div>
-							<div className="hidden min-w-0 sm:block">
+							<div className="hidden min-w-0 md:block">
 								<div className="truncate text-xs font-semibold leading-tight text-white">{fullName}</div>
-								<div className="truncate text-[10px] leading-tight text-white/55">{position ?? ''}</div>
+								<div className="truncate text-[10px] leading-tight text-yellow-200/70">{position ?? ''}</div>
 							</div>
 						</div>
 					</div>

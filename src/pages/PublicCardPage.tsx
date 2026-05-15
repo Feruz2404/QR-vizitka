@@ -9,6 +9,7 @@ import { SaveContactButton } from '../components/public-card/SaveContactButton'
 import { ShareButton } from '../components/public-card/ShareButton'
 import { useGetAppSettingsQuery } from '../services/appSettingsApi'
 import { useGetCardBySlugQuery } from '../services/employeeCardsApi'
+import type { EmployeeCard, EmployeeCardTranslation } from '../types/employee'
 import { Button } from '../ui/Button'
 import { Card } from '../ui/Card'
 import { Skeleton } from '../ui/Skeleton'
@@ -21,6 +22,7 @@ type Translations = ContactLabels & {
 	brandBadge: string
 	profileBadge: string
 	languageLabel: string
+	specialtiesTitle: string
 	call: string
 	email: string
 	telegram: string
@@ -32,16 +34,17 @@ type Translations = ContactLabels & {
 
 const T: Record<PublicLang, Translations> = {
 	uz: {
-		orgName: "O‘ZGIDROMET",
+		orgName: 'O‘ZGIDROMET',
 		orgSubtitle: 'Rasmiy raqamli vizitka',
 		brandBadge: 'Raqamli vizitka',
 		profileBadge: 'Rasmiy raqamli profil',
 		languageLabel: 'Til',
+		specialtiesTitle: 'Mutaxassisliklar',
 		contactsTitle: 'Aloqa',
 		workEmail: 'Ish email',
 		personalEmail: 'Shaxsiy email',
 		primaryPhone: 'Bosh telefon',
-		secondaryPhone: "Qo‘shimcha telefon",
+		secondaryPhone: 'Qo‘shimcha telefon',
 		extraPhone: 'Zaxira telefon',
 		internalPhone: 'Ichki raqam',
 		telegram: 'Telegram',
@@ -49,10 +52,10 @@ const T: Record<PublicLang, Translations> = {
 		website: 'Veb-sayt',
 		address: 'Manzil',
 		openAction: 'Ochish',
-		callAction: "Qo‘ng‘iroq",
+		callAction: 'Qo‘ng‘iroq',
 		emailAction: 'Yozish',
 		copyAction: 'Nusxalash',
-		call: "Qo‘ng‘iroq",
+		call: 'Qo‘ng‘iroq',
 		email: 'Email',
 		notFound: 'Karta topilmadi',
 		notFoundDescription: 'Bu xodim kartasi mavjud emas yoki havola yaroqsiz.',
@@ -65,6 +68,7 @@ const T: Record<PublicLang, Translations> = {
 		brandBadge: 'Цифровая визитка',
 		profileBadge: 'Официальный цифровой профиль',
 		languageLabel: 'Язык',
+		specialtiesTitle: 'Специализации',
 		contactsTitle: 'Контакты',
 		workEmail: 'Рабочий email',
 		personalEmail: 'Личный email',
@@ -93,6 +97,7 @@ const T: Record<PublicLang, Translations> = {
 		brandBadge: 'Digital business card',
 		profileBadge: 'Official digital profile',
 		languageLabel: 'Language',
+		specialtiesTitle: 'Specialties',
 		contactsTitle: 'Contact',
 		workEmail: 'Work email',
 		personalEmail: 'Personal email',
@@ -183,6 +188,36 @@ function telegramHref(card: {
 	return null
 }
 
+type LocalizableField = 'full_name' | 'position' | 'department' | 'organization_name' | 'bio'
+
+function pickTranslatedField(
+	card: EmployeeCard,
+	lang: PublicLang,
+	field: LocalizableField,
+): string {
+	const trs = card.translations ?? undefined
+	const langTr = (trs ? trs[lang] : undefined) as EmployeeCardTranslation | undefined
+	const uzTr = (trs ? trs.uz : undefined) as EmployeeCardTranslation | undefined
+	const fromLang = langTr ? (langTr as any)[field] : undefined
+	if (fromLang !== undefined && fromLang !== null && fromLang !== '') return String(fromLang)
+	const fromUz = uzTr ? (uzTr as any)[field] : undefined
+	if (fromUz !== undefined && fromUz !== null && fromUz !== '') return String(fromUz)
+	const base = (card as any)[field]
+	if (base !== undefined && base !== null && base !== '') return String(base)
+	return ''
+}
+
+function pickTranslatedSpecialties(card: EmployeeCard, lang: PublicLang): string[] {
+	const trs = card.translations ?? undefined
+	const langTr = (trs ? trs[lang] : undefined) as EmployeeCardTranslation | undefined
+	const uzTr = (trs ? trs.uz : undefined) as EmployeeCardTranslation | undefined
+	const fromLang = langTr?.specialties
+	if (Array.isArray(fromLang) && fromLang.length > 0) return fromLang.filter((s) => s && s.trim().length > 0)
+	const fromUz = uzTr?.specialties
+	if (Array.isArray(fromUz) && fromUz.length > 0) return fromUz.filter((s) => s && s.trim().length > 0)
+	return []
+}
+
 export function PublicCardPage() {
 	const { slug } = useParams()
 	const safeSlug = slug ?? ''
@@ -218,7 +253,28 @@ export function PublicCardPage() {
 	const employeeLogo = isHttpUrl(data?.logo_url) ? data!.logo_url : null
 	const orgLogo = globalLogo ?? employeeLogo ?? null
 
-	const displayOrgName = data?.organization_name?.trim() || labels.orgName
+	const localized = useMemo(() => {
+		if (!data) {
+			return {
+				fullName: '',
+				position: '',
+				department: '',
+				organizationName: '',
+				bio: '',
+				specialties: [] as string[],
+			}
+		}
+		return {
+			fullName: pickTranslatedField(data, lang, 'full_name'),
+			position: pickTranslatedField(data, lang, 'position'),
+			department: pickTranslatedField(data, lang, 'department'),
+			organizationName: pickTranslatedField(data, lang, 'organization_name'),
+			bio: pickTranslatedField(data, lang, 'bio'),
+			specialties: pickTranslatedSpecialties(data, lang),
+		}
+	}, [data, lang])
+
+	const displayOrgName = localized.organizationName || labels.orgName
 
 	if (isLoading) {
 		return (
@@ -258,8 +314,18 @@ export function PublicCardPage() {
 	}
 
 	const heroPhoto = data.profile_photo_url
-	const pageTitle = data.full_name + ' | ' + displayOrgName
-	const pageDesc = data.full_name + ', ' + data.position
+	const displayFullName = localized.fullName || data.full_name
+	const displayPosition = localized.position || data.position
+	const displayDepartment = localized.department
+	const displayBio = localized.bio
+	const pageTitle = displayFullName + ' | ' + displayOrgName
+	const pageDesc = displayFullName + ', ' + displayPosition
+
+	const saveOverrides = {
+		full_name: displayFullName,
+		position: displayPosition,
+		organization_name: displayOrgName,
+	}
 
 	return (
 		<div className="min-h-screen overflow-x-hidden text-white">
@@ -298,8 +364,8 @@ export function PublicCardPage() {
 				orgName={displayOrgName}
 				subtitle={labels.orgSubtitle}
 				organizationLogoUrl={orgLogo}
-				fullName={data.full_name}
-				position={data.position}
+				fullName={displayFullName}
+				position={displayPosition}
 				profilePhotoUrl={data.profile_photo_url}
 				lang={lang}
 				onLangChange={setLang}
@@ -322,13 +388,13 @@ export function PublicCardPage() {
 											{heroPhoto ? (
 												<img
 													src={heroPhoto}
-													alt={data.full_name + ' photo'}
+													alt={displayFullName + ' photo'}
 													className="h-full w-full object-cover"
 													loading="lazy"
 												/>
 											) : (
 												<div className="grid h-full w-full place-items-center text-4xl font-semibold text-white/90">
-													{initials(data.full_name)}
+													{initials(displayFullName)}
 												</div>
 											)}
 										</div>
@@ -341,18 +407,18 @@ export function PublicCardPage() {
 										</div>
 
 										<div className="mt-3 text-3xl font-semibold tracking-tight sm:text-[34px]">
-											{data.full_name}
+											{displayFullName}
 										</div>
-										<div className="mt-1 text-sm text-white/80 sm:text-base">{data.position}</div>
+										<div className="mt-1 text-sm text-white/80 sm:text-base">{displayPosition}</div>
 										<div className="mt-2 text-sm font-medium text-yellow-200/85">
 											{displayOrgName}
 										</div>
-										{data.department ? (
-											<div className="mt-1 text-sm text-white/65">{data.department}</div>
+										{displayDepartment ? (
+											<div className="mt-1 text-sm text-white/65">{displayDepartment}</div>
 										) : null}
-										{data.bio ? (
+										{displayBio ? (
 											<p className="mt-3 max-w-prose text-sm leading-relaxed text-white/70">
-												{data.bio}
+												{displayBio}
 											</p>
 										) : null}
 
@@ -395,7 +461,11 @@ export function PublicCardPage() {
 											) : null}
 
 											<div className="w-full sm:w-auto">
-												<SaveContactButton card={data} className="w-full sm:w-auto" />
+												<SaveContactButton
+													card={data}
+													className="w-full sm:w-auto"
+													overrides={saveOverrides}
+												/>
 											</div>
 
 											<div className="col-span-2 w-full sm:w-auto">
@@ -408,6 +478,26 @@ export function PublicCardPage() {
 						</motion.div>
 
 						<motion.div {...RIGHT_MOTION} className="grid gap-5">
+							{localized.specialties.length > 0 ? (
+								<Card className="relative overflow-hidden rounded-[28px] border border-yellow-300/15 p-6">
+									<div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-yellow-300/50 to-transparent" />
+									<div className="text-xs font-semibold uppercase tracking-[0.18em] text-yellow-200/80">
+										{labels.specialtiesTitle}
+									</div>
+									<ul className="mt-3 grid gap-2">
+										{localized.specialties.map((item, idx) => (
+											<li
+												key={idx}
+												className="flex items-start gap-2 rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white/85"
+											>
+												<span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-yellow-300" />
+												<span className="min-w-0 break-words">{item}</span>
+											</li>
+										))}
+									</ul>
+								</Card>
+							) : null}
+
 							<ContactSection card={data} labels={labels} />
 						</motion.div>
 					</div>

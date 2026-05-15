@@ -18,6 +18,7 @@ import { Card } from '../../ui/Card'
 import { useToast } from '../../ui/Toast'
 
 const TG_BASE = 'https://' + 't.me/'
+const MAPS_BASE = 'https://' + 'www.google.com/maps/search/?api=1&query='
 
 const ROW_FROM = { opacity: 0, y: 8 } as const
 const ROW_TO = { opacity: 1, y: 0 } as const
@@ -38,6 +39,7 @@ export type ContactLabels = {
 	callAction?: string
 	emailAction?: string
 	copyAction?: string
+	mapAction?: string
 }
 
 const DEFAULT_LABELS: ContactLabels = {
@@ -56,6 +58,7 @@ const DEFAULT_LABELS: ContactLabels = {
 	callAction: 'Call',
 	emailAction: 'Email',
 	copyAction: 'Copy',
+	mapAction: 'Open in maps',
 }
 
 function digitsOnly(input: string) {
@@ -129,7 +132,7 @@ function ContactRow({
 		<motion.div
 			initial={ROW_FROM}
 			animate={ROW_TO}
-			className="group flex items-center gap-3 rounded-2xl border border-yellow-300/12 bg-gradient-to-br from-white/[0.05] via-white/[0.02] to-transparent px-3 py-2 transition hover:border-yellow-300/30 hover:from-yellow-300/[0.05]"
+			className="group flex items-center gap-3 rounded-2xl border border-yellow-300/15 bg-gradient-to-br from-white/[0.05] via-white/[0.02] to-transparent px-3 py-2 transition hover:border-yellow-300/35 hover:from-yellow-300/[0.06]"
 		>
 			<div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-yellow-300/30 bg-gradient-to-br from-yellow-300/20 via-yellow-300/5 to-transparent text-yellow-200 shadow-[0_8px_30px_rgba(0,0,0,0.45)]">
 				{icon}
@@ -309,25 +312,18 @@ export function ContactSection({
 	}
 
 	if (card.address) {
-		const a: CopyAction = { kind: 'copy', value: card.address, label: L.copyAction ?? 'Copy', actionIcon: COPY_ICON }
+		const mapsHref = MAPS_BASE + encodeURIComponent(card.address)
+		const a: LinkAction = {
+			kind: 'link',
+			href: mapsHref,
+			label: L.mapAction ?? 'Open in maps',
+			external: true,
+			actionIcon: PIN_ICON,
+		}
 		rows.push(
 			<ContactRow key="address" icon={PIN_ICON} label={L.address ?? 'Address'} value={card.address} action={a} />,
 		)
 	}
 
 	return (
-		<Card className="relative h-full overflow-hidden rounded-[28px] border border-yellow-300/25 bg-[#06090f]/85 p-5 shadow-[0_30px_80px_rgba(0,0,0,0.55)] sm:p-6">
-			<div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-yellow-300/70 to-transparent" />
-			<div className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-yellow-300/25 to-transparent" />
-			<div className="pointer-events-none absolute inset-0 bg-[radial-gradient(600px_circle_at_85%_-10%,rgba(245,197,66,0.12),transparent_55%)]" />
-
-			<div className="relative">
-				<div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.24em] text-yellow-200/90">
-					<span className="h-1.5 w-1.5 rounded-full bg-yellow-300 shadow-[0_0_12px_rgba(245,197,66,0.8)]" />
-					{L.contactsTitle}
-				</div>
-				<div className="mt-4 grid gap-2">{rows}</div>
-			</div>
-		</Card>
-	)
-}
+		<Card className="rel

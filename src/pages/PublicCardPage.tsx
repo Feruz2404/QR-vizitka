@@ -3,16 +3,13 @@ import { Helmet } from 'react-helmet-async'
 import { useMemo, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import {
-	ArrowUpRight,
 	BarChart3,
 	ChevronRight,
 	Cpu,
 	Database,
-	Globe2,
 	Landmark,
 	Lightbulb,
 	Mail,
-	MapPin,
 	Network,
 	Phone,
 	Send,
@@ -40,10 +37,6 @@ type Translations = ContactLabels & {
 	profileBadge: string
 	languageLabel: string
 	specialtiesTitle: string
-	officialProfileTitle: string
-	organizationLabel: string
-	websiteLabel: string
-	addressLabel: string
 	call: string
 	email: string
 	telegram: string
@@ -61,10 +54,6 @@ const T: Record<PublicLang, Translations> = {
 		profileBadge: 'Rasmiy raqamli profil',
 		languageLabel: 'Til',
 		specialtiesTitle: 'Mutaxassisliklar',
-		officialProfileTitle: 'Rasmiy raqamli profil',
-		organizationLabel: 'Tashkilot',
-		websiteLabel: 'Veb-sayt',
-		addressLabel: 'Manzil',
 		contactsTitle: 'Aloqa ma’lumotlari',
 		workEmail: 'Ish email',
 		personalEmail: 'Shaxsiy email',
@@ -80,6 +69,7 @@ const T: Record<PublicLang, Translations> = {
 		callAction: 'Qo‘ng‘iroq',
 		emailAction: 'Yozish',
 		copyAction: 'Nusxalash',
+		mapAction: 'Xaritada ochish',
 		call: 'Qo‘ng‘iroq',
 		email: 'Email',
 		notFound: 'Karta topilmadi',
@@ -94,10 +84,6 @@ const T: Record<PublicLang, Translations> = {
 		profileBadge: 'Официальный цифровой профиль',
 		languageLabel: 'Язык',
 		specialtiesTitle: 'Специализации',
-		officialProfileTitle: 'Официальный цифровой профиль',
-		organizationLabel: 'Организация',
-		websiteLabel: 'Веб-сайт',
-		addressLabel: 'Адрес',
 		contactsTitle: 'Контакты',
 		workEmail: 'Рабочий email',
 		personalEmail: 'Личный email',
@@ -113,6 +99,7 @@ const T: Record<PublicLang, Translations> = {
 		callAction: 'Позвонить',
 		emailAction: 'Написать',
 		copyAction: 'Копировать',
+		mapAction: 'Открыть на карте',
 		call: 'Позвонить',
 		email: 'Email',
 		notFound: 'Карта не найдена',
@@ -127,10 +114,6 @@ const T: Record<PublicLang, Translations> = {
 		profileBadge: 'Official digital profile',
 		languageLabel: 'Language',
 		specialtiesTitle: 'Specialties',
-		officialProfileTitle: 'Official digital profile',
-		organizationLabel: 'Organization',
-		websiteLabel: 'Website',
-		addressLabel: 'Address',
 		contactsTitle: 'Contact information',
 		workEmail: 'Work email',
 		personalEmail: 'Personal email',
@@ -146,6 +129,7 @@ const T: Record<PublicLang, Translations> = {
 		callAction: 'Call',
 		emailAction: 'Email',
 		copyAction: 'Copy',
+		mapAction: 'Open in maps',
 		call: 'Call',
 		email: 'Email',
 		notFound: 'Card not found',
@@ -177,12 +161,6 @@ const BL_MOTION = {
 	initial: { opacity: 0, y: 16 },
 	animate: { opacity: 1, y: 0 },
 	transition: { duration: 0.5, delay: 0.14 },
-} as const
-
-const BR_MOTION = {
-	initial: { opacity: 0, y: 16 },
-	animate: { opacity: 1, y: 0 },
-	transition: { duration: 0.55, delay: 0.18 },
 } as const
 
 const CTA_PRIMARY =
@@ -387,9 +365,6 @@ export function PublicCardPage() {
 	}
 
 	const hasSpecialties = localized.specialties.length > 0
-	const websiteUrl = data.website_url && isHttpUrl(data.website_url) ? data.website_url : null
-	const addressValue = data.address && data.address.trim().length > 0 ? data.address : null
-	const officialColSpanCls = hasSpecialties ? '' : 'lg:col-span-2'
 
 	return (
 		<div className="min-h-screen overflow-x-hidden text-white">
@@ -445,7 +420,7 @@ export function PublicCardPage() {
 								<div className="relative flex flex-col items-center gap-5 text-center sm:flex-row sm:items-start sm:gap-6 sm:text-left">
 									<div className="relative shrink-0">
 										<div className="pointer-events-none absolute -inset-4 rounded-full bg-gradient-to-br from-yellow-300/40 via-yellow-300/15 to-blue-400/10 blur-2xl" />
-										<div className="relative h-40 w-40 overflow-hidden rounded-full border-[3px] border-yellow-300/55 bg-white/10 shadow-[0_30px_90px_rgba(0,0,0,0.7)] sm:h-44 sm:w-44 lg:h-48 lg:w-48">
+										<div className="relative h-36 w-36 overflow-hidden rounded-full border-[3px] border-yellow-300/55 bg-white/10 shadow-[0_30px_90px_rgba(0,0,0,0.7)] sm:h-40 sm:w-40 lg:h-44 lg:w-44">
 											{heroPhoto ? (
 												<img
 													src={heroPhoto}
@@ -468,7 +443,7 @@ export function PublicCardPage() {
 											{labels.profileBadge}
 										</div>
 
-										<h1 className="mt-3 break-words text-2xl font-bold tracking-tight text-white sm:text-3xl lg:text-[34px]">
+										<h1 className="mt-3 break-words text-2xl font-bold tracking-tight text-white sm:text-3xl lg:text-[32px]">
 											{displayFullName}
 										</h1>
 										<div className="mt-1.5 text-sm text-yellow-100/90 sm:text-base">
@@ -528,7 +503,7 @@ export function PublicCardPage() {
 						</motion.div>
 
 						{hasSpecialties ? (
-							<motion.div {...BL_MOTION}>
+							<motion.div {...BL_MOTION} className="lg:col-span-2">
 								<Card className="relative h-full overflow-hidden rounded-[28px] border border-yellow-300/25 bg-[#06090f]/85 p-5 shadow-[0_30px_80px_rgba(0,0,0,0.55)] sm:p-6">
 									<div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-yellow-300/70 to-transparent" />
 									<div className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-yellow-300/25 to-transparent" />
@@ -538,7 +513,7 @@ export function PublicCardPage() {
 											<span className="h-1.5 w-1.5 rounded-full bg-yellow-300 shadow-[0_0_12px_rgba(245,197,66,0.8)]" />
 											{labels.specialtiesTitle}
 										</div>
-										<ul className="mt-4 grid gap-2">
+										<ul className="mt-4 grid gap-2 sm:grid-cols-2">
 											{localized.specialties.map((item, idx) => {
 												const Icon = SPEC_ICONS[idx % SPEC_ICONS.length]
 												return (
@@ -556,81 +531,6 @@ export function PublicCardPage() {
 								</Card>
 							</motion.div>
 						) : null}
-
-						<motion.div {...BR_MOTION} className={officialColSpanCls}>
-							<Card className="relative h-full overflow-hidden rounded-[28px] border border-yellow-300/30 bg-gradient-to-br from-[#0a0f1c]/90 via-[#06090f]/90 to-[#020308]/95 p-5 shadow-[0_30px_80px_rgba(0,0,0,0.55)] sm:p-6">
-								<div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-yellow-300/75 to-transparent" />
-								<div className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-yellow-300/30 to-transparent" />
-								<div className="pointer-events-none absolute inset-0 bg-[radial-gradient(500px_circle_at_110%_110%,rgba(245,197,66,0.14),transparent_55%),radial-gradient(400px_circle_at_-5%_-5%,rgba(59,130,246,0.10),transparent_55%)]" />
-
-								<div className="relative">
-									<div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.24em] text-yellow-200/90">
-										<ShieldCheck className="h-3.5 w-3.5 text-yellow-200" aria-hidden="true" />
-										{labels.officialProfileTitle}
-									</div>
-
-									<div className="mt-4 grid gap-2">
-										<div className={ROW_GLASS}>
-											<div className={ICON_BOX + ' overflow-hidden'}>
-												{orgLogo ? (
-													<img src={orgLogo} alt="" className="h-full w-full object-contain p-1.5" />
-												) : (
-													<Landmark className="h-4 w-4" aria-hidden="true" />
-												)}
-											</div>
-											<div className="min-w-0 flex-1">
-												<div className="text-[10px] font-semibold uppercase tracking-[0.2em] text-yellow-200/65">
-													{labels.organizationLabel}
-												</div>
-												<div className="break-words text-sm font-semibold text-white/95">{displayOrgName}</div>
-											</div>
-										</div>
-
-										{websiteUrl ? (
-											<a
-												href={websiteUrl}
-												target="_blank"
-												rel="noreferrer noopener"
-												className={ROW_GLASS}
-												aria-label={labels.websiteLabel}
-											>
-												<div className={ICON_BOX}>
-													<Globe2 className="h-4 w-4" aria-hidden="true" />
-												</div>
-												<div className="min-w-0 flex-1">
-													<div className="text-[10px] font-semibold uppercase tracking-[0.2em] text-yellow-200/65">
-														{labels.websiteLabel}
-													</div>
-													<div className="truncate text-sm text-white/90" title={websiteUrl}>
-														{websiteUrl}
-													</div>
-												</div>
-												<ArrowUpRight className="h-4 w-4 shrink-0 text-yellow-200/70 transition group-hover:text-yellow-200" aria-hidden="true" />
-											</a>
-										) : null}
-
-										{addressValue ? (
-											<div className={ROW_GLASS}>
-												<div className={ICON_BOX}>
-													<MapPin className="h-4 w-4" aria-hidden="true" />
-												</div>
-												<div className="min-w-0 flex-1">
-													<div className="text-[10px] font-semibold uppercase tracking-[0.2em] text-yellow-200/65">
-														{labels.addressLabel}
-													</div>
-													<div className="break-words text-sm text-white/90">{addressValue}</div>
-												</div>
-											</div>
-										) : null}
-									</div>
-
-									<div className="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-2">
-										<SaveContactButton card={data} className="w-full" overrides={saveOverrides} />
-										<ShareButton url={url} title={pageTitle} />
-									</div>
-								</div>
-							</Card>
-						</motion.div>
 					</div>
 				</motion.div>
 			</div>

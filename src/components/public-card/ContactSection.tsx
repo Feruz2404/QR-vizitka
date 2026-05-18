@@ -1,21 +1,10 @@
-import {
-	ArrowUpRight,
-	Copy,
-	ExternalLink,
-	Globe2,
-	Mail,
-	MapPin,
-	Phone,
-	PhoneCall,
-} from 'lucide-react'
+import { ArrowUpRight, Copy, Mail, Phone, PhoneCall } from 'lucide-react'
 import { motion } from 'framer-motion'
 import type { ReactNode } from 'react'
 
 import type { EmployeeCard } from '../../types/employee'
 import { Card } from '../../ui/Card'
 import { useToast } from '../../ui/Toast'
-
-const MAPS_BASE = 'https://' + 'www.google.com/maps/search/?api=1&query='
 
 const ROW_FROM = { opacity: 0, y: 8 } as const
 const ROW_TO = { opacity: 1, y: 0 } as const
@@ -85,20 +74,6 @@ function telHrefFor(value?: string | null) {
 	if (raw.startsWith('998')) return 'tel:+' + raw
 	if (raw.length === 9) return 'tel:+998' + raw
 	return value.startsWith('+') ? 'tel:' + value : 'tel:+' + raw
-}
-
-function isHttpUrl(value?: string | null) {
-	if (!value) return false
-	try {
-		const u = new URL(value)
-		return u.protocol === 'http:' || u.protocol === 'https:'
-	} catch {
-		return false
-	}
-}
-
-function prettyUrl(value: string) {
-	return value.replace(/^https?:\/\//i, '').replace(/\/+$/, '')
 }
 
 type LinkAction = { kind: 'link'; href: string; label: string; external?: boolean; actionIcon?: ReactNode }
@@ -173,10 +148,7 @@ function ContactRow({
 const MAIL_ICON = <Mail className="h-4 w-4" />
 const PHONE_ICON = <Phone className="h-4 w-4" />
 const PHONECALL_ICON = <PhoneCall className="h-4 w-4" />
-const EXT_ICON = <ExternalLink className="h-4 w-4" />
 const COPY_ICON = <Copy className="h-4 w-4" />
-const GLOBE_ICON = <Globe2 className="h-4 w-4" />
-const PIN_ICON = <MapPin className="h-4 w-4" />
 
 export function ContactSection({
 	card,
@@ -258,40 +230,6 @@ export function ContactSection({
 		const a: CopyAction = { kind: 'copy', value: copyValue, label: L.copyAction ?? 'Copy', actionIcon: COPY_ICON }
 		rows.push(
 			<ContactRow key="short_phone" icon={PHONE_ICON} label={internalLabel} value={copyValue} action={a} />,
-		)
-	}
-
-	if (card.website_url && isHttpUrl(card.website_url)) {
-		const a: LinkAction = {
-			kind: 'link',
-			href: card.website_url,
-			label: L.openAction ?? 'Open',
-			external: true,
-			actionIcon: EXT_ICON,
-		}
-		rows.push(
-			<ContactRow
-				key="website"
-				icon={GLOBE_ICON}
-				label={L.website ?? 'Website'}
-				value={card.website_url}
-				displayValue={prettyUrl(card.website_url)}
-				action={a}
-			/>,
-		)
-	}
-
-	if (card.address) {
-		const mapsHref = MAPS_BASE + encodeURIComponent(card.address)
-		const a: LinkAction = {
-			kind: 'link',
-			href: mapsHref,
-			label: L.mapAction ?? 'Open in maps',
-			external: true,
-			actionIcon: PIN_ICON,
-		}
-		rows.push(
-			<ContactRow key="address" icon={PIN_ICON} label={L.address ?? 'Address'} value={card.address} action={a} />,
 		)
 	}
 

@@ -559,7 +559,6 @@ export function PublicCardPage() {
 	const addressValue = (data.address ?? '').trim()
 	const mapsHref = addressValue ? MAPS_BASE + encodeURIComponent(addressValue) : null
 	const wechatTitle = 'WeChat: ' + WECHAT_USERNAME
-	const profileSpansFull = !hasSpecialties
 
 	return (
 		<div className="min-h-screen w-full max-w-full overflow-x-hidden text-white">
@@ -587,252 +586,253 @@ export function PublicCardPage() {
 			<div className="mx-auto w-full max-w-[1320px] px-3 pb-12 pt-5 sm:px-5 sm:pt-7 lg:px-6 lg:pt-8">
 				<motion.div {...PAGE_MOTION}>
 					<div className="grid w-full max-w-full gap-5 sm:gap-6 lg:grid-cols-[1.15fr_0.85fr] lg:items-start lg:gap-6">
-						<motion.div {...HERO_MOTION} className="min-w-0">
-							<Card className="relative h-full w-full min-w-0 max-w-full overflow-hidden rounded-[24px] border border-yellow-300/30 bg-gradient-to-br from-white/[0.10] via-white/[0.04] to-[#06090f]/55 p-4 shadow-[0_40px_120px_rgba(0,0,0,0.6),0_0_70px_rgba(245,197,66,0.10)] backdrop-blur-2xl sm:rounded-[28px] sm:p-6 lg:p-7">
-								<div className="pointer-events-none absolute inset-0 bg-[radial-gradient(700px_circle_at_10%_5%,rgba(245,197,66,0.20),transparent_55%),radial-gradient(900px_circle_at_95%_15%,rgba(59,130,246,0.16),transparent_60%)]" />
-								<div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-yellow-300/80 to-transparent" />
-								<div className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-yellow-300/35 to-transparent" />
+						<div className="flex w-full min-w-0 max-w-full flex-col gap-5 sm:gap-6">
+							<motion.div {...HERO_MOTION} className="min-w-0">
+								<Card className="relative h-full w-full min-w-0 max-w-full overflow-hidden rounded-[24px] border border-yellow-300/30 bg-gradient-to-br from-white/[0.10] via-white/[0.04] to-[#06090f]/55 p-4 shadow-[0_40px_120px_rgba(0,0,0,0.6),0_0_70px_rgba(245,197,66,0.10)] backdrop-blur-2xl sm:rounded-[28px] sm:p-6 lg:p-7">
+									<div className="pointer-events-none absolute inset-0 bg-[radial-gradient(700px_circle_at_10%_5%,rgba(245,197,66,0.20),transparent_55%),radial-gradient(900px_circle_at_95%_15%,rgba(59,130,246,0.16),transparent_60%)]" />
+									<div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-yellow-300/80 to-transparent" />
+									<div className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-yellow-300/35 to-transparent" />
 
-								<div className="relative flex w-full min-w-0 flex-col items-center gap-5 text-center sm:flex-row sm:items-start sm:gap-6 sm:text-left">
-									<div className="relative shrink-0">
-										<div className="pointer-events-none absolute -inset-4 rounded-full bg-gradient-to-br from-yellow-300/45 via-yellow-300/18 to-blue-400/12 blur-2xl" />
-										<div className="relative h-28 w-28 overflow-hidden rounded-full border-[3px] border-yellow-300/60 bg-white/10 shadow-[0_30px_90px_rgba(0,0,0,0.7)] sm:h-36 sm:w-36 lg:h-40 lg:w-40">
-											{heroPhoto ? (
-												<img
-													src={heroPhoto}
-													alt={displayFullName + ' photo'}
-													className="h-full w-full object-cover"
-													loading="lazy"
-												/>
-											) : (
-												<div className="grid h-full w-full place-items-center text-4xl font-semibold text-white/90 sm:text-5xl">
-													{initials(displayFullName)}
-												</div>
-											)}
-										</div>
-										<div className="pointer-events-none absolute -inset-1 rounded-full border border-yellow-300/35" />
-									</div>
-
-									<div className="flex w-full min-w-0 max-w-full flex-1 flex-col items-center sm:items-start">
-										<div className="inline-flex max-w-full items-center gap-1.5 rounded-full border border-yellow-300/45 bg-yellow-300/10 px-2.5 py-1 text-[9px] font-semibold uppercase tracking-[0.18em] text-yellow-100 backdrop-blur-md sm:gap-2 sm:px-3 sm:text-[10px] sm:tracking-[0.22em]">
-											<ShieldCheck className="h-3 w-3 shrink-0 text-yellow-200 sm:h-3.5 sm:w-3.5" aria-hidden="true" />
-											<span className="min-w-0 truncate">{labels.profileBadge}</span>
-										</div>
-
-										<h1 className="mt-3 w-full break-words text-xl font-bold tracking-tight text-white sm:text-2xl lg:text-[28px]">
-											{displayFullName}
-										</h1>
-										<div className="mt-1.5 w-full break-words text-sm text-yellow-100/90 sm:text-base">
-											{displayPosition}
-										</div>
-										{displayDepartment ? (
-											<div className="mt-1 w-full break-words text-xs text-white/65 sm:text-sm">{displayDepartment}</div>
-										) : null}
-										<div className="mt-3 inline-flex max-w-full items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-yellow-200 sm:text-[11px] sm:tracking-[0.22em]">
-											<Landmark className="h-3.5 w-3.5 shrink-0 text-yellow-200/85" aria-hidden="true" />
-											<span className="min-w-0 break-words">{displayOrgName}</span>
-										</div>
-										{displayBio ? (
-											<p className="mt-3 w-full max-w-prose break-words text-sm leading-relaxed text-white/70 sm:text-[15px]">
-												{displayBio}
-											</p>
-										) : null}
-
-										<div className="mt-5 flex w-full min-w-0 max-w-full flex-col gap-2.5">
-											<div className="grid w-full min-w-0 max-w-full grid-cols-1 gap-2 sm:grid-cols-2">
-												{phoneHref ? (
-													<a href={phoneHref} className={CTA_PRIMARY} aria-label={labels.call}>
-														<Phone className="h-4 w-4 shrink-0" aria-hidden="true" />
-														<span className="truncate">{labels.call}</span>
-													</a>
-												) : null}
-												{emailHref ? (
-													<a href={emailHref} className={CTA_SECONDARY} aria-label={labels.email}>
-														<Mail className="h-4 w-4 shrink-0" aria-hidden="true" />
-														<span className="truncate">{labels.email}</span>
-													</a>
-												) : null}
-											</div>
-
-											<div className="flex w-full min-w-0 max-w-full flex-wrap items-center justify-center gap-2 sm:justify-start">
-												{tgHref ? (
-													<a
-														href={tgHref}
-														target="_blank"
-														rel="noreferrer noopener"
-														className={SOCIAL_BTN}
-														title={labels.telegram}
-														aria-label={labels.telegram}
-													>
-														<Send className="h-5 w-5" aria-hidden="true" />
-													</a>
-												) : null}
-												{facebookHref ? (
-													<a
-														href={facebookHref}
-														target="_blank"
-														rel="noreferrer noopener"
-														className={SOCIAL_BTN}
-														title={labels.facebook}
-														aria-label={labels.facebook}
-													>
-														<Facebook className="h-5 w-5" aria-hidden="true" />
-													</a>
-												) : null}
-												<button
-													type="button"
-													onClick={handleWeChatCopy}
-													className={SOCIAL_BTN}
-													title={wechatTitle}
-													aria-label={wechatTitle}
-												>
-													{wechatCopied ? (
-														<Check className="h-5 w-5" aria-hidden="true" />
-													) : (
-														<MessageCircle className="h-5 w-5" aria-hidden="true" />
-													)}
-												</button>
-											</div>
-
-											<div className="grid w-full min-w-0 max-w-full grid-cols-1 gap-2 sm:grid-cols-2">
-												<SaveContactButton card={data} className="w-full" overrides={saveOverrides} />
-												<ShareButton url={url} title={pageTitle} />
-											</div>
-
-											<div
-												className={
-													'min-h-[16px] text-center text-[11px] text-yellow-200 transition-opacity sm:text-left ' +
-													(wechatCopied ? 'opacity-100' : 'opacity-0')
-												}
-												aria-live="polite"
-											>
-												{labels.copiedLabel}
-											</div>
-										</div>
-									</div>
-								</div>
-							</Card>
-						</motion.div>
-
-						<motion.div {...TR_MOTION} className="min-w-0">
-							<ContactSection card={data} labels={labels} />
-						</motion.div>
-
-						{hasSpecialties ? (
-							<motion.div {...SPEC_MOTION} className="min-w-0">
-								<Card className={SECTION_CARD}>
-									<div className="pointer-events-none absolute inset-0 bg-[radial-gradient(600px_circle_at_10%_0%,rgba(245,197,66,0.16),transparent_55%)]" />
-									<div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-yellow-300/55 to-transparent" />
-									<div className="relative">
-										<div className={SECTION_TITLE}>
-											<span className="h-1.5 w-1.5 shrink-0 rounded-full bg-yellow-300 shadow-[0_0_12px_rgba(245,197,66,0.8)]" />
-											<span className="min-w-0 break-words">{labels.specialtiesTitle}</span>
-										</div>
-										<div className="mt-3 grid w-full min-w-0 max-w-full grid-cols-1 gap-2 sm:grid-cols-2">
-											{localized.specialties.map((item, idx) => {
-												const Icon = SPEC_ICONS[idx % SPEC_ICONS.length]
-												return (
-													<div key={idx} className={SPEC_CHIP}>
-														<span className={SPEC_ICON_BOX}>
-															<Icon className="h-3.5 w-3.5" aria-hidden="true" />
-														</span>
-														<span className="min-w-0 flex-1 break-words text-left text-xs text-white/90 sm:text-[13px]">{item}</span>
-														<ChevronRight className="h-3.5 w-3.5 shrink-0 text-yellow-200/55 transition group-hover:translate-x-0.5 group-hover:text-yellow-200" aria-hidden="true" />
+									<div className="relative flex w-full min-w-0 flex-col items-center gap-5 text-center sm:flex-row sm:items-start sm:gap-6 sm:text-left">
+										<div className="relative shrink-0">
+											<div className="pointer-events-none absolute -inset-4 rounded-full bg-gradient-to-br from-yellow-300/45 via-yellow-300/18 to-blue-400/12 blur-2xl" />
+											<div className="relative h-28 w-28 overflow-hidden rounded-full border-[3px] border-yellow-300/60 bg-white/10 shadow-[0_30px_90px_rgba(0,0,0,0.7)] sm:h-36 sm:w-36 lg:h-40 lg:w-40">
+												{heroPhoto ? (
+													<img
+														src={heroPhoto}
+														alt={displayFullName + ' photo'}
+														className="h-full w-full object-cover"
+														loading="lazy"
+													/>
+												) : (
+													<div className="grid h-full w-full place-items-center text-4xl font-semibold text-white/90 sm:text-5xl">
+														{initials(displayFullName)}
 													</div>
-												)
-											})}
+												)}
+											</div>
+											<div className="pointer-events-none absolute -inset-1 rounded-full border border-yellow-300/35" />
+										</div>
+
+										<div className="flex w-full min-w-0 max-w-full flex-1 flex-col items-center sm:items-start">
+											<div className="inline-flex max-w-full items-center gap-1.5 rounded-full border border-yellow-300/45 bg-yellow-300/10 px-2.5 py-1 text-[9px] font-semibold uppercase tracking-[0.18em] text-yellow-100 backdrop-blur-md sm:gap-2 sm:px-3 sm:text-[10px] sm:tracking-[0.22em]">
+												<ShieldCheck className="h-3 w-3 shrink-0 text-yellow-200 sm:h-3.5 sm:w-3.5" aria-hidden="true" />
+												<span className="min-w-0 truncate">{labels.profileBadge}</span>
+											</div>
+
+											<h1 className="mt-3 w-full break-words text-xl font-bold tracking-tight text-white sm:text-2xl lg:text-[28px]">
+												{displayFullName}
+											</h1>
+											<div className="mt-1.5 w-full break-words text-sm text-yellow-100/90 sm:text-base">
+												{displayPosition}
+											</div>
+											{displayDepartment ? (
+												<div className="mt-1 w-full break-words text-xs text-white/65 sm:text-sm">{displayDepartment}</div>
+											) : null}
+											<div className="mt-3 inline-flex max-w-full items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-yellow-200 sm:text-[11px] sm:tracking-[0.22em]">
+												<Landmark className="h-3.5 w-3.5 shrink-0 text-yellow-200/85" aria-hidden="true" />
+												<span className="min-w-0 break-words">{displayOrgName}</span>
+											</div>
+											{displayBio ? (
+												<p className="mt-3 w-full max-w-prose break-words text-sm leading-relaxed text-white/70 sm:text-[15px]">
+													{displayBio}
+												</p>
+											) : null}
+
+											<div className="mt-5 flex w-full min-w-0 max-w-full flex-col gap-2.5">
+												<div className="grid w-full min-w-0 max-w-full grid-cols-1 gap-2 sm:grid-cols-2">
+													{phoneHref ? (
+														<a href={phoneHref} className={CTA_PRIMARY} aria-label={labels.call}>
+															<Phone className="h-4 w-4 shrink-0" aria-hidden="true" />
+															<span className="truncate">{labels.call}</span>
+														</a>
+													) : null}
+													{emailHref ? (
+														<a href={emailHref} className={CTA_SECONDARY} aria-label={labels.email}>
+															<Mail className="h-4 w-4 shrink-0" aria-hidden="true" />
+															<span className="truncate">{labels.email}</span>
+														</a>
+													) : null}
+												</div>
+
+												<div className="flex w-full min-w-0 max-w-full flex-wrap items-center justify-center gap-2 sm:justify-start">
+													{tgHref ? (
+														<a
+															href={tgHref}
+															target="_blank"
+															rel="noreferrer noopener"
+															className={SOCIAL_BTN}
+															title={labels.telegram}
+															aria-label={labels.telegram}
+														>
+															<Send className="h-5 w-5" aria-hidden="true" />
+														</a>
+													) : null}
+													{facebookHref ? (
+														<a
+															href={facebookHref}
+															target="_blank"
+															rel="noreferrer noopener"
+															className={SOCIAL_BTN}
+															title={labels.facebook}
+															aria-label={labels.facebook}
+														>
+															<Facebook className="h-5 w-5" aria-hidden="true" />
+														</a>
+													) : null}
+													<button
+														type="button"
+														onClick={handleWeChatCopy}
+														className={SOCIAL_BTN}
+														title={wechatTitle}
+														aria-label={wechatTitle}
+													>
+														{wechatCopied ? (
+															<Check className="h-5 w-5" aria-hidden="true" />
+														) : (
+															<MessageCircle className="h-5 w-5" aria-hidden="true" />
+														)}
+													</button>
+												</div>
+
+												<div className="grid w-full min-w-0 max-w-full grid-cols-1 gap-2 sm:grid-cols-2">
+													<SaveContactButton card={data} className="w-full" overrides={saveOverrides} />
+													<ShareButton url={url} title={pageTitle} />
+												</div>
+
+												<div
+													className={
+														'min-h-[16px] text-center text-[11px] text-yellow-200 transition-opacity sm:text-left ' +
+														(wechatCopied ? 'opacity-100' : 'opacity-0')
+													}
+													aria-live="polite"
+												>
+													{labels.copiedLabel}
+												</div>
+											</div>
 										</div>
 									</div>
 								</Card>
 							</motion.div>
-						) : null}
 
-						<motion.div
-							{...PROFILE_MOTION}
-							className={profileSpansFull ? 'min-w-0 lg:col-span-2' : 'min-w-0'}
-						>
-							<Card className={SECTION_CARD}>
-								<div className="pointer-events-none absolute inset-0 bg-[radial-gradient(700px_circle_at_85%_0%,rgba(245,197,66,0.18),transparent_55%),radial-gradient(700px_circle_at_15%_100%,rgba(59,130,246,0.14),transparent_55%)]" />
-								<div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-yellow-300/70 to-transparent" />
-								<div className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-yellow-300/30 to-transparent" />
-
-								<div className="relative flex h-full w-full min-w-0 max-w-full flex-col">
-									<div className={SECTION_TITLE}>
-										<ShieldCheck className="h-3.5 w-3.5 shrink-0 text-yellow-200" aria-hidden="true" />
-										<span className="min-w-0 break-words">{labels.officialProfileTitle}</span>
-									</div>
-
-									<div className="mt-3 flex w-full min-w-0 max-w-full flex-col gap-2">
-										<div className={PROFILE_ROW}>
-											<div className={PROFILE_ROW_ICON_BOX}>
-												{orgLogo ? (
-													<img src={orgLogo} alt="" className="h-full w-full object-cover" loading="lazy" />
-												) : (
-													<Landmark className="h-5 w-5" aria-hidden="true" />
-												)}
+							{hasSpecialties ? (
+								<motion.div {...SPEC_MOTION} className="min-w-0">
+									<Card className={SECTION_CARD}>
+										<div className="pointer-events-none absolute inset-0 bg-[radial-gradient(600px_circle_at_10%_0%,rgba(245,197,66,0.16),transparent_55%)]" />
+										<div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-yellow-300/55 to-transparent" />
+										<div className="relative">
+											<div className={SECTION_TITLE}>
+												<span className="h-1.5 w-1.5 shrink-0 rounded-full bg-yellow-300 shadow-[0_0_12px_rgba(245,197,66,0.8)]" />
+												<span className="min-w-0 break-words">{labels.specialtiesTitle}</span>
 											</div>
-											<div className="min-w-0 flex-1">
-												<div className={PROFILE_ROW_LABEL}>{labels.digitalCardLabel}</div>
-												<div className="mt-0.5 break-words text-sm font-semibold text-white sm:text-base">
-													{displayOrgName}
-												</div>
+											<div className="mt-3 grid w-full min-w-0 max-w-full grid-cols-1 gap-2 sm:grid-cols-2">
+												{localized.specialties.map((item, idx) => {
+													const Icon = SPEC_ICONS[idx % SPEC_ICONS.length]
+													return (
+														<div key={idx} className={SPEC_CHIP}>
+															<span className={SPEC_ICON_BOX}>
+																<Icon className="h-3.5 w-3.5" aria-hidden="true" />
+															</span>
+															<span className="min-w-0 flex-1 break-words text-left text-xs text-white/90 sm:text-[13px]">{item}</span>
+															<ChevronRight className="h-3.5 w-3.5 shrink-0 text-yellow-200/55 transition group-hover:translate-x-0.5 group-hover:text-yellow-200" aria-hidden="true" />
+														</div>
+													)
+												})}
 											</div>
 										</div>
+									</Card>
+								</motion.div>
+							) : null}
+						</div>
 
-										{websiteHref ? (
-											<a
-												href={websiteHref}
-												target="_blank"
-												rel="noreferrer noopener"
-												className={PROFILE_ROW}
-												aria-label={labels.website}
-												title={websiteHref}
-											>
+						<div className="flex w-full min-w-0 max-w-full flex-col gap-5 sm:gap-6">
+							<motion.div {...TR_MOTION} className="min-w-0">
+								<ContactSection card={data} labels={labels} />
+							</motion.div>
+
+							<motion.div {...PROFILE_MOTION} className="min-w-0">
+								<Card className={SECTION_CARD}>
+									<div className="pointer-events-none absolute inset-0 bg-[radial-gradient(700px_circle_at_85%_0%,rgba(245,197,66,0.18),transparent_55%),radial-gradient(700px_circle_at_15%_100%,rgba(59,130,246,0.14),transparent_55%)]" />
+									<div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-yellow-300/70 to-transparent" />
+									<div className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-yellow-300/30 to-transparent" />
+
+									<div className="relative flex h-full w-full min-w-0 max-w-full flex-col">
+										<div className={SECTION_TITLE}>
+											<ShieldCheck className="h-3.5 w-3.5 shrink-0 text-yellow-200" aria-hidden="true" />
+											<span className="min-w-0 break-words">{labels.officialProfileTitle}</span>
+										</div>
+
+										<div className="mt-3 flex w-full min-w-0 max-w-full flex-col gap-2">
+											<div className={PROFILE_ROW}>
 												<div className={PROFILE_ROW_ICON_BOX}>
-													<Globe2 className="h-5 w-5" aria-hidden="true" />
+													{orgLogo ? (
+														<img src={orgLogo} alt="" className="h-full w-full object-cover" loading="lazy" />
+													) : (
+														<Landmark className="h-5 w-5" aria-hidden="true" />
+													)}
 												</div>
 												<div className="min-w-0 flex-1">
-													<div className={PROFILE_ROW_LABEL}>{labels.website}</div>
-													<div className="mt-0.5 truncate text-sm text-white/90 sm:text-[15px]">
-														{prettyUrl(websiteHref)}
+													<div className={PROFILE_ROW_LABEL}>{labels.digitalCardLabel}</div>
+													<div className="mt-0.5 break-words text-sm font-semibold text-white sm:text-base">
+														{displayOrgName}
 													</div>
 												</div>
-												<ExternalLink className="h-4 w-4 shrink-0 text-yellow-200/70 transition group-hover:text-yellow-200" aria-hidden="true" />
-											</a>
-										) : null}
+											</div>
 
-										{mapsHref ? (
-											<a
-												href={mapsHref}
-												target="_blank"
-												rel="noreferrer noopener"
-												className={PROFILE_ROW}
-												aria-label={labels.mapAction ?? labels.address}
-												title={addressValue}
-											>
-												<div className={PROFILE_ROW_ICON_BOX}>
-													<MapPin className="h-5 w-5" aria-hidden="true" />
-												</div>
-												<div className="min-w-0 flex-1">
-													<div className={PROFILE_ROW_LABEL}>{labels.address}</div>
-													<div className="mt-0.5 break-words text-sm text-white/90 sm:text-[15px]">
-														{addressValue}
+											{websiteHref ? (
+												<a
+													href={websiteHref}
+													target="_blank"
+													rel="noreferrer noopener"
+													className={PROFILE_ROW}
+													aria-label={labels.website}
+													title={websiteHref}
+												>
+													<div className={PROFILE_ROW_ICON_BOX}>
+														<Globe2 className="h-5 w-5" aria-hidden="true" />
 													</div>
-												</div>
-												<ExternalLink className="h-4 w-4 shrink-0 text-yellow-200/70 transition group-hover:text-yellow-200" aria-hidden="true" />
-											</a>
-										) : null}
-									</div>
+													<div className="min-w-0 flex-1">
+														<div className={PROFILE_ROW_LABEL}>{labels.website}</div>
+														<div className="mt-0.5 truncate text-sm text-white/90 sm:text-[15px]">
+															{prettyUrl(websiteHref)}
+														</div>
+													</div>
+													<ExternalLink className="h-4 w-4 shrink-0 text-yellow-200/70 transition group-hover:text-yellow-200" aria-hidden="true" />
+												</a>
+											) : null}
 
-									<div className="mt-auto pt-4">
-										<div className="grid w-full min-w-0 max-w-full grid-cols-1 gap-2 sm:grid-cols-2">
-											<SaveContactButton card={data} className="w-full" overrides={saveOverrides} />
-											<ShareButton url={url} title={pageTitle} />
+											{mapsHref ? (
+												<a
+													href={mapsHref}
+													target="_blank"
+													rel="noreferrer noopener"
+													className={PROFILE_ROW}
+													aria-label={labels.mapAction ?? labels.address}
+													title={addressValue}
+												>
+													<div className={PROFILE_ROW_ICON_BOX}>
+														<MapPin className="h-5 w-5" aria-hidden="true" />
+													</div>
+													<div className="min-w-0 flex-1">
+														<div className={PROFILE_ROW_LABEL}>{labels.address}</div>
+														<div className="mt-0.5 break-words text-sm text-white/90 sm:text-[15px]">
+															{addressValue}
+														</div>
+													</div>
+													<ExternalLink className="h-4 w-4 shrink-0 text-yellow-200/70 transition group-hover:text-yellow-200" aria-hidden="true" />
+												</a>
+											) : null}
+										</div>
+
+										<div className="mt-auto pt-4">
+											<div className="grid w-full min-w-0 max-w-full grid-cols-1 gap-2 sm:grid-cols-2">
+												<SaveContactButton card={data} className="w-full" overrides={saveOverrides} />
+												<ShareButton url={url} title={pageTitle} />
+											</div>
 										</div>
 									</div>
-								</div>
-							</Card>
-						</motion.div>
+								</Card>
+							</motion.div>
+						</div>
 					</div>
 				</motion.div>
 			</div>

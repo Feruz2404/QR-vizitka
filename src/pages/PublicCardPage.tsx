@@ -8,11 +8,13 @@ import {
 	ChevronRight,
 	Cpu,
 	Database,
+	ExternalLink,
 	Facebook,
 	Globe2,
 	Landmark,
 	Lightbulb,
 	Mail,
+	MapPin,
 	MessageCircle,
 	Network,
 	Phone,
@@ -232,9 +234,19 @@ const SECTION_CARD =
 const SECTION_TITLE =
 	'flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.24em] text-yellow-200/90 sm:text-[11px] sm:tracking-[0.28em]'
 
+const PROFILE_ROW =
+	'group flex w-full min-w-0 max-w-full items-center gap-3 rounded-2xl border border-yellow-300/25 bg-gradient-to-br from-white/[0.06] via-white/[0.02] to-transparent p-3 backdrop-blur-md transition hover:border-yellow-300/45 hover:from-yellow-300/[0.08]'
+
+const PROFILE_ROW_ICON_BOX =
+	'grid h-10 w-10 shrink-0 place-items-center overflow-hidden rounded-xl border border-yellow-300/35 bg-black/30 text-yellow-200'
+
+const PROFILE_ROW_LABEL =
+	'text-[10px] font-semibold uppercase tracking-[0.2em] text-yellow-200/75 sm:text-[11px] sm:tracking-[0.24em]'
+
 const SPEC_ICONS = [Cpu, Network, BarChart3, ShieldCheck, Lightbulb, Workflow, Database, Settings2]
 
 const WECHAT_USERNAME = '@umirzakov_u'
+const MAPS_BASE = 'https://www.google.com/maps/search/?api=1&query='
 
 function fullUrl(publicBaseUrl: string, slug: string) {
 	return publicBaseUrl.replace(/\/$/, '') + '/v/' + slug
@@ -267,6 +279,17 @@ function isHttpUrl(value?: string | null) {
 		return u.protocol === 'http:' || u.protocol === 'https:'
 	} catch {
 		return false
+	}
+}
+
+function prettyUrl(value: string) {
+	try {
+		const u = new URL(value)
+		const host = u.host.replace(/^www\./, '')
+		const path = u.pathname === '/' ? '' : u.pathname.replace(/\/$/, '')
+		return host + path
+	} catch {
+		return value
 	}
 }
 
@@ -533,6 +556,8 @@ export function PublicCardPage() {
 	const hasSpecialties = localized.specialties.length > 0
 	const facebookHref = isHttpUrl(data.facebook_url) ? data.facebook_url : null
 	const websiteHref = isHttpUrl(data.website_url) ? data.website_url : null
+	const addressValue = (data.address ?? '').trim()
+	const mapsHref = addressValue ? MAPS_BASE + encodeURIComponent(addressValue) : null
 	const wechatTitle = 'WeChat: ' + WECHAT_USERNAME
 	const profileSpansFull = !hasSpecialties
 
@@ -613,44 +638,35 @@ export function PublicCardPage() {
 											</p>
 										) : null}
 
-										<div className="mt-5 grid w-full min-w-0 max-w-full grid-cols-1 gap-2 sm:grid-cols-3">
-											{phoneHref ? (
-												<a href={phoneHref} className={CTA_PRIMARY} aria-label={labels.call}>
-													<Phone className="h-4 w-4 shrink-0" aria-hidden="true" />
-													<span className="truncate">{labels.call}</span>
-												</a>
-											) : null}
-											{emailHref ? (
-												<a href={emailHref} className={CTA_SECONDARY} aria-label={labels.email}>
-													<Mail className="h-4 w-4 shrink-0" aria-hidden="true" />
-													<span className="truncate">{labels.email}</span>
-												</a>
-											) : null}
-											{tgHref ? (
-												<a
-													href={tgHref}
-													target="_blank"
-													rel="noreferrer noopener"
-													className={CTA_SECONDARY}
-													aria-label={labels.telegram}
-												>
-													<Send className="h-4 w-4 shrink-0" aria-hidden="true" />
-													<span className="truncate">{labels.telegram}</span>
-												</a>
-											) : null}
-										</div>
-
-										<div className="mt-2 grid w-full min-w-0 max-w-full grid-cols-1 gap-2 sm:grid-cols-2">
-											<SaveContactButton card={data} className="w-full" overrides={saveOverrides} />
-											<ShareButton url={url} title={pageTitle} />
-										</div>
-
-										<div className="mt-4 w-full min-w-0 max-w-full">
-											<div className={SECTION_TITLE}>
-												<span className="h-1.5 w-1.5 shrink-0 rounded-full bg-yellow-300 shadow-[0_0_12px_rgba(245,197,66,0.8)]" />
-												<span className="min-w-0 break-words">{labels.socialTitle}</span>
+										<div className="mt-5 flex w-full min-w-0 max-w-full flex-col gap-2.5">
+											<div className="grid w-full min-w-0 max-w-full grid-cols-1 gap-2 sm:grid-cols-3">
+												{phoneHref ? (
+													<a href={phoneHref} className={CTA_PRIMARY} aria-label={labels.call}>
+														<Phone className="h-4 w-4 shrink-0" aria-hidden="true" />
+														<span className="truncate">{labels.call}</span>
+													</a>
+												) : null}
+												{emailHref ? (
+													<a href={emailHref} className={CTA_SECONDARY} aria-label={labels.email}>
+														<Mail className="h-4 w-4 shrink-0" aria-hidden="true" />
+														<span className="truncate">{labels.email}</span>
+													</a>
+												) : null}
+												{tgHref ? (
+													<a
+														href={tgHref}
+														target="_blank"
+														rel="noreferrer noopener"
+														className={CTA_SECONDARY}
+														aria-label={labels.telegram}
+													>
+														<Send className="h-4 w-4 shrink-0" aria-hidden="true" />
+														<span className="truncate">{labels.telegram}</span>
+													</a>
+												) : null}
 											</div>
-											<div className="mt-2.5 flex w-full min-w-0 max-w-full flex-wrap items-center justify-center gap-2.5 sm:justify-start">
+
+											<div className="flex w-full min-w-0 max-w-full flex-wrap items-center justify-center gap-2 sm:justify-start">
 												{tgHref ? (
 													<a
 														href={tgHref}
@@ -675,18 +691,6 @@ export function PublicCardPage() {
 														<Facebook className="h-5 w-5" aria-hidden="true" />
 													</a>
 												) : null}
-												{websiteHref ? (
-													<a
-														href={websiteHref}
-														target="_blank"
-														rel="noreferrer noopener"
-														className={SOCIAL_BTN}
-														title={labels.website}
-														aria-label={labels.website}
-													>
-														<Globe2 className="h-5 w-5" aria-hidden="true" />
-													</a>
-												) : null}
 												<button
 													type="button"
 													onClick={handleWeChatCopy}
@@ -701,9 +705,15 @@ export function PublicCardPage() {
 													)}
 												</button>
 											</div>
+
+											<div className="grid w-full min-w-0 max-w-full grid-cols-1 gap-2 sm:grid-cols-2">
+												<SaveContactButton card={data} className="w-full" overrides={saveOverrides} />
+												<ShareButton url={url} title={pageTitle} />
+											</div>
+
 											<div
 												className={
-													'mt-2 min-h-[18px] text-center text-xs text-yellow-200 transition-opacity sm:text-left ' +
+													'min-h-[16px] text-center text-[11px] text-yellow-200 transition-opacity sm:text-left ' +
 													(wechatCopied ? 'opacity-100' : 'opacity-0')
 												}
 												aria-live="polite"
@@ -764,22 +774,66 @@ export function PublicCardPage() {
 										<span className="min-w-0 break-words">{labels.officialProfileTitle}</span>
 									</div>
 
-									<div className="mt-3 flex w-full min-w-0 max-w-full items-center gap-3 rounded-2xl border border-yellow-300/25 bg-gradient-to-br from-white/[0.06] via-white/[0.02] to-transparent p-3 backdrop-blur-md">
-										<div className="grid h-10 w-10 shrink-0 place-items-center overflow-hidden rounded-xl border border-yellow-300/35 bg-black/30">
-											{orgLogo ? (
-												<img src={orgLogo} alt="" className="h-full w-full object-cover" loading="lazy" />
-											) : (
-												<Landmark className="h-5 w-5 text-yellow-200" aria-hidden="true" />
-											)}
-										</div>
-										<div className="min-w-0 flex-1">
-											<div className="text-[10px] font-semibold uppercase tracking-[0.2em] text-yellow-200/75 sm:text-[11px] sm:tracking-[0.24em]">
-												{labels.digitalCardLabel}
+									<div className="mt-3 flex w-full min-w-0 max-w-full flex-col gap-2">
+										<div className={PROFILE_ROW}>
+											<div className={PROFILE_ROW_ICON_BOX}>
+												{orgLogo ? (
+													<img src={orgLogo} alt="" className="h-full w-full object-cover" loading="lazy" />
+												) : (
+													<Landmark className="h-5 w-5" aria-hidden="true" />
+												)}
 											</div>
-											<div className="mt-0.5 break-words text-sm font-semibold text-white sm:text-base">
-												{displayOrgName}
+											<div className="min-w-0 flex-1">
+												<div className={PROFILE_ROW_LABEL}>{labels.digitalCardLabel}</div>
+												<div className="mt-0.5 break-words text-sm font-semibold text-white sm:text-base">
+													{displayOrgName}
+												</div>
 											</div>
 										</div>
+
+										{websiteHref ? (
+											<a
+												href={websiteHref}
+												target="_blank"
+												rel="noreferrer noopener"
+												className={PROFILE_ROW}
+												aria-label={labels.website}
+												title={websiteHref}
+											>
+												<div className={PROFILE_ROW_ICON_BOX}>
+													<Globe2 className="h-5 w-5" aria-hidden="true" />
+												</div>
+												<div className="min-w-0 flex-1">
+													<div className={PROFILE_ROW_LABEL}>{labels.website}</div>
+													<div className="mt-0.5 truncate text-sm text-white/90 sm:text-[15px]">
+														{prettyUrl(websiteHref)}
+													</div>
+												</div>
+												<ExternalLink className="h-4 w-4 shrink-0 text-yellow-200/70 transition group-hover:text-yellow-200" aria-hidden="true" />
+											</a>
+										) : null}
+
+										{mapsHref ? (
+											<a
+												href={mapsHref}
+												target="_blank"
+												rel="noreferrer noopener"
+												className={PROFILE_ROW}
+												aria-label={labels.mapAction ?? labels.address}
+												title={addressValue}
+											>
+												<div className={PROFILE_ROW_ICON_BOX}>
+													<MapPin className="h-5 w-5" aria-hidden="true" />
+												</div>
+												<div className="min-w-0 flex-1">
+													<div className={PROFILE_ROW_LABEL}>{labels.address}</div>
+													<div className="mt-0.5 break-words text-sm text-white/90 sm:text-[15px]">
+														{addressValue}
+													</div>
+												</div>
+												<ExternalLink className="h-4 w-4 shrink-0 text-yellow-200/70 transition group-hover:text-yellow-200" aria-hidden="true" />
+											</a>
+										) : null}
 									</div>
 
 									<div className="mt-auto pt-4">

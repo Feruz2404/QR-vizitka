@@ -2,13 +2,11 @@ import {
 	ArrowUpRight,
 	Copy,
 	ExternalLink,
-	Facebook,
 	Globe2,
 	Mail,
 	MapPin,
 	Phone,
 	PhoneCall,
-	Send,
 } from 'lucide-react'
 import { motion } from 'framer-motion'
 import type { ReactNode } from 'react'
@@ -17,7 +15,6 @@ import type { EmployeeCard } from '../../types/employee'
 import { Card } from '../../ui/Card'
 import { useToast } from '../../ui/Toast'
 
-const TG_BASE = 'https://' + 't.me/'
 const MAPS_BASE = 'https://' + 'www.google.com/maps/search/?api=1&query='
 
 const ROW_FROM = { opacity: 0, y: 8 } as const
@@ -104,15 +101,6 @@ function prettyUrl(value: string) {
 	return value.replace(/^https?:\/\//i, '').replace(/\/+$/, '')
 }
 
-function telegramHref(card: { telegram_url?: string | null; telegram_username?: string | null }) {
-	if (isHttpUrl(card.telegram_url)) return card.telegram_url as string
-	const u = (card.telegram_username ?? '').trim().replace(/^@/, '')
-	if (u) return TG_BASE + u
-	const f = (card.telegram_url ?? '').trim().replace(/^@/, '')
-	if (f && /^[a-zA-Z0-9_]{3,}$/.test(f)) return TG_BASE + f
-	return null
-}
-
 type LinkAction = { kind: 'link'; href: string; label: string; external?: boolean; actionIcon?: ReactNode }
 type CopyAction = { kind: 'copy'; value: string; label: string; actionIcon?: ReactNode }
 type RowAction = LinkAction | CopyAction
@@ -185,10 +173,8 @@ function ContactRow({
 const MAIL_ICON = <Mail className="h-4 w-4" />
 const PHONE_ICON = <Phone className="h-4 w-4" />
 const PHONECALL_ICON = <PhoneCall className="h-4 w-4" />
-const SEND_ICON = <Send className="h-4 w-4" />
 const EXT_ICON = <ExternalLink className="h-4 w-4" />
 const COPY_ICON = <Copy className="h-4 w-4" />
-const FACEBOOK_ICON = <Facebook className="h-4 w-4" />
 const GLOBE_ICON = <Globe2 className="h-4 w-4" />
 const PIN_ICON = <MapPin className="h-4 w-4" />
 
@@ -272,43 +258,6 @@ export function ContactSection({
 		const a: CopyAction = { kind: 'copy', value: copyValue, label: L.copyAction ?? 'Copy', actionIcon: COPY_ICON }
 		rows.push(
 			<ContactRow key="short_phone" icon={PHONE_ICON} label={internalLabel} value={copyValue} action={a} />,
-		)
-	}
-
-	const tgHref = telegramHref(card)
-	if (tgHref) {
-		const display = card.telegram_username
-			? '@' + String(card.telegram_username).replace(/^@/, '')
-			: prettyUrl(tgHref)
-		const a: LinkAction = {
-			kind: 'link',
-			href: tgHref,
-			label: L.openAction ?? 'Open',
-			external: true,
-			actionIcon: SEND_ICON,
-		}
-		rows.push(
-			<ContactRow key="telegram" icon={SEND_ICON} label={L.telegram} value={tgHref} displayValue={display} action={a} />,
-		)
-	}
-
-	if (card.facebook_url && isHttpUrl(card.facebook_url)) {
-		const a: LinkAction = {
-			kind: 'link',
-			href: card.facebook_url,
-			label: L.openAction ?? 'Open',
-			external: true,
-			actionIcon: EXT_ICON,
-		}
-		rows.push(
-			<ContactRow
-				key="facebook"
-				icon={FACEBOOK_ICON}
-				label={L.facebook}
-				value={card.facebook_url}
-				displayValue={prettyUrl(card.facebook_url)}
-				action={a}
-			/>,
 		)
 	}
 

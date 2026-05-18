@@ -639,7 +639,7 @@ export function PublicCardPage() {
 										) : null}
 
 										<div className="mt-5 flex w-full min-w-0 max-w-full flex-col gap-2.5">
-											<div className="grid w-full min-w-0 max-w-full grid-cols-1 gap-2 sm:grid-cols-3">
+											<div className="grid w-full min-w-0 max-w-full grid-cols-1 gap-2 sm:grid-cols-2">
 												{phoneHref ? (
 													<a href={phoneHref} className={CTA_PRIMARY} aria-label={labels.call}>
 														<Phone className="h-4 w-4 shrink-0" aria-hidden="true" />
@@ -650,18 +650,6 @@ export function PublicCardPage() {
 													<a href={emailHref} className={CTA_SECONDARY} aria-label={labels.email}>
 														<Mail className="h-4 w-4 shrink-0" aria-hidden="true" />
 														<span className="truncate">{labels.email}</span>
-													</a>
-												) : null}
-												{tgHref ? (
-													<a
-														href={tgHref}
-														target="_blank"
-														rel="noreferrer noopener"
-														className={CTA_SECONDARY}
-														aria-label={labels.telegram}
-													>
-														<Send className="h-4 w-4 shrink-0" aria-hidden="true" />
-														<span className="truncate">{labels.telegram}</span>
 													</a>
 												) : null}
 											</div>

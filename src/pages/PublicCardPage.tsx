@@ -224,7 +224,7 @@ const SPEC_ICON_BOX =
 	'grid h-7 w-7 shrink-0 place-items-center rounded-lg border border-yellow-300/30 bg-gradient-to-br from-yellow-300/25 via-yellow-300/8 to-transparent text-yellow-200'
 
 const SOCIAL_BTN =
-	'group relative grid h-12 w-12 shrink-0 place-items-center rounded-2xl border border-yellow-300/35 bg-gradient-to-br from-yellow-300/15 via-white/[0.05] to-transparent text-yellow-200 backdrop-blur-md transition hover:border-yellow-300/65 hover:bg-yellow-300/20 hover:text-yellow-50 hover:shadow-[0_0_22px_rgba(245,197,66,0.32)] active:scale-95'
+	'group relative grid h-11 w-11 shrink-0 place-items-center rounded-2xl border border-yellow-300/35 bg-gradient-to-br from-yellow-300/15 via-white/[0.05] to-transparent text-yellow-200 backdrop-blur-md transition hover:border-yellow-300/65 hover:bg-yellow-300/20 hover:text-yellow-50 hover:shadow-[0_0_22px_rgba(245,197,66,0.32)] active:scale-95 sm:h-12 sm:w-12'
 
 const SECTION_CARD =
 	'relative h-full w-full min-w-0 max-w-full overflow-hidden rounded-[24px] border border-yellow-300/25 bg-gradient-to-br from-white/[0.10] via-white/[0.04] to-[#06090f]/55 p-4 shadow-[0_30px_90px_rgba(0,0,0,0.55),0_0_60px_rgba(245,197,66,0.10)] backdrop-blur-2xl sm:rounded-[28px] sm:p-6'
@@ -644,6 +644,73 @@ export function PublicCardPage() {
 											<SaveContactButton card={data} className="w-full" overrides={saveOverrides} />
 											<ShareButton url={url} title={pageTitle} />
 										</div>
+
+										<div className="mt-4 w-full min-w-0 max-w-full">
+											<div className={SECTION_TITLE}>
+												<span className="h-1.5 w-1.5 shrink-0 rounded-full bg-yellow-300 shadow-[0_0_12px_rgba(245,197,66,0.8)]" />
+												<span className="min-w-0 break-words">{labels.socialTitle}</span>
+											</div>
+											<div className="mt-2.5 flex w-full min-w-0 max-w-full flex-wrap items-center justify-center gap-2.5 sm:justify-start">
+												{tgHref ? (
+													<a
+														href={tgHref}
+														target="_blank"
+														rel="noreferrer noopener"
+														className={SOCIAL_BTN}
+														title={labels.telegram}
+														aria-label={labels.telegram}
+													>
+														<Send className="h-5 w-5" aria-hidden="true" />
+													</a>
+												) : null}
+												{facebookHref ? (
+													<a
+														href={facebookHref}
+														target="_blank"
+														rel="noreferrer noopener"
+														className={SOCIAL_BTN}
+														title={labels.facebook}
+														aria-label={labels.facebook}
+													>
+														<Facebook className="h-5 w-5" aria-hidden="true" />
+													</a>
+												) : null}
+												{websiteHref ? (
+													<a
+														href={websiteHref}
+														target="_blank"
+														rel="noreferrer noopener"
+														className={SOCIAL_BTN}
+														title={labels.website}
+														aria-label={labels.website}
+													>
+														<Globe2 className="h-5 w-5" aria-hidden="true" />
+													</a>
+												) : null}
+												<button
+													type="button"
+													onClick={handleWeChatCopy}
+													className={SOCIAL_BTN}
+													title={wechatTitle}
+													aria-label={wechatTitle}
+												>
+													{wechatCopied ? (
+														<Check className="h-5 w-5" aria-hidden="true" />
+													) : (
+														<MessageCircle className="h-5 w-5" aria-hidden="true" />
+													)}
+												</button>
+											</div>
+											<div
+												className={
+													'mt-2 min-h-[18px] text-center text-xs text-yellow-200 transition-opacity sm:text-left ' +
+													(wechatCopied ? 'opacity-100' : 'opacity-0')
+												}
+												aria-live="polite"
+											>
+												{labels.copiedLabel}
+											</div>
+										</div>
 									</div>
 								</div>
 							</Card>
@@ -712,73 +779,6 @@ export function PublicCardPage() {
 											<div className="mt-0.5 break-words text-sm font-semibold text-white sm:text-base">
 												{displayOrgName}
 											</div>
-										</div>
-									</div>
-
-									<div className="mt-4 w-full min-w-0 max-w-full">
-										<div className={SECTION_TITLE}>
-											<span className="h-1.5 w-1.5 shrink-0 rounded-full bg-yellow-300 shadow-[0_0_12px_rgba(245,197,66,0.8)]" />
-											<span className="min-w-0 break-words">{labels.socialTitle}</span>
-										</div>
-										<div className="mt-3 flex w-full min-w-0 max-w-full flex-wrap items-center justify-center gap-2.5 sm:justify-start">
-											{tgHref ? (
-												<a
-													href={tgHref}
-													target="_blank"
-													rel="noreferrer noopener"
-													className={SOCIAL_BTN}
-													title={labels.telegram}
-													aria-label={labels.telegram}
-												>
-													<Send className="h-5 w-5" aria-hidden="true" />
-												</a>
-											) : null}
-											{facebookHref ? (
-												<a
-													href={facebookHref}
-													target="_blank"
-													rel="noreferrer noopener"
-													className={SOCIAL_BTN}
-													title={labels.facebook}
-													aria-label={labels.facebook}
-												>
-													<Facebook className="h-5 w-5" aria-hidden="true" />
-												</a>
-											) : null}
-											{websiteHref ? (
-												<a
-													href={websiteHref}
-													target="_blank"
-													rel="noreferrer noopener"
-													className={SOCIAL_BTN}
-													title={labels.website}
-													aria-label={labels.website}
-												>
-													<Globe2 className="h-5 w-5" aria-hidden="true" />
-												</a>
-											) : null}
-											<button
-												type="button"
-												onClick={handleWeChatCopy}
-												className={SOCIAL_BTN}
-												title={wechatTitle}
-												aria-label={wechatTitle}
-											>
-												{wechatCopied ? (
-													<Check className="h-5 w-5" aria-hidden="true" />
-												) : (
-													<MessageCircle className="h-5 w-5" aria-hidden="true" />
-												)}
-											</button>
-										</div>
-										<div
-											className={
-												'mt-2 min-h-[18px] text-center text-xs text-yellow-200 transition-opacity sm:text-left ' +
-												(wechatCopied ? 'opacity-100' : 'opacity-0')
-											}
-											aria-live="polite"
-										>
-											{labels.copiedLabel}
 										</div>
 									</div>
 

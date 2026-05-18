@@ -214,13 +214,13 @@ const PULSE_2 = { animationDelay: '150ms' } as const
 const PULSE_3 = { animationDelay: '300ms' } as const
 
 const CTA_PRIMARY =
-	'inline-flex w-full min-w-0 items-center justify-center gap-2 rounded-2xl border border-yellow-300/55 bg-gradient-to-b from-yellow-300/55 via-yellow-300/28 to-yellow-300/12 px-3 py-3 text-sm font-semibold text-yellow-50 shadow-[0_12px_36px_rgba(245,197,66,0.32)] backdrop-blur-md transition hover:from-yellow-300/65 hover:via-yellow-300/35 hover:to-yellow-300/18 hover:shadow-[0_0_34px_rgba(245,197,66,0.4)] active:scale-[0.98] sm:px-4'
+	'inline-flex w-full min-w-0 items-center justify-center gap-2 rounded-2xl border border-yellow-300/55 bg-gradient-to-b from-yellow-300/55 via-yellow-300/28 to-yellow-300/12 px-3 py-2.5 text-sm font-semibold text-yellow-50 shadow-[0_12px_36px_rgba(245,197,66,0.28)] backdrop-blur-md transition hover:from-yellow-300/65 hover:via-yellow-300/35 hover:to-yellow-300/18 hover:shadow-[0_0_30px_rgba(245,197,66,0.32)] active:scale-[0.98] sm:px-4'
 
 const CTA_SECONDARY =
-	'inline-flex w-full min-w-0 items-center justify-center gap-2 rounded-2xl border border-yellow-300/30 bg-black/35 px-3 py-3 text-sm font-semibold text-yellow-100 backdrop-blur-xl transition hover:border-yellow-300/55 hover:bg-yellow-300/12 hover:shadow-[0_0_26px_rgba(245,197,66,0.22)] active:scale-[0.98] sm:px-4'
+	'inline-flex w-full min-w-0 items-center justify-center gap-2 rounded-2xl border border-yellow-300/30 bg-black/30 px-3 py-2.5 text-sm font-semibold text-yellow-100 backdrop-blur-xl transition hover:border-yellow-300/55 hover:bg-yellow-300/12 hover:shadow-[0_0_24px_rgba(245,197,66,0.18)] active:scale-[0.98] sm:px-4'
 
 const SPEC_CHIP =
-	'group flex min-w-0 items-center gap-2 rounded-xl border border-yellow-300/20 bg-gradient-to-br from-white/[0.08] via-white/[0.03] to-transparent px-2.5 py-2 backdrop-blur-md transition hover:border-yellow-300/45 hover:from-yellow-300/[0.08]'
+	'group flex min-w-0 items-center gap-2 rounded-xl border border-yellow-300/20 bg-gradient-to-br from-white/[0.08] via-white/[0.03] to-transparent px-2.5 py-1.5 backdrop-blur-md transition hover:border-yellow-300/45 hover:from-yellow-300/[0.08]'
 
 const SPEC_ICON_BOX =
 	'grid h-7 w-7 shrink-0 place-items-center rounded-lg border border-yellow-300/30 bg-gradient-to-br from-yellow-300/25 via-yellow-300/8 to-transparent text-yellow-200'
@@ -229,7 +229,7 @@ const SOCIAL_BTN =
 	'group relative grid h-11 w-11 shrink-0 place-items-center rounded-2xl border border-yellow-300/35 bg-gradient-to-br from-yellow-300/15 via-white/[0.05] to-transparent text-yellow-200 backdrop-blur-md transition hover:border-yellow-300/65 hover:bg-yellow-300/20 hover:text-yellow-50 hover:shadow-[0_0_22px_rgba(245,197,66,0.32)] active:scale-95 sm:h-12 sm:w-12'
 
 const SECTION_CARD =
-	'relative h-full w-full min-w-0 max-w-full overflow-hidden rounded-[24px] border border-yellow-300/25 bg-gradient-to-br from-white/[0.10] via-white/[0.04] to-[#06090f]/60 p-4 shadow-[0_30px_90px_rgba(0,0,0,0.55),0_0_60px_rgba(245,197,66,0.10)] backdrop-blur-2xl sm:rounded-[28px] sm:p-6'
+	'relative h-full w-full min-w-0 max-w-full overflow-hidden rounded-[24px] border border-yellow-300/25 bg-gradient-to-br from-white/[0.10] via-white/[0.04] to-[#06090f]/55 p-4 shadow-[0_30px_90px_rgba(0,0,0,0.55),0_0_60px_rgba(245,197,66,0.10)] backdrop-blur-2xl sm:rounded-[28px] sm:p-6'
 
 const SECTION_TITLE =
 	'flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.24em] text-yellow-200/90 sm:text-[11px] sm:tracking-[0.28em]'
@@ -584,19 +584,19 @@ export function PublicCardPage() {
 				languageLabel={labels.languageLabel}
 			/>
 
-			<div className="mx-auto w-full max-w-[1280px] px-3 pb-12 pt-5 sm:px-5 sm:pt-7 lg:px-6 lg:pt-8">
+			<div className="mx-auto w-full max-w-[1320px] px-3 pb-12 pt-5 sm:px-5 sm:pt-7 lg:px-6 lg:pt-8">
 				<motion.div {...PAGE_MOTION}>
-					<div className="grid w-full max-w-full gap-5 sm:gap-6 lg:grid-cols-2 lg:items-stretch lg:gap-7">
-						<motion.div {...HERO_MOTION} className="h-full min-w-0">
-							<Card className="relative h-full w-full min-w-0 max-w-full overflow-hidden rounded-[24px] border border-yellow-300/30 bg-gradient-to-br from-white/[0.12] via-white/[0.05] to-[#06090f]/60 p-5 shadow-[0_40px_120px_rgba(0,0,0,0.6),0_0_90px_rgba(245,197,66,0.15)] backdrop-blur-2xl sm:rounded-[28px] sm:p-6 lg:p-8">
-								<div className="pointer-events-none absolute inset-0 bg-[radial-gradient(700px_circle_at_10%_5%,rgba(245,197,66,0.22),transparent_55%),radial-gradient(900px_circle_at_95%_15%,rgba(59,130,246,0.18),transparent_60%)]" />
-								<div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-yellow-300/85 to-transparent" />
-								<div className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-yellow-300/40 to-transparent" />
+					<div className="grid w-full max-w-full gap-5 sm:gap-6 lg:grid-cols-[1.15fr_0.85fr] lg:items-start lg:gap-6">
+						<motion.div {...HERO_MOTION} className="min-w-0">
+							<Card className="relative h-full w-full min-w-0 max-w-full overflow-hidden rounded-[24px] border border-yellow-300/30 bg-gradient-to-br from-white/[0.10] via-white/[0.04] to-[#06090f]/55 p-4 shadow-[0_40px_120px_rgba(0,0,0,0.6),0_0_70px_rgba(245,197,66,0.10)] backdrop-blur-2xl sm:rounded-[28px] sm:p-6 lg:p-7">
+								<div className="pointer-events-none absolute inset-0 bg-[radial-gradient(700px_circle_at_10%_5%,rgba(245,197,66,0.20),transparent_55%),radial-gradient(900px_circle_at_95%_15%,rgba(59,130,246,0.16),transparent_60%)]" />
+								<div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-yellow-300/80 to-transparent" />
+								<div className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-yellow-300/35 to-transparent" />
 
-								<div className="relative flex h-full w-full min-w-0 flex-col items-center gap-5 text-center sm:flex-row sm:items-center sm:gap-7 sm:text-left lg:gap-8">
+								<div className="relative flex w-full min-w-0 flex-col items-center gap-5 text-center sm:flex-row sm:items-start sm:gap-6 sm:text-left">
 									<div className="relative shrink-0">
-										<div className="pointer-events-none absolute -inset-5 rounded-full bg-gradient-to-br from-yellow-300/55 via-yellow-300/22 to-blue-400/14 blur-2xl" />
-										<div className="relative h-32 w-32 overflow-hidden rounded-full border-[3px] border-yellow-300/65 bg-white/10 shadow-[0_30px_90px_rgba(0,0,0,0.7)] sm:h-44 sm:w-44 lg:h-48 lg:w-48">
+										<div className="pointer-events-none absolute -inset-4 rounded-full bg-gradient-to-br from-yellow-300/45 via-yellow-300/18 to-blue-400/12 blur-2xl" />
+										<div className="relative h-28 w-28 overflow-hidden rounded-full border-[3px] border-yellow-300/60 bg-white/10 shadow-[0_30px_90px_rgba(0,0,0,0.7)] sm:h-36 sm:w-36 lg:h-40 lg:w-40">
 											{heroPhoto ? (
 												<img
 													src={heroPhoto}
@@ -610,7 +610,7 @@ export function PublicCardPage() {
 												</div>
 											)}
 										</div>
-										<div className="pointer-events-none absolute -inset-1 rounded-full border border-yellow-300/40" />
+										<div className="pointer-events-none absolute -inset-1 rounded-full border border-yellow-300/35" />
 									</div>
 
 									<div className="flex w-full min-w-0 max-w-full flex-1 flex-col items-center sm:items-start">
@@ -619,7 +619,7 @@ export function PublicCardPage() {
 											<span className="min-w-0 truncate">{labels.profileBadge}</span>
 										</div>
 
-										<h1 className="mt-3 w-full break-words text-2xl font-bold tracking-tight text-white sm:text-[26px] lg:text-[30px]">
+										<h1 className="mt-3 w-full break-words text-xl font-bold tracking-tight text-white sm:text-2xl lg:text-[28px]">
 											{displayFullName}
 										</h1>
 										<div className="mt-1.5 w-full break-words text-sm text-yellow-100/90 sm:text-base">
@@ -638,7 +638,7 @@ export function PublicCardPage() {
 											</p>
 										) : null}
 
-										<div className="mt-6 flex w-full min-w-0 max-w-full flex-col gap-2.5">
+										<div className="mt-5 flex w-full min-w-0 max-w-full flex-col gap-2.5">
 											<div className="grid w-full min-w-0 max-w-full grid-cols-1 gap-2 sm:grid-cols-2">
 												{phoneHref ? (
 													<a href={phoneHref} className={CTA_PRIMARY} aria-label={labels.call}>
@@ -714,16 +714,16 @@ export function PublicCardPage() {
 							</Card>
 						</motion.div>
 
-						<motion.div {...TR_MOTION} className="h-full min-w-0">
+						<motion.div {...TR_MOTION} className="min-w-0">
 							<ContactSection card={data} labels={labels} />
 						</motion.div>
 
 						{hasSpecialties ? (
-							<motion.div {...SPEC_MOTION} className="h-full min-w-0">
+							<motion.div {...SPEC_MOTION} className="min-w-0">
 								<Card className={SECTION_CARD}>
 									<div className="pointer-events-none absolute inset-0 bg-[radial-gradient(600px_circle_at_10%_0%,rgba(245,197,66,0.16),transparent_55%)]" />
 									<div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-yellow-300/55 to-transparent" />
-									<div className="relative flex h-full w-full min-w-0 max-w-full flex-col">
+									<div className="relative">
 										<div className={SECTION_TITLE}>
 											<span className="h-1.5 w-1.5 shrink-0 rounded-full bg-yellow-300 shadow-[0_0_12px_rgba(245,197,66,0.8)]" />
 											<span className="min-w-0 break-words">{labels.specialtiesTitle}</span>
@@ -749,7 +749,7 @@ export function PublicCardPage() {
 
 						<motion.div
 							{...PROFILE_MOTION}
-							className={profileSpansFull ? 'h-full min-w-0 lg:col-span-2' : 'h-full min-w-0'}
+							className={profileSpansFull ? 'min-w-0 lg:col-span-2' : 'min-w-0'}
 						>
 							<Card className={SECTION_CARD}>
 								<div className="pointer-events-none absolute inset-0 bg-[radial-gradient(700px_circle_at_85%_0%,rgba(245,197,66,0.18),transparent_55%),radial-gradient(700px_circle_at_15%_100%,rgba(59,130,246,0.14),transparent_55%)]" />

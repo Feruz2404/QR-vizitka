@@ -6,9 +6,12 @@ import {
 	BarChart3,
 	Cpu,
 	Database,
+	Facebook,
+	Globe2,
 	Landmark,
 	Lightbulb,
 	Mail,
+	MessageCircle,
 	Network,
 	Phone,
 	Send,
@@ -35,6 +38,8 @@ type Translations = ContactLabels & {
 	profileBadge: string
 	languageLabel: string
 	specialtiesTitle: string
+	socialTitle: string
+	wechatCopied: string
 	loadingSubtitle: string
 	call: string
 	email: string
@@ -53,6 +58,8 @@ const T: Record<PublicLang, Translations> = {
 		profileBadge: 'Rasmiy raqamli profil',
 		languageLabel: 'Til',
 		specialtiesTitle: 'Mutaxassisliklar',
+		socialTitle: 'Ijtimoiy tarmoqlar',
+		wechatCopied: 'WeChat foydalanuvchi nomi nusxalandi',
 		loadingSubtitle: 'Raqamli vizitka yuklanmoqda',
 		contactsTitle: 'Aloqa ma’lumotlari',
 		workEmail: 'Ish email',
@@ -84,6 +91,8 @@ const T: Record<PublicLang, Translations> = {
 		profileBadge: 'Официальный цифровой профиль',
 		languageLabel: 'Язык',
 		specialtiesTitle: 'Специализации',
+		socialTitle: 'Социальные сети',
+		wechatCopied: 'Имя пользователя WeChat скопировано',
 		loadingSubtitle: 'Цифровая визитка загружается',
 		contactsTitle: 'Контакты',
 		workEmail: 'Рабочий email',
@@ -115,6 +124,8 @@ const T: Record<PublicLang, Translations> = {
 		profileBadge: 'Official digital profile',
 		languageLabel: 'Language',
 		specialtiesTitle: 'Specialties',
+		socialTitle: 'Social media',
+		wechatCopied: 'WeChat username copied',
 		loadingSubtitle: 'Loading digital business card',
 		contactsTitle: 'Contact information',
 		workEmail: 'Work email',
@@ -186,7 +197,12 @@ const SPEC_CHIP =
 const SPEC_ICON_BOX =
 	'grid h-7 w-7 shrink-0 place-items-center rounded-lg border border-yellow-300/30 bg-gradient-to-br from-yellow-300/25 via-yellow-300/8 to-transparent text-yellow-200'
 
+const SOCIAL_BTN =
+	'grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-yellow-300/35 bg-gradient-to-br from-yellow-300/15 via-white/[0.05] to-transparent text-yellow-200 backdrop-blur-md transition hover:border-yellow-300/65 hover:bg-yellow-300/20 hover:text-yellow-50 hover:shadow-[0_0_22px_rgba(245,197,66,0.32)] active:scale-95'
+
 const SPEC_ICONS = [Cpu, Network, BarChart3, ShieldCheck, Lightbulb, Workflow, Database, Settings2]
+
+const WECHAT_USERNAME = '@umirzakov_u'
 
 function fullUrl(publicBaseUrl: string, slug: string) {
 	return publicBaseUrl.replace(/\/$/, '') + '/v/' + slug
@@ -419,6 +435,12 @@ export function PublicCardPage() {
 
 	const displayOrgName = localized.organizationName || labels.orgName
 
+	const handleWeChatCopy = () => {
+		if (typeof navigator !== 'undefined' && navigator.clipboard) {
+			void navigator.clipboard.writeText(WECHAT_USERNAME).catch(() => {})
+		}
+	}
+
 	const showLoader = !introDone || isLoading
 	if (showLoader) {
 		return (
@@ -470,6 +492,9 @@ export function PublicCardPage() {
 	}
 
 	const hasSpecialties = localized.specialties.length > 0
+	const facebookHref = isHttpUrl(data.facebook_url) ? data.facebook_url : null
+	const websiteHref = isHttpUrl(data.website_url) ? data.website_url : null
+	const wechatTitle = 'WeChat ' + WECHAT_USERNAME
 
 	return (
 		<div className="min-h-screen w-full max-w-full overflow-x-hidden text-white">
@@ -600,6 +625,60 @@ export function PublicCardPage() {
 										<div className="mt-2 grid w-full min-w-0 max-w-full grid-cols-1 gap-2 sm:grid-cols-2">
 											<SaveContactButton card={data} className="w-full" overrides={saveOverrides} />
 											<ShareButton url={url} title={pageTitle} />
+										</div>
+
+										<div className="mt-5 w-full min-w-0 max-w-full">
+											<div className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.22em] text-yellow-200/90 sm:text-[11px] sm:tracking-[0.24em]">
+												<span className="h-1.5 w-1.5 shrink-0 rounded-full bg-yellow-300 shadow-[0_0_12px_rgba(245,197,66,0.8)]" />
+												<span className="min-w-0 break-words">{labels.socialTitle}</span>
+											</div>
+											<div className="mt-2.5 flex w-full min-w-0 max-w-full flex-wrap items-center justify-center gap-2 sm:justify-start">
+												{tgHref ? (
+													<a
+														href={tgHref}
+														target="_blank"
+														rel="noreferrer noopener"
+														className={SOCIAL_BTN}
+														title={labels.telegram}
+														aria-label={labels.telegram}
+													>
+														<Send className="h-4 w-4" aria-hidden="true" />
+													</a>
+												) : null}
+												{facebookHref ? (
+													<a
+														href={facebookHref}
+														target="_blank"
+														rel="noreferrer noopener"
+														className={SOCIAL_BTN}
+														title={labels.facebook}
+														aria-label={labels.facebook}
+													>
+														<Facebook className="h-4 w-4" aria-hidden="true" />
+													</a>
+												) : null}
+												{websiteHref ? (
+													<a
+														href={websiteHref}
+														target="_blank"
+														rel="noreferrer noopener"
+														className={SOCIAL_BTN}
+														title={labels.website}
+														aria-label={labels.website}
+													>
+														<Globe2 className="h-4 w-4" aria-hidden="true" />
+													</a>
+												) : null}
+												<button
+													type="button"
+													onClick={handleWeChatCopy}
+													className={SOCIAL_BTN}
+													title={wechatTitle}
+													aria-label={wechatTitle}
+												>
+													<MessageCircle className="h-4 w-4" aria-hidden="true" />
+												</button>
+											</div>
 										</div>
 									</div>
 								</div>

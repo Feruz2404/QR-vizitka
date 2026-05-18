@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import {
 	BarChart3,
+	Check,
 	Cpu,
 	Database,
 	Facebook,
@@ -39,7 +40,9 @@ type Translations = ContactLabels & {
 	languageLabel: string
 	specialtiesTitle: string
 	socialTitle: string
+	officialProfileTitle: string
 	wechatCopied: string
+	copiedLabel: string
 	loadingSubtitle: string
 	call: string
 	email: string
@@ -59,7 +62,9 @@ const T: Record<PublicLang, Translations> = {
 		languageLabel: 'Til',
 		specialtiesTitle: 'Mutaxassisliklar',
 		socialTitle: 'Ijtimoiy tarmoqlar',
+		officialProfileTitle: 'Rasmiy raqamli profil',
 		wechatCopied: 'WeChat foydalanuvchi nomi nusxalandi',
+		copiedLabel: 'Nusxalandi',
 		loadingSubtitle: 'Raqamli vizitka yuklanmoqda',
 		contactsTitle: 'Aloqa ma’lumotlari',
 		workEmail: 'Ish email',
@@ -92,7 +97,9 @@ const T: Record<PublicLang, Translations> = {
 		languageLabel: 'Язык',
 		specialtiesTitle: 'Специализации',
 		socialTitle: 'Социальные сети',
+		officialProfileTitle: 'Официальный цифровой профиль',
 		wechatCopied: 'Имя пользователя WeChat скопировано',
+		copiedLabel: 'Скопировано',
 		loadingSubtitle: 'Цифровая визитка загружается',
 		contactsTitle: 'Контакты',
 		workEmail: 'Рабочий email',
@@ -125,7 +132,9 @@ const T: Record<PublicLang, Translations> = {
 		languageLabel: 'Language',
 		specialtiesTitle: 'Specialties',
 		socialTitle: 'Social media',
+		officialProfileTitle: 'Official digital profile',
 		wechatCopied: 'WeChat username copied',
+		copiedLabel: 'Copied',
 		loadingSubtitle: 'Loading digital business card',
 		contactsTitle: 'Contact information',
 		workEmail: 'Work email',
@@ -170,6 +179,18 @@ const TR_MOTION = {
 	transition: { duration: 0.5, delay: 0.1 },
 } as const
 
+const SPEC_MOTION = {
+	initial: { opacity: 0, y: 16 },
+	animate: { opacity: 1, y: 0 },
+	transition: { duration: 0.5, delay: 0.15 },
+} as const
+
+const PROFILE_MOTION = {
+	initial: { opacity: 0, y: 16 },
+	animate: { opacity: 1, y: 0 },
+	transition: { duration: 0.5, delay: 0.2 },
+} as const
+
 const LOADER_MOTION = {
 	initial: { opacity: 0, scale: 0.96, y: 8 },
 	animate: { opacity: 1, scale: 1, y: 0 },
@@ -198,7 +219,13 @@ const SPEC_ICON_BOX =
 	'grid h-7 w-7 shrink-0 place-items-center rounded-lg border border-yellow-300/30 bg-gradient-to-br from-yellow-300/25 via-yellow-300/8 to-transparent text-yellow-200'
 
 const SOCIAL_BTN =
-	'grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-yellow-300/35 bg-gradient-to-br from-yellow-300/15 via-white/[0.05] to-transparent text-yellow-200 backdrop-blur-md transition hover:border-yellow-300/65 hover:bg-yellow-300/20 hover:text-yellow-50 hover:shadow-[0_0_22px_rgba(245,197,66,0.32)] active:scale-95'
+	'group relative grid h-12 w-12 shrink-0 place-items-center rounded-2xl border border-yellow-300/35 bg-gradient-to-br from-yellow-300/15 via-white/[0.05] to-transparent text-yellow-200 backdrop-blur-md transition hover:border-yellow-300/65 hover:bg-yellow-300/20 hover:text-yellow-50 hover:shadow-[0_0_22px_rgba(245,197,66,0.32)] active:scale-95'
+
+const SECTION_CARD =
+	'relative h-full w-full min-w-0 max-w-full overflow-hidden rounded-[24px] border border-yellow-300/25 bg-gradient-to-br from-white/[0.10] via-white/[0.04] to-[#06090f]/55 p-4 shadow-[0_30px_90px_rgba(0,0,0,0.55),0_0_60px_rgba(245,197,66,0.10)] backdrop-blur-2xl sm:rounded-[28px] sm:p-6'
+
+const SECTION_TITLE =
+	'flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.24em] text-yellow-200/90 sm:text-[11px] sm:tracking-[0.28em]'
 
 const SPEC_ICONS = [Cpu, Network, BarChart3, ShieldCheck, Lightbulb, Workflow, Database, Settings2]
 
@@ -386,6 +413,8 @@ export function PublicCardPage() {
 		return () => window.clearTimeout(timer)
 	}, [])
 
+	const [wechatCopied, setWechatCopied] = useState(false)
+
 	const publicBaseUrl =
 		(import.meta.env.VITE_PUBLIC_BASE_URL as string | undefined) ?? window.location.origin
 	const url = safeSlug ? fullUrl(publicBaseUrl, safeSlug) : window.location.href
@@ -436,9 +465,14 @@ export function PublicCardPage() {
 	const displayOrgName = localized.organizationName || labels.orgName
 
 	const handleWeChatCopy = () => {
-		if (typeof navigator !== 'undefined' && navigator.clipboard) {
-			void navigator.clipboard.writeText(WECHAT_USERNAME).catch(() => {})
-		}
+		if (typeof navigator === 'undefined' || !navigator.clipboard) return
+		void navigator.clipboard
+			.writeText(WECHAT_USERNAME)
+			.then(() => {
+				setWechatCopied(true)
+				window.setTimeout(() => setWechatCopied(false), 1500)
+			})
+			.catch(() => {})
 	}
 
 	const showLoader = !introDone || isLoading
@@ -494,7 +528,8 @@ export function PublicCardPage() {
 	const hasSpecialties = localized.specialties.length > 0
 	const facebookHref = isHttpUrl(data.facebook_url) ? data.facebook_url : null
 	const websiteHref = isHttpUrl(data.website_url) ? data.website_url : null
-	const wechatTitle = 'WeChat ' + WECHAT_USERNAME
+	const wechatTitle = 'WeChat: ' + WECHAT_USERNAME
+	const profileSpansFull = !hasSpecialties
 
 	return (
 		<div className="min-h-screen w-full max-w-full overflow-x-hidden text-white">
@@ -531,7 +566,7 @@ export function PublicCardPage() {
 								<div className="relative flex w-full min-w-0 flex-col items-center gap-5 text-center sm:flex-row sm:items-start sm:gap-6 sm:text-left">
 									<div className="relative shrink-0">
 										<div className="pointer-events-none absolute -inset-4 rounded-full bg-gradient-to-br from-yellow-300/45 via-yellow-300/18 to-blue-400/12 blur-2xl" />
-										<div className="relative h-28 w-28 overflow-hidden rounded-full border-[3px] border-yellow-300/60 bg-white/10 shadow-[0_30px_90px_rgba(0,0,0,0.7)] sm:h-36 sm:w-36 lg:h-44 lg:w-44">
+										<div className="relative h-28 w-28 overflow-hidden rounded-full border-[3px] border-yellow-300/60 bg-white/10 shadow-[0_30px_90px_rgba(0,0,0,0.7)] sm:h-36 sm:w-36 lg:h-40 lg:w-40">
 											{heroPhoto ? (
 												<img
 													src={heroPhoto}
@@ -554,7 +589,7 @@ export function PublicCardPage() {
 											<span className="min-w-0 truncate">{labels.profileBadge}</span>
 										</div>
 
-										<h1 className="mt-3 w-full break-words text-xl font-bold tracking-tight text-white sm:text-2xl lg:text-[30px]">
+										<h1 className="mt-3 w-full break-words text-xl font-bold tracking-tight text-white sm:text-2xl lg:text-[28px]">
 											{displayFullName}
 										</h1>
 										<div className="mt-1.5 w-full break-words text-sm text-yellow-100/90 sm:text-base">
@@ -571,28 +606,6 @@ export function PublicCardPage() {
 											<p className="mt-3 w-full max-w-prose break-words text-sm leading-relaxed text-white/70 sm:text-[15px]">
 												{displayBio}
 											</p>
-										) : null}
-
-										{hasSpecialties ? (
-											<div className="mt-4 w-full min-w-0 max-w-full">
-												<div className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.22em] text-yellow-200/90 sm:text-[11px] sm:tracking-[0.24em]">
-													<span className="h-1.5 w-1.5 shrink-0 rounded-full bg-yellow-300 shadow-[0_0_12px_rgba(245,197,66,0.8)]" />
-													<span className="min-w-0 break-words">{labels.specialtiesTitle}</span>
-												</div>
-												<div className="mt-2.5 grid w-full min-w-0 max-w-full grid-cols-1 gap-2 sm:grid-cols-2">
-													{localized.specialties.map((item, idx) => {
-														const Icon = SPEC_ICONS[idx % SPEC_ICONS.length]
-														return (
-															<div key={idx} className={SPEC_CHIP}>
-																<span className={SPEC_ICON_BOX}>
-																	<Icon className="h-3.5 w-3.5" aria-hidden="true" />
-																</span>
-																<span className="min-w-0 flex-1 break-words text-left text-xs text-white/90 sm:text-[13px]">{item}</span>
-															</div>
-														)
-													})}
-												</div>
-											</div>
 										) : null}
 
 										<div className="mt-5 grid w-full min-w-0 max-w-full grid-cols-1 gap-2 sm:grid-cols-3">
@@ -626,60 +639,6 @@ export function PublicCardPage() {
 											<SaveContactButton card={data} className="w-full" overrides={saveOverrides} />
 											<ShareButton url={url} title={pageTitle} />
 										</div>
-
-										<div className="mt-5 w-full min-w-0 max-w-full">
-											<div className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.22em] text-yellow-200/90 sm:text-[11px] sm:tracking-[0.24em]">
-												<span className="h-1.5 w-1.5 shrink-0 rounded-full bg-yellow-300 shadow-[0_0_12px_rgba(245,197,66,0.8)]" />
-												<span className="min-w-0 break-words">{labels.socialTitle}</span>
-											</div>
-											<div className="mt-2.5 flex w-full min-w-0 max-w-full flex-wrap items-center justify-center gap-2 sm:justify-start">
-												{tgHref ? (
-													<a
-														href={tgHref}
-														target="_blank"
-														rel="noreferrer noopener"
-														className={SOCIAL_BTN}
-														title={labels.telegram}
-														aria-label={labels.telegram}
-													>
-														<Send className="h-4 w-4" aria-hidden="true" />
-													</a>
-												) : null}
-												{facebookHref ? (
-													<a
-														href={facebookHref}
-														target="_blank"
-														rel="noreferrer noopener"
-														className={SOCIAL_BTN}
-														title={labels.facebook}
-														aria-label={labels.facebook}
-													>
-														<Facebook className="h-4 w-4" aria-hidden="true" />
-													</a>
-												) : null}
-												{websiteHref ? (
-													<a
-														href={websiteHref}
-														target="_blank"
-														rel="noreferrer noopener"
-														className={SOCIAL_BTN}
-														title={labels.website}
-														aria-label={labels.website}
-													>
-														<Globe2 className="h-4 w-4" aria-hidden="true" />
-													</a>
-												) : null}
-												<button
-													type="button"
-													onClick={handleWeChatCopy}
-													className={SOCIAL_BTN}
-													title={wechatTitle}
-													aria-label={wechatTitle}
-												>
-													<MessageCircle className="h-4 w-4" aria-hidden="true" />
-												</button>
-											</div>
-										</div>
 									</div>
 								</div>
 							</Card>
@@ -687,6 +646,137 @@ export function PublicCardPage() {
 
 						<motion.div {...TR_MOTION} className="min-w-0">
 							<ContactSection card={data} labels={labels} />
+						</motion.div>
+
+						{hasSpecialties ? (
+							<motion.div {...SPEC_MOTION} className="min-w-0">
+								<Card className={SECTION_CARD}>
+									<div className="pointer-events-none absolute inset-0 bg-[radial-gradient(600px_circle_at_10%_0%,rgba(245,197,66,0.16),transparent_55%)]" />
+									<div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-yellow-300/55 to-transparent" />
+									<div className="relative">
+										<div className={SECTION_TITLE}>
+											<span className="h-1.5 w-1.5 shrink-0 rounded-full bg-yellow-300 shadow-[0_0_12px_rgba(245,197,66,0.8)]" />
+											<span className="min-w-0 break-words">{labels.specialtiesTitle}</span>
+										</div>
+										<div className="mt-3 grid w-full min-w-0 max-w-full grid-cols-1 gap-2 sm:grid-cols-2">
+											{localized.specialties.map((item, idx) => {
+												const Icon = SPEC_ICONS[idx % SPEC_ICONS.length]
+												return (
+													<div key={idx} className={SPEC_CHIP}>
+														<span className={SPEC_ICON_BOX}>
+															<Icon className="h-3.5 w-3.5" aria-hidden="true" />
+														</span>
+														<span className="min-w-0 flex-1 break-words text-left text-xs text-white/90 sm:text-[13px]">{item}</span>
+													</div>
+												)
+											})}
+										</div>
+									</div>
+								</Card>
+							</motion.div>
+						) : null}
+
+						<motion.div
+							{...PROFILE_MOTION}
+							className={profileSpansFull ? 'min-w-0 lg:col-span-2' : 'min-w-0'}
+						>
+							<Card className={SECTION_CARD}>
+								<div className="pointer-events-none absolute inset-0 bg-[radial-gradient(700px_circle_at_85%_0%,rgba(245,197,66,0.18),transparent_55%),radial-gradient(700px_circle_at_15%_100%,rgba(59,130,246,0.14),transparent_55%)]" />
+								<div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-yellow-300/70 to-transparent" />
+								<div className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-yellow-300/30 to-transparent" />
+
+								<div className="relative flex h-full w-full min-w-0 max-w-full flex-col">
+									<div className={SECTION_TITLE}>
+										<ShieldCheck className="h-3.5 w-3.5 shrink-0 text-yellow-200" aria-hidden="true" />
+										<span className="min-w-0 break-words">{labels.officialProfileTitle}</span>
+									</div>
+
+									<div className="mt-3 flex w-full min-w-0 max-w-full items-center gap-3 rounded-2xl border border-yellow-300/25 bg-gradient-to-br from-white/[0.06] via-white/[0.02] to-transparent p-3 backdrop-blur-md">
+										<div className="grid h-10 w-10 shrink-0 place-items-center overflow-hidden rounded-xl border border-yellow-300/35 bg-black/30">
+											{orgLogo ? (
+												<img src={orgLogo} alt="" className="h-full w-full object-cover" loading="lazy" />
+											) : (
+												<Landmark className="h-5 w-5 text-yellow-200" aria-hidden="true" />
+											)}
+										</div>
+										<div className="min-w-0 flex-1">
+											<div className="text-[10px] font-semibold uppercase tracking-[0.2em] text-yellow-200/75 sm:text-[11px] sm:tracking-[0.24em]">
+												{labels.brandBadge}
+											</div>
+											<div className="mt-0.5 break-words text-sm font-semibold text-white sm:text-base">
+												{displayOrgName}
+											</div>
+										</div>
+									</div>
+
+									<div className="mt-4 w-full min-w-0 max-w-full">
+										<div className={SECTION_TITLE}>
+											<span className="h-1.5 w-1.5 shrink-0 rounded-full bg-yellow-300 shadow-[0_0_12px_rgba(245,197,66,0.8)]" />
+											<span className="min-w-0 break-words">{labels.socialTitle}</span>
+										</div>
+										<div className="mt-3 flex w-full min-w-0 max-w-full flex-wrap items-center justify-center gap-2.5 sm:justify-start">
+											{tgHref ? (
+												<a
+													href={tgHref}
+													target="_blank"
+													rel="noreferrer noopener"
+													className={SOCIAL_BTN}
+													title={labels.telegram}
+													aria-label={labels.telegram}
+												>
+													<Send className="h-5 w-5" aria-hidden="true" />
+												</a>
+											) : null}
+											{facebookHref ? (
+												<a
+													href={facebookHref}
+													target="_blank"
+													rel="noreferrer noopener"
+													className={SOCIAL_BTN}
+													title={labels.facebook}
+													aria-label={labels.facebook}
+												>
+													<Facebook className="h-5 w-5" aria-hidden="true" />
+												</a>
+											) : null}
+											{websiteHref ? (
+												<a
+													href={websiteHref}
+													target="_blank"
+													rel="noreferrer noopener"
+													className={SOCIAL_BTN}
+													title={labels.website}
+													aria-label={labels.website}
+												>
+													<Globe2 className="h-5 w-5" aria-hidden="true" />
+												</a>
+											) : null}
+											<button
+												type="button"
+												onClick={handleWeChatCopy}
+												className={SOCIAL_BTN}
+												title={wechatTitle}
+												aria-label={wechatTitle}
+											>
+												{wechatCopied ? (
+													<Check className="h-5 w-5" aria-hidden="true" />
+												) : (
+													<MessageCircle className="h-5 w-5" aria-hidden="true" />
+												)}
+											</button>
+										</div>
+										<div
+											className={
+												'mt-2 min-h-[18px] text-center text-xs text-yellow-200 transition-opacity sm:text-left ' +
+												(wechatCopied ? 'opacity-100' : 'opacity-0')
+											}
+											aria-live="polite"
+										>
+											{labels.copiedLabel}
+										</div>
+									</div>
+								</div>
+							</Card>
 						</motion.div>
 					</div>
 				</motion.div>

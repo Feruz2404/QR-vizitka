@@ -81,7 +81,7 @@ type CopyAction = { kind: 'copy'; value: string; label: string; actionIcon?: Rea
 type RowAction = LinkAction | CopyAction
 
 const ROW_BTN_CLS =
-	'grid h-9 w-9 shrink-0 place-items-center rounded-xl border border-yellow-300/30 bg-black/40 text-yellow-200 transition hover:border-yellow-300/55 hover:bg-yellow-300/15 hover:shadow-[0_0_16px_rgba(245,197,66,0.25)] active:scale-95'
+	'grid h-9 w-9 shrink-0 place-items-center rounded-xl border border-yellow-300/30 bg-black/40 text-yellow-200 transition hover:border-yellow-300/55 hover:bg-yellow-300/15 active:scale-95'
 
 function ContactRow({
 	icon,
@@ -102,13 +102,13 @@ function ContactRow({
 		<motion.div
 			initial={ROW_FROM}
 			animate={ROW_TO}
-			className="group flex w-full min-w-0 max-w-full items-center gap-2.5 overflow-hidden rounded-2xl border border-yellow-300/20 bg-gradient-to-br from-white/[0.06] via-white/[0.02] to-transparent px-2.5 py-2.5 backdrop-blur-md transition hover:border-yellow-300/45 hover:from-yellow-300/[0.08] sm:gap-3 sm:px-3 sm:py-3"
+			className="group flex w-full min-w-0 max-w-full items-center gap-2.5 overflow-hidden rounded-2xl border border-yellow-300/15 bg-gradient-to-br from-white/[0.05] via-white/[0.02] to-transparent px-2.5 py-2 transition hover:border-yellow-300/35 hover:from-yellow-300/[0.06] sm:gap-3 sm:px-3 sm:py-2.5"
 		>
-			<div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-yellow-300/35 bg-gradient-to-br from-yellow-300/22 via-yellow-300/6 to-transparent text-yellow-200 shadow-[0_8px_30px_rgba(0,0,0,0.45)]">
+			<div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-yellow-300/30 bg-gradient-to-br from-yellow-300/20 via-yellow-300/5 to-transparent text-yellow-200 shadow-[0_8px_30px_rgba(0,0,0,0.45)]">
 				{icon}
 			</div>
 			<div className="min-w-0 flex-1 overflow-hidden">
-				<div className="truncate text-[10px] font-semibold uppercase tracking-[0.2em] text-yellow-200/75 sm:text-[11px] sm:tracking-[0.22em]">
+				<div className="truncate text-[10px] font-semibold uppercase tracking-[0.18em] text-yellow-200/65 sm:text-[10px] sm:tracking-[0.2em]">
 					{label}
 				</div>
 				<div className="truncate text-[13px] text-white/90 sm:text-sm" title={value}>
@@ -234,16 +234,16 @@ export function ContactSection({
 	}
 
 	return (
-		<Card className="relative flex h-full w-full min-w-0 max-w-full flex-col overflow-hidden rounded-[24px] border border-yellow-300/25 bg-gradient-to-br from-white/[0.10] via-white/[0.04] to-[#06090f]/65 p-5 shadow-[0_30px_90px_rgba(0,0,0,0.55),0_0_70px_rgba(245,197,66,0.12)] backdrop-blur-2xl sm:rounded-[28px] sm:p-6 lg:p-8">
-			<div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-yellow-300/80 to-transparent" />
-			<div className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-yellow-300/35 to-transparent" />
-			<div className="pointer-events-none absolute inset-0 bg-[radial-gradient(700px_circle_at_-5%_-10%,rgba(245,197,66,0.15),transparent_55%),radial-gradient(700px_circle_at_110%_110%,rgba(59,130,246,0.12),transparent_55%)]" />
-			<div className="relative flex h-full w-full min-w-0 max-w-full flex-col">
-				<div className="flex min-w-0 items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.24em] text-yellow-200/90 sm:text-[11px] sm:tracking-[0.28em]">
+		<Card className="relative h-full w-full min-w-0 max-w-full overflow-hidden rounded-[20px] border border-yellow-300/25 bg-[#06090f]/85 p-4 shadow-[0_30px_80px_rgba(0,0,0,0.55)] sm:rounded-[24px] sm:p-5 lg:rounded-[28px] lg:p-6">
+			<div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-yellow-300/70 to-transparent" />
+			<div className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-yellow-300/25 to-transparent" />
+			<div className="pointer-events-none absolute inset-0 bg-[radial-gradient(500px_circle_at_-5%_-10%,rgba(245,197,66,0.10),transparent_55%)]" />
+			<div className="relative w-full min-w-0 max-w-full">
+				<div className="flex min-w-0 items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.22em] text-yellow-200/90 sm:text-[11px] sm:tracking-[0.24em]">
 					<span className="h-1.5 w-1.5 shrink-0 rounded-full bg-yellow-300 shadow-[0_0_12px_rgba(245,197,66,0.8)]" />
 					<span className="min-w-0 truncate">{L.contactsTitle}</span>
 				</div>
-				<div className="mt-4 grid w-full min-w-0 max-w-full gap-2.5">{rows}</div>
+				<div className="mt-4 grid w-full min-w-0 max-w-full gap-2">{rows}</div>
 			</div>
 		</Card>
 	)

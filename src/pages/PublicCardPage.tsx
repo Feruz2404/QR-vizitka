@@ -5,6 +5,7 @@ import { useParams } from 'react-router-dom'
 import {
 	BarChart3,
 	Check,
+	ChevronRight,
 	Cpu,
 	Database,
 	Facebook,
@@ -41,6 +42,7 @@ type Translations = ContactLabels & {
 	specialtiesTitle: string
 	socialTitle: string
 	officialProfileTitle: string
+	digitalCardLabel: string
 	wechatCopied: string
 	copiedLabel: string
 	loadingSubtitle: string
@@ -63,6 +65,7 @@ const T: Record<PublicLang, Translations> = {
 		specialtiesTitle: 'Mutaxassisliklar',
 		socialTitle: 'Ijtimoiy tarmoqlar',
 		officialProfileTitle: 'Rasmiy raqamli profil',
+		digitalCardLabel: 'Raqamli vizitka',
 		wechatCopied: 'WeChat foydalanuvchi nomi nusxalandi',
 		copiedLabel: 'Nusxalandi',
 		loadingSubtitle: 'Raqamli vizitka yuklanmoqda',
@@ -98,6 +101,7 @@ const T: Record<PublicLang, Translations> = {
 		specialtiesTitle: 'Специализации',
 		socialTitle: 'Социальные сети',
 		officialProfileTitle: 'Официальный цифровой профиль',
+		digitalCardLabel: 'Цифровая визитка',
 		wechatCopied: 'Имя пользователя WeChat скопировано',
 		copiedLabel: 'Скопировано',
 		loadingSubtitle: 'Цифровая визитка загружается',
@@ -133,6 +137,7 @@ const T: Record<PublicLang, Translations> = {
 		specialtiesTitle: 'Specialties',
 		socialTitle: 'Social media',
 		officialProfileTitle: 'Official digital profile',
+		digitalCardLabel: 'Digital business card',
 		wechatCopied: 'WeChat username copied',
 		copiedLabel: 'Copied',
 		loadingSubtitle: 'Loading digital business card',
@@ -213,7 +218,7 @@ const CTA_SECONDARY =
 	'inline-flex w-full min-w-0 items-center justify-center gap-2 rounded-2xl border border-yellow-300/30 bg-black/30 px-3 py-2.5 text-sm font-semibold text-yellow-100 backdrop-blur-xl transition hover:border-yellow-300/55 hover:bg-yellow-300/12 hover:shadow-[0_0_24px_rgba(245,197,66,0.18)] active:scale-[0.98] sm:px-4'
 
 const SPEC_CHIP =
-	'flex min-w-0 items-center gap-2 rounded-xl border border-yellow-300/20 bg-gradient-to-br from-white/[0.08] via-white/[0.03] to-transparent px-2.5 py-1.5 backdrop-blur-md transition hover:border-yellow-300/45 hover:from-yellow-300/[0.08]'
+	'group flex min-w-0 items-center gap-2 rounded-xl border border-yellow-300/20 bg-gradient-to-br from-white/[0.08] via-white/[0.03] to-transparent px-2.5 py-1.5 backdrop-blur-md transition hover:border-yellow-300/45 hover:from-yellow-300/[0.08]'
 
 const SPEC_ICON_BOX =
 	'grid h-7 w-7 shrink-0 place-items-center rounded-lg border border-yellow-300/30 bg-gradient-to-br from-yellow-300/25 via-yellow-300/8 to-transparent text-yellow-200'
@@ -556,7 +561,7 @@ export function PublicCardPage() {
 
 			<div className="mx-auto w-full max-w-[1320px] px-3 pb-12 pt-5 sm:px-5 sm:pt-7 lg:px-6 lg:pt-8">
 				<motion.div {...PAGE_MOTION}>
-					<div className="grid w-full max-w-full gap-5 sm:gap-6 lg:grid-cols-2 lg:items-start lg:gap-6">
+					<div className="grid w-full max-w-full gap-5 sm:gap-6 lg:grid-cols-[1.15fr_0.85fr] lg:items-start lg:gap-6">
 						<motion.div {...HERO_MOTION} className="min-w-0">
 							<Card className="relative h-full w-full min-w-0 max-w-full overflow-hidden rounded-[24px] border border-yellow-300/30 bg-gradient-to-br from-white/[0.10] via-white/[0.04] to-[#06090f]/55 p-4 shadow-[0_40px_120px_rgba(0,0,0,0.6),0_0_70px_rgba(245,197,66,0.10)] backdrop-blur-2xl sm:rounded-[28px] sm:p-6 lg:p-7">
 								<div className="pointer-events-none absolute inset-0 bg-[radial-gradient(700px_circle_at_10%_5%,rgba(245,197,66,0.20),transparent_55%),radial-gradient(900px_circle_at_95%_15%,rgba(59,130,246,0.16),transparent_60%)]" />
@@ -667,6 +672,7 @@ export function PublicCardPage() {
 															<Icon className="h-3.5 w-3.5" aria-hidden="true" />
 														</span>
 														<span className="min-w-0 flex-1 break-words text-left text-xs text-white/90 sm:text-[13px]">{item}</span>
+														<ChevronRight className="h-3.5 w-3.5 shrink-0 text-yellow-200/55 transition group-hover:translate-x-0.5 group-hover:text-yellow-200" aria-hidden="true" />
 													</div>
 												)
 											})}
@@ -701,7 +707,7 @@ export function PublicCardPage() {
 										</div>
 										<div className="min-w-0 flex-1">
 											<div className="text-[10px] font-semibold uppercase tracking-[0.2em] text-yellow-200/75 sm:text-[11px] sm:tracking-[0.24em]">
-												{labels.brandBadge}
+												{labels.digitalCardLabel}
 											</div>
 											<div className="mt-0.5 break-words text-sm font-semibold text-white sm:text-base">
 												{displayOrgName}
@@ -773,6 +779,13 @@ export function PublicCardPage() {
 											aria-live="polite"
 										>
 											{labels.copiedLabel}
+										</div>
+									</div>
+
+									<div className="mt-auto pt-4">
+										<div className="grid w-full min-w-0 max-w-full grid-cols-1 gap-2 sm:grid-cols-2">
+											<SaveContactButton card={data} className="w-full" overrides={saveOverrides} />
+											<ShareButton url={url} title={pageTitle} />
 										</div>
 									</div>
 								</div>

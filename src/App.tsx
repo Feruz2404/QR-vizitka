@@ -71,6 +71,8 @@ export function App() {
 				<Route path="/admin/settings" element={<AdminSettingsPage />} />
 			</Route>
 
+			<Route path="/:slug" element={<PublicCardPage />} />
+
 			<Route path="*" element={<NotFoundPage />} />
 		</Routes>
 	)

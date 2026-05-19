@@ -15,7 +15,7 @@ import {
 	Lightbulb,
 	Mail,
 	MapPin,
-	MessageCircle,
+	MessagesSquare,
 	Network,
 	Phone,
 	Send,
@@ -59,7 +59,7 @@ type Translations = ContactLabels & {
 
 const T: Record<PublicLang, Translations> = {
 	uz: {
-		orgName: 'O‘ZGIDROMET',
+		orgName: 'O‘zbekiston Respublikasi Ekologiya va iqlim o‘zgarishi milliy qo‘mitasi huzuridagi Gidrometeorologiya xizmati agentligi',
 		orgSubtitle: 'Rasmiy raqamli vizitka',
 		brandBadge: 'Raqamli vizitka',
 		profileBadge: 'Rasmiy raqamli profil',
@@ -95,7 +95,7 @@ const T: Record<PublicLang, Translations> = {
 		unavailableDescription: 'Bu xodim kartasi hozircha nashr etilmagan.',
 	},
 	ru: {
-		orgName: 'ЎЗГИДРОМЕТ',
+		orgName: 'Агентство гидрометеорологической службы при Национальном комитете Республики Узбекистан по экологии и изменению климата',
 		orgSubtitle: 'Официальная цифровая визитка',
 		brandBadge: 'Цифровая визитка',
 		profileBadge: 'Официальный цифровой профиль',
@@ -131,7 +131,7 @@ const T: Record<PublicLang, Translations> = {
 		unavailableDescription: 'Эта карта сотрудника пока не опубликована.',
 	},
 	en: {
-		orgName: 'UZHYDROMET',
+		orgName: 'Hydrometeorological Service Agency under the National Committee of the Republic of Uzbekistan on Ecology and Climate Change',
 		orgSubtitle: 'Official digital business card',
 		brandBadge: 'Digital business card',
 		profileBadge: 'Official digital profile',
@@ -399,7 +399,7 @@ function PublicCardLoader({
 						</div>
 					</div>
 
-					<div className="relative mt-5 break-words text-base font-bold uppercase tracking-[0.26em] text-white sm:text-lg sm:tracking-[0.3em]">
+					<div className="relative mt-5 break-words text-sm font-bold leading-snug text-white sm:text-base">
 						{orgName}
 					</div>
 					<div className="relative mt-2 break-words text-xs text-yellow-100/85 sm:text-sm">
@@ -596,7 +596,7 @@ export function PublicCardPage() {
 									<div className="relative flex w-full min-w-0 flex-col items-center gap-5 text-center sm:flex-row sm:items-start sm:gap-6 sm:text-left">
 										<div className="relative shrink-0">
 											<div className="pointer-events-none absolute -inset-4 rounded-full bg-gradient-to-br from-yellow-300/45 via-yellow-300/18 to-blue-400/12 blur-2xl" />
-											<div className="relative h-28 w-28 overflow-hidden rounded-full border-[3px] border-yellow-300/60 bg-white/10 shadow-[0_30px_90px_rgba(0,0,0,0.7)] sm:h-36 sm:w-36 lg:h-40 lg:w-40">
+											<div className="relative h-56 w-56 overflow-hidden rounded-full border-[3px] border-yellow-300/60 bg-white/10 shadow-[0_30px_90px_rgba(0,0,0,0.7)] sm:h-36 sm:w-36 lg:h-40 lg:w-40">
 												{heroPhoto ? (
 													<img
 														src={heroPhoto}
@@ -628,9 +628,9 @@ export function PublicCardPage() {
 											{displayDepartment ? (
 												<div className="mt-1 w-full break-words text-xs text-white/65 sm:text-sm">{displayDepartment}</div>
 											) : null}
-											<div className="mt-3 inline-flex max-w-full items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-yellow-200 sm:text-[11px] sm:tracking-[0.22em]">
-												<Landmark className="h-3.5 w-3.5 shrink-0 text-yellow-200/85" aria-hidden="true" />
-												<span className="min-w-0 break-words">{displayOrgName}</span>
+											<div className="mt-3 flex max-w-full items-start gap-2 text-[11px] font-semibold text-yellow-200 sm:text-xs">
+												<Landmark className="mt-0.5 h-3.5 w-3.5 shrink-0 text-yellow-200/85" aria-hidden="true" />
+												<span className="min-w-0 break-words leading-snug">{displayOrgName}</span>
 											</div>
 											{displayBio ? (
 												<p className="mt-3 w-full max-w-prose break-words text-sm leading-relaxed text-white/70 sm:text-[15px]">
@@ -689,7 +689,7 @@ export function PublicCardPage() {
 														{wechatCopied ? (
 															<Check className="h-5 w-5" aria-hidden="true" />
 														) : (
-															<MessageCircle className="h-5 w-5" aria-hidden="true" />
+															<MessagesSquare className="h-5 w-5" aria-hidden="true" />
 														)}
 													</button>
 												</div>

@@ -13,10 +13,8 @@ import {
 	Globe2,
 	Landmark,
 	Lightbulb,
-	Mail,
 	MapPin,
 	Network,
-	Phone,
 	Send,
 	Settings2,
 	ShieldCheck,
@@ -214,12 +212,6 @@ const PULSE_3 = { animationDelay: '300ms' } as const
 
 const DEBUG_OVERLAY_STYLE = { whiteSpace: 'pre-wrap' as const }
 
-const CTA_PRIMARY =
-	'inline-flex w-full min-w-0 items-center justify-center gap-2 rounded-2xl border border-yellow-300/55 bg-gradient-to-b from-yellow-300/55 via-yellow-300/28 to-yellow-300/12 px-3 py-2.5 text-sm font-semibold text-yellow-50 shadow-[0_12px_36px_rgba(245,197,66,0.28)] backdrop-blur-md transition hover:from-yellow-300/65 hover:via-yellow-300/35 hover:to-yellow-300/18 hover:shadow-[0_0_30px_rgba(245,197,66,0.32)] active:scale-[0.98] sm:px-4'
-
-const CTA_SECONDARY =
-	'inline-flex w-full min-w-0 items-center justify-center gap-2 rounded-2xl border border-yellow-300/30 bg-black/30 px-3 py-2.5 text-sm font-semibold text-yellow-100 backdrop-blur-xl transition hover:border-yellow-300/55 hover:bg-yellow-300/12 hover:shadow-[0_0_24px_rgba(245,197,66,0.18)] active:scale-[0.98] sm:px-4'
-
 const SPEC_CHIP =
 	'group flex min-w-0 items-center gap-2 rounded-xl border border-yellow-300/20 bg-gradient-to-br from-white/[0.08] via-white/[0.03] to-transparent px-2.5 py-1.5 backdrop-blur-md transition hover:border-yellow-300/45 hover:from-yellow-300/[0.08]'
 
@@ -275,19 +267,6 @@ function initials(fullName: string) {
 	return (a + b).toUpperCase()
 }
 
-function digitsOnly(v: string) {
-	return v.replace(/\D/g, '')
-}
-
-function telNormalize(value?: string | null) {
-	if (!value) return null
-	const raw = digitsOnly(value)
-	if (!raw) return null
-	if (raw.startsWith('998')) return '+' + raw
-	if (raw.length === 9) return '+998' + raw
-	return value.startsWith('+') ? value : '+' + raw
-}
-
 function isHttpUrl(value?: string | null) {
 	if (!value) return false
 	try {
@@ -321,6 +300,29 @@ function telegramHref(card: {
 	const f = (card.telegram_url ?? '').trim().replace(/^@/, '')
 	if (f && /^[a-zA-Z0-9_]{3,}$/.test(f)) return TG_BASE + f
 	return null
+}
+
+function fallbackCopyToClipboard(text: string): boolean {
+	try {
+		if (typeof document === 'undefined') return false
+		const ta = document.createElement('textarea')
+		ta.value = text
+		ta.setAttribute('readonly', '')
+		ta.style.position = 'fixed'
+		ta.style.top = '0'
+		ta.style.left = '0'
+		ta.style.opacity = '0'
+		ta.style.pointerEvents = 'none'
+		document.body.appendChild(ta)
+		ta.focus()
+		ta.select()
+		ta.setSelectionRange(0, text.length)
+		const ok = document.execCommand('copy')
+		document.body.removeChild(ta)
+		return ok
+	} catch {
+		return false
+	}
 }
 
 type LocalizableField = 'full_name' | 'position' | 'department' | 'organization_name' | 'bio'
@@ -548,16 +550,6 @@ export function PublicCardPage() {
 
 	const tgHref = useMemo(() => (data ? telegramHref(data) : null), [data])
 
-	const phoneRaw = data?.phone_primary ?? data?.phone_secondary ?? data?.phone_extra ?? null
-	const phoneHref = useMemo(() => {
-		if (!phoneRaw) return null
-		const n = telNormalize(phoneRaw)
-		return n ? 'tel:' + n : 'tel:' + phoneRaw
-	}, [phoneRaw])
-
-	const emailRaw = data?.work_email ?? data?.personal_email ?? null
-	const emailHref = emailRaw ? 'mailto:' + emailRaw : null
-
 	const globalBg = isHttpUrl(settings?.background_image_url) ? settings!.background_image_url : null
 	const employeeBg = isHttpUrl(data?.background_image_url) ? data!.background_image_url : null
 	const backgroundImage = globalBg ?? employeeBg ?? null
@@ -595,14 +587,24 @@ export function PublicCardPage() {
 	const heroOrgName = labels.orgName
 
 	const handleWeChatCopy = () => {
-		if (typeof navigator === 'undefined' || !navigator.clipboard) return
-		void navigator.clipboard
-			.writeText(WECHAT_USERNAME)
-			.then(() => {
-				setWechatCopied(true)
-				window.setTimeout(() => setWechatCopied(false), 1500)
-			})
-			.catch(() => {})
+		const showCopied = () => {
+			setWechatCopied(true)
+			window.setTimeout(() => setWechatCopied(false), 1500)
+		}
+		if (
+			typeof navigator !== 'undefined' &&
+			navigator.clipboard &&
+			typeof navigator.clipboard.writeText === 'function'
+		) {
+			void navigator.clipboard
+				.writeText(WECHAT_USERNAME)
+				.then(() => showCopied())
+				.catch(() => {
+					if (fallbackCopyToClipboard(WECHAT_USERNAME)) showCopied()
+				})
+			return
+		}
+		if (fallbackCopyToClipboard(WECHAT_USERNAME)) showCopied()
 	}
 
 	const debugOverlay = isDebug ? (
@@ -767,21 +769,6 @@ export function PublicCardPage() {
 											) : null}
 
 											<div className="mt-5 flex w-full min-w-0 max-w-full flex-col gap-2.5">
-												<div className="grid w-full min-w-0 max-w-full grid-cols-1 gap-2 sm:grid-cols-2">
-													{phoneHref ? (
-														<a href={phoneHref} className={CTA_PRIMARY} aria-label={labels.call}>
-															<Phone className="h-4 w-4 shrink-0" aria-hidden="true" />
-															<span className="truncate">{labels.call}</span>
-														</a>
-													) : null}
-													{emailHref ? (
-														<a href={emailHref} className={CTA_SECONDARY} aria-label={labels.email}>
-															<Mail className="h-4 w-4 shrink-0" aria-hidden="true" />
-															<span className="truncate">{labels.email}</span>
-														</a>
-													) : null}
-												</div>
-
 												<div className="flex w-full min-w-0 max-w-full flex-wrap items-center justify-center gap-2 sm:justify-start">
 													{tgHref ? (
 														<a
@@ -820,11 +807,6 @@ export function PublicCardPage() {
 															<WeChatIcon className="h-5 w-5" />
 														)}
 													</button>
-												</div>
-
-												<div className="grid w-full min-w-0 max-w-full grid-cols-1 gap-2 sm:grid-cols-2">
-													<SaveContactButton card={data} className="w-full" overrides={saveOverrides} />
-													<ShareButton url={url} title={pageTitle} />
 												</div>
 
 												<div

@@ -4,7 +4,6 @@ import { useEffect, useMemo, useState } from 'react'
 import { useLocation, useParams } from 'react-router-dom'
 import {
 	BarChart3,
-	Check,
 	ChevronRight,
 	Cpu,
 	Database,
@@ -238,9 +237,9 @@ const PROFILE_ROW_LABEL =
 
 const SPEC_ICONS = [Cpu, Network, BarChart3, ShieldCheck, Lightbulb, Workflow, Database, Settings2]
 
-const WECHAT_USERNAME = '@umirzakov_u'
+const WECHAT_URL = 'https://u.wechat.com/MIti95wYI7SoRjfZwXWoU2s?s=2'
 const MAPS_BASE = 'https://www.google.com/maps/search/?api=1&query='
-const DEPLOY_MARKER = 'public-card-social-icons-2026-05-20'
+const DEPLOY_MARKER = 'public-card-wechat-link-2026-05-20'
 
 function WeChatIcon({ className = '' }: { className?: string }) {
 	return (
@@ -301,29 +300,6 @@ function telegramHref(card: {
 	const f = (card.telegram_url ?? '').trim().replace(/^@/, '')
 	if (f && /^[a-zA-Z0-9_]{3,}$/.test(f)) return TG_BASE + f
 	return null
-}
-
-function fallbackCopyToClipboard(text: string): boolean {
-	try {
-		if (typeof document === 'undefined') return false
-		const ta = document.createElement('textarea')
-		ta.value = text
-		ta.setAttribute('readonly', '')
-		ta.style.position = 'fixed'
-		ta.style.top = '0'
-		ta.style.left = '0'
-		ta.style.opacity = '0'
-		ta.style.pointerEvents = 'none'
-		document.body.appendChild(ta)
-		ta.focus()
-		ta.select()
-		ta.setSelectionRange(0, text.length)
-		const ok = document.execCommand('copy')
-		document.body.removeChild(ta)
-		return ok
-	} catch {
-		return false
-	}
 }
 
 type LocalizableField = 'full_name' | 'position' | 'department' | 'organization_name' | 'bio'
@@ -543,8 +519,6 @@ export function PublicCardPage() {
 		return () => window.clearTimeout(timer)
 	}, [])
 
-	const [wechatCopied, setWechatCopied] = useState(false)
-
 	const publicBaseUrl =
 		(import.meta.env.VITE_PUBLIC_BASE_URL as string | undefined) ?? window.location.origin
 	const url = safeSlug ? fullUrl(publicBaseUrl, safeSlug) : window.location.href
@@ -586,27 +560,6 @@ export function PublicCardPage() {
 	// In the hero, always show the full official organization name from translations,
 	// regardless of any short form stored in the DB (e.g. "O‘zgidromet").
 	const heroOrgName = labels.orgName
-
-	const handleWeChatCopy = () => {
-		const showCopied = () => {
-			setWechatCopied(true)
-			window.setTimeout(() => setWechatCopied(false), 1500)
-		}
-		if (
-			typeof navigator !== 'undefined' &&
-			navigator.clipboard &&
-			typeof navigator.clipboard.writeText === 'function'
-		) {
-			void navigator.clipboard
-				.writeText(WECHAT_USERNAME)
-				.then(() => showCopied())
-				.catch(() => {
-					if (fallbackCopyToClipboard(WECHAT_USERNAME)) showCopied()
-				})
-			return
-		}
-		if (fallbackCopyToClipboard(WECHAT_USERNAME)) showCopied()
-	}
 
 	const debugOverlay = isDebug ? (
 		<DebugOverlay
@@ -689,7 +642,6 @@ export function PublicCardPage() {
 	const websiteHref = isHttpUrl(data.website_url) ? data.website_url : null
 	const addressValue = (data.address ?? '').trim()
 	const mapsHref = addressValue ? MAPS_BASE + encodeURIComponent(addressValue) : null
-	const wechatTitle = 'WeChat: ' + WECHAT_USERNAME
 
 	return (
 		<div
@@ -772,56 +724,41 @@ export function PublicCardPage() {
 												</p>
 											) : null}
 
-											<div className="mt-5 flex w-full min-w-0 max-w-full flex-col gap-2.5">
-												<div className="flex w-full min-w-0 max-w-full flex-wrap items-center justify-center gap-2 sm:justify-start">
-													{tgHref ? (
-														<a
-															href={tgHref}
-															target="_blank"
-															rel="noreferrer noopener"
-															className={SOCIAL_BTN}
-															title={labels.telegram}
-															aria-label={labels.telegram}
-														>
-															<Send className="h-5 w-5" aria-hidden="true" />
-														</a>
-													) : null}
-													{facebookHref ? (
-														<a
-															href={facebookHref}
-															target="_blank"
-															rel="noreferrer noopener"
-															className={SOCIAL_BTN}
-															title={labels.facebook}
-															aria-label={labels.facebook}
-														>
-															<Facebook className="h-5 w-5" aria-hidden="true" />
-														</a>
-													) : null}
-													<button
-														type="button"
-														onClick={handleWeChatCopy}
+											<div className="mt-5 flex w-full min-w-0 max-w-full flex-wrap items-center justify-center gap-2 sm:justify-start">
+												{tgHref ? (
+													<a
+														href={tgHref}
+														target="_blank"
+														rel="noopener noreferrer"
 														className={SOCIAL_BTN}
-														title={wechatTitle}
-														aria-label={wechatTitle}
+														title={labels.telegram}
+														aria-label={labels.telegram}
 													>
-														{wechatCopied ? (
-															<Check className="h-5 w-5" aria-hidden="true" />
-														) : (
-															<WeChatIcon className="h-5 w-5" />
-														)}
-													</button>
-												</div>
-
-												<div
-													className={
-														'min-h-[16px] text-center text-[11px] text-yellow-200 transition-opacity sm:text-left ' +
-														(wechatCopied ? 'opacity-100' : 'opacity-0')
-													}
-													aria-live="polite"
+														<Send className="h-5 w-5" aria-hidden="true" />
+													</a>
+												) : null}
+												{facebookHref ? (
+													<a
+														href={facebookHref}
+														target="_blank"
+														rel="noopener noreferrer"
+														className={SOCIAL_BTN}
+														title={labels.facebook}
+														aria-label={labels.facebook}
+													>
+														<Facebook className="h-5 w-5" aria-hidden="true" />
+													</a>
+												) : null}
+												<a
+													href={WECHAT_URL}
+													target="_blank"
+													rel="noopener noreferrer"
+													className={SOCIAL_BTN}
+													title="WeChat"
+													aria-label="WeChat"
 												>
-													{labels.copiedLabel}
-												</div>
+													<WeChatIcon className="h-5 w-5" />
+												</a>
 											</div>
 										</div>
 									</div>

@@ -9,6 +9,14 @@ const EmployeeCardTag = 'EmployeeCard' as const
 const BACKGROUND_ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp']
 const BACKGROUND_MAX_BYTES = 8 * 1024 * 1024
 
+// Controlled legacy-slug aliases. Each side maps to the other so a request for
+// either form falls back to the other only when the exact slug is missing.
+// Never broaden this into a fuzzy / ilike search.
+const SLUG_ALIASES: Record<string, string> = {
+	'umirzakov-umid': 'umirzakov-umidjon',
+	'umirzakov-umidjon': 'umirzakov-umid',
+}
+
 function safeFileName(name: string) {
 	const cleaned = name.replace(/[^a-zA-Z0-9._-]+/g, '-').replace(/^-+|-+$/g, '')
 	return cleaned || 'image'
@@ -21,14 +29,29 @@ export const employeeCardsApi = createApi({
 	endpoints: (builder) => ({
 		getCardBySlug: builder.query<EmployeeCard, string>({
 			async queryFn(slug) {
-				const { data, error } = await supabase
+				// 1) Try the exact slug first.
+				const primary = await supabase
 					.from('employee_cards')
 					.select('*')
 					.eq('slug', slug)
 					.maybeSingle()
-				if (error) return { error }
-				if (!data) return { error: { message: 'Not found' } as any }
-				return { data }
+				if (primary.error) return { error: primary.error }
+				if (primary.data) return { data: primary.data }
+
+				// 2) Fall back to a known controlled legacy alias, if one exists.
+				const alias = SLUG_ALIASES[slug]
+				if (alias && alias !== slug) {
+					const fallback = await supabase
+						.from('employee_cards')
+						.select('*')
+						.eq('slug', alias)
+						.maybeSingle()
+					if (fallback.error) return { error: fallback.error }
+					if (fallback.data) return { data: fallback.data }
+				}
+
+				// 3) Truly not found — include the queried slug for debugging.
+				return { error: { message: 'Not found for slug: ' + slug } as any }
 			},
 			providesTags: (_res, _err, slug) => [{ type: EmployeeCardTag, id: slug }],
 		}),

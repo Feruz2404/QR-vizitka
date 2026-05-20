@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion'
 import { Helmet } from 'react-helmet-async'
 import { useEffect, useMemo, useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { useLocation, useParams } from 'react-router-dom'
 import {
 	BarChart3,
 	Check,
@@ -425,9 +425,31 @@ function PublicCardLoader({
 }
 
 export function PublicCardPage() {
-	const { slug } = useParams()
-	const safeSlug = slug ?? ''
-	const { data, isLoading, isError } = useGetCardBySlugQuery(safeSlug)
+	const params = useParams()
+	const location = useLocation()
+
+	const resolvedSlug = (() => {
+		const fromParams = params.slug
+		if (fromParams && fromParams.trim().length > 0) return fromParams
+		return location.pathname.replace(/^\/v\//, '').replace(/^\//, '').split('/')[0]
+	})()
+
+	const safeSlug = (() => {
+		let raw = resolvedSlug || ''
+		try {
+			raw = decodeURIComponent(raw)
+		} catch {
+			/* ignore malformed percent-escapes */
+		}
+		return raw.split('?')[0].split('#')[0].trim().toLowerCase()
+	})()
+
+	if (import.meta.env.DEV) {
+		// eslint-disable-next-line no-console
+		console.log('PublicCardPage slug:', safeSlug)
+	}
+
+	const { data, isLoading, isError } = useGetCardBySlugQuery(safeSlug, { skip: safeSlug.length === 0 })
 	const { data: settings } = useGetAppSettingsQuery()
 
 	const [lang, setLang] = useState<PublicLang>('uz')

@@ -576,6 +576,9 @@ export function PublicCardPage() {
 	}, [data, lang])
 
 	const displayOrgName = localized.organizationName || labels.orgName
+	// In the hero, always show the full official organization name from translations,
+	// regardless of any short form stored in the DB (e.g. "O‘zgidromet").
+	const heroOrgName = labels.orgName
 
 	const handleWeChatCopy = () => {
 		if (typeof navigator === 'undefined' || !navigator.clipboard) return
@@ -613,7 +616,7 @@ export function PublicCardPage() {
 					lang={lang}
 					orgLogo={orgLogo}
 					backgroundImage={backgroundImage}
-					orgName={displayOrgName}
+					orgName={heroOrgName}
 				/>
 				{debugOverlay}
 			</>
@@ -683,7 +686,7 @@ export function PublicCardPage() {
 			<BackgroundLayers backgroundImage={backgroundImage} />
 
 			<EmployeeTopHeader
-				orgName={displayOrgName}
+				orgName={heroOrgName}
 				subtitle={labels.orgSubtitle}
 				organizationLogoUrl={orgLogo}
 				fullName={displayFullName}
@@ -707,7 +710,7 @@ export function PublicCardPage() {
 									<div className="relative flex w-full min-w-0 flex-col items-center gap-5 text-center sm:flex-row sm:items-start sm:gap-6 sm:text-left">
 										<div className="relative shrink-0">
 											<div className="pointer-events-none absolute -inset-4 rounded-full bg-gradient-to-br from-yellow-300/45 via-yellow-300/18 to-blue-400/12 blur-2xl" />
-											<div className="relative h-56 w-56 overflow-hidden rounded-full border-[3px] border-yellow-300/60 bg-white/10 shadow-[0_30px_90px_rgba(0,0,0,0.7)] sm:h-36 sm:w-36 lg:h-40 lg:w-40">
+											<div className="relative h-64 w-64 max-w-full overflow-hidden rounded-full border-[3px] border-yellow-300/60 bg-white/10 shadow-[0_30px_90px_rgba(0,0,0,0.7)] sm:h-32 sm:w-32 lg:h-40 lg:w-40">
 												{heroPhoto ? (
 													<img
 														src={heroPhoto}
@@ -739,9 +742,9 @@ export function PublicCardPage() {
 											{displayDepartment ? (
 												<div className="mt-1 w-full break-words text-xs text-white/65 sm:text-sm">{displayDepartment}</div>
 											) : null}
-											<div className="mt-3 flex max-w-full items-start gap-2 text-[11px] font-semibold text-yellow-200 sm:text-xs">
+											<div className="mt-3 flex w-full min-w-0 max-w-full items-start gap-2 text-[11px] font-semibold text-yellow-200 sm:text-xs">
 												<Landmark className="mt-0.5 h-3.5 w-3.5 shrink-0 text-yellow-200/85" aria-hidden="true" />
-												<span className="min-w-0 break-words leading-snug">{displayOrgName}</span>
+												<span className="min-w-0 max-w-full break-words leading-snug">{heroOrgName}</span>
 											</div>
 											{displayBio ? (
 												<p className="mt-3 w-full max-w-prose break-words text-sm leading-relaxed text-white/70 sm:text-[15px]">
@@ -884,7 +887,7 @@ export function PublicCardPage() {
 												<div className="min-w-0 flex-1">
 													<div className={PROFILE_ROW_LABEL}>{labels.digitalCardLabel}</div>
 													<div className="mt-0.5 break-words text-sm font-semibold text-white sm:text-base">
-														{displayOrgName}
+														{heroOrgName}
 													</div>
 												</div>
 											</div>

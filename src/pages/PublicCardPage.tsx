@@ -487,6 +487,11 @@ export function PublicCardPage() {
 
 	const isDebug = new URLSearchParams(location.search).get('debug') === 'card'
 
+	if (import.meta.env.DEV) {
+		// eslint-disable-next-line no-console
+		console.log('PublicCardPage slug:', safeSlug)
+	}
+
 	const { data, isLoading, isError } = useGetCardBySlugQuery(safeSlug, { skip: safeSlug.length === 0 })
 	const { data: settings } = useGetAppSettingsQuery()
 
@@ -509,11 +514,6 @@ export function PublicCardPage() {
 			supabaseUrl: (import.meta.env.VITE_SUPABASE_URL as string | undefined) ?? '(unset)',
 		})
 	}, [isDebug, location.pathname, location.search, params.slug, resolvedSlug, safeSlug, isLoading, isError, data])
-
-	if (import.meta.env.DEV) {
-		// eslint-disable-next-line no-console
-		console.log('PublicCardPage slug:', safeSlug)
-	}
 
 	const [lang, setLang] = useState<PublicLang>('uz')
 	const labels = T[lang]
@@ -851,3 +851,103 @@ export function PublicCardPage() {
 											</div>
 										</div>
 									</Card>
+								</motion.div>
+							) : null}
+						</div>
+
+						<div className="flex w-full min-w-0 max-w-full flex-col gap-5 sm:gap-6">
+							<motion.div {...TR_MOTION} className="min-w-0">
+								<ContactSection card={data} labels={labels} />
+							</motion.div>
+
+							<motion.div {...PROFILE_MOTION} className="min-w-0">
+								<Card className={SECTION_CARD}>
+									<div className="pointer-events-none absolute inset-0 bg-[radial-gradient(700px_circle_at_85%_0%,rgba(245,197,66,0.18),transparent_55%),radial-gradient(700px_circle_at_15%_100%,rgba(59,130,246,0.14),transparent_55%)]" />
+									<div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-yellow-300/70 to-transparent" />
+									<div className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-yellow-300/30 to-transparent" />
+
+									<div className="relative flex h-full w-full min-w-0 max-w-full flex-col">
+										<div className={SECTION_TITLE}>
+											<ShieldCheck className="h-3.5 w-3.5 shrink-0 text-yellow-200" aria-hidden="true" />
+											<span className="min-w-0 break-words">{labels.officialProfileTitle}</span>
+										</div>
+
+										<div className="mt-3 flex w-full min-w-0 max-w-full flex-col gap-2">
+											<div className={PROFILE_ROW}>
+												<div className={PROFILE_ROW_ICON_BOX}>
+													{orgLogo ? (
+														<img src={orgLogo} alt="" className="h-full w-full object-cover" loading="lazy" />
+													) : (
+														<Landmark className="h-5 w-5" aria-hidden="true" />
+													)}
+												</div>
+												<div className="min-w-0 flex-1">
+													<div className={PROFILE_ROW_LABEL}>{labels.digitalCardLabel}</div>
+													<div className="mt-0.5 break-words text-sm font-semibold text-white sm:text-base">
+														{displayOrgName}
+													</div>
+												</div>
+											</div>
+
+											{websiteHref ? (
+												<a
+													href={websiteHref}
+													target="_blank"
+													rel="noreferrer noopener"
+													className={PROFILE_ROW}
+													aria-label={labels.website}
+													title={websiteHref}
+												>
+													<div className={PROFILE_ROW_ICON_BOX}>
+														<Globe2 className="h-5 w-5" aria-hidden="true" />
+													</div>
+													<div className="min-w-0 flex-1">
+														<div className={PROFILE_ROW_LABEL}>{labels.website}</div>
+														<div className="mt-0.5 truncate text-sm text-white/90 sm:text-[15px]">
+															{prettyUrl(websiteHref)}
+														</div>
+													</div>
+													<ExternalLink className="h-4 w-4 shrink-0 text-yellow-200/70 transition group-hover:text-yellow-200" aria-hidden="true" />
+												</a>
+											) : null}
+
+											{mapsHref ? (
+												<a
+													href={mapsHref}
+													target="_blank"
+													rel="noreferrer noopener"
+													className={PROFILE_ROW}
+													aria-label={labels.mapAction ?? labels.address}
+													title={addressValue}
+												>
+													<div className={PROFILE_ROW_ICON_BOX}>
+														<MapPin className="h-5 w-5" aria-hidden="true" />
+													</div>
+													<div className="min-w-0 flex-1">
+														<div className={PROFILE_ROW_LABEL}>{labels.address}</div>
+														<div className="mt-0.5 break-words text-sm text-white/90 sm:text-[15px]">
+															{addressValue}
+														</div>
+													</div>
+													<ExternalLink className="h-4 w-4 shrink-0 text-yellow-200/70 transition group-hover:text-yellow-200" aria-hidden="true" />
+												</a>
+											) : null}
+										</div>
+
+										<div className="mt-auto pt-4">
+											<div className="grid w-full min-w-0 max-w-full grid-cols-1 gap-2 sm:grid-cols-2">
+												<SaveContactButton card={data} className="w-full" overrides={saveOverrides} />
+												<ShareButton url={url} title={pageTitle} />
+											</div>
+										</div>
+									</div>
+								</Card>
+							</motion.div>
+						</div>
+					</div>
+				</motion.div>
+			</div>
+			{debugOverlay}
+		</div>
+	)
+}

@@ -15,7 +15,6 @@ import {
 	Lightbulb,
 	Mail,
 	MapPin,
-	MessagesSquare,
 	Network,
 	Phone,
 	Send,
@@ -249,6 +248,21 @@ const SPEC_ICONS = [Cpu, Network, BarChart3, ShieldCheck, Lightbulb, Workflow, D
 
 const WECHAT_USERNAME = '@umirzakov_u'
 const MAPS_BASE = 'https://www.google.com/maps/search/?api=1&query='
+
+function WeChatIcon({ className = '' }: { className?: string }) {
+	return (
+		<svg
+			viewBox="0 0 24 24"
+			className={className}
+			fill="currentColor"
+			aria-hidden="true"
+			focusable="false"
+		>
+			<path d="M8.7 3.4C4.45 3.4 1 6.27 1 9.83c0 2 1.07 3.77 2.79 4.95l-.83 2.43 2.85-1.45c.93.26 1.9.4 2.89.4.27 0 .55-.02.82-.05a5.5 5.5 0 0 1-.2-1.51c0-3.27 3.07-5.93 6.85-5.93.26 0 .52.02.78.05C16.31 5.66 12.84 3.4 8.7 3.4Zm-2.65 4.43a.94.94 0 1 1 0-1.88.94.94 0 0 1 0 1.88Zm5.3 0a.94.94 0 1 1 0-1.88.94.94 0 0 1 0 1.88Z" />
+			<path d="M23 14.6c0-2.78-2.85-5.04-6.36-5.04-3.5 0-6.35 2.26-6.35 5.04 0 2.79 2.85 5.05 6.35 5.05.72 0 1.42-.1 2.07-.27l2.34 1.19-.5-1.89c1.5-.92 2.45-2.36 2.45-4.08Zm-8.34-.55a.83.83 0 1 1 0-1.66.83.83 0 0 1 0 1.66Zm3.94 0a.83.83 0 1 1 0-1.66.83.83 0 0 1 0 1.66Z" />
+		</svg>
+	)
+}
 
 function fullUrl(publicBaseUrl: string, slug: string) {
 	return publicBaseUrl.replace(/\/$/, '') + '/v/' + slug
@@ -699,9 +713,9 @@ export function PublicCardPage() {
 
 			<div className="mx-auto w-full max-w-[1320px] px-3 pb-12 pt-5 sm:px-5 sm:pt-7 lg:px-6 lg:pt-8">
 				<motion.div {...PAGE_MOTION}>
-					<div className="grid w-full max-w-full gap-5 sm:gap-6 lg:grid-cols-[1.15fr_0.85fr] lg:items-start lg:gap-6">
-						<div className="flex w-full min-w-0 max-w-full flex-col gap-5 sm:gap-6">
-							<motion.div {...HERO_MOTION} className="min-w-0">
+					<div className="grid w-full max-w-full grid-cols-1 gap-5 sm:gap-6 lg:grid-cols-[1.15fr_0.85fr] lg:items-start lg:gap-6">
+						<div className="contents w-full min-w-0 max-w-full lg:flex lg:flex-col lg:gap-6">
+							<motion.div {...HERO_MOTION} className="order-1 min-w-0 lg:order-none">
 								<Card className="relative h-full w-full min-w-0 max-w-full overflow-hidden rounded-[24px] border border-yellow-300/30 bg-gradient-to-br from-white/[0.10] via-white/[0.04] to-[#06090f]/55 p-4 shadow-[0_40px_120px_rgba(0,0,0,0.6),0_0_70px_rgba(245,197,66,0.10)] backdrop-blur-2xl sm:rounded-[28px] sm:p-6 lg:p-7">
 									<div className="pointer-events-none absolute inset-0 bg-[radial-gradient(700px_circle_at_10%_5%,rgba(245,197,66,0.20),transparent_55%),radial-gradient(900px_circle_at_95%_15%,rgba(59,130,246,0.16),transparent_60%)]" />
 									<div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-yellow-300/80 to-transparent" />
@@ -803,7 +817,7 @@ export function PublicCardPage() {
 														{wechatCopied ? (
 															<Check className="h-5 w-5" aria-hidden="true" />
 														) : (
-															<MessagesSquare className="h-5 w-5" aria-hidden="true" />
+															<WeChatIcon className="h-5 w-5" />
 														)}
 													</button>
 												</div>
@@ -829,7 +843,7 @@ export function PublicCardPage() {
 							</motion.div>
 
 							{hasSpecialties ? (
-								<motion.div {...SPEC_MOTION} className="min-w-0">
+								<motion.div {...SPEC_MOTION} className="order-3 min-w-0 lg:order-none">
 									<Card className={SECTION_CARD}>
 										<div className="pointer-events-none absolute inset-0 bg-[radial-gradient(600px_circle_at_10%_0%,rgba(245,197,66,0.16),transparent_55%)]" />
 										<div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-yellow-300/55 to-transparent" />
@@ -858,12 +872,12 @@ export function PublicCardPage() {
 							) : null}
 						</div>
 
-						<div className="flex w-full min-w-0 max-w-full flex-col gap-5 sm:gap-6">
-							<motion.div {...TR_MOTION} className="min-w-0">
+						<div className="contents w-full min-w-0 max-w-full lg:flex lg:flex-col lg:gap-6">
+							<motion.div {...TR_MOTION} className="order-2 min-w-0 lg:order-none">
 								<ContactSection card={data} labels={labels} />
 							</motion.div>
 
-							<motion.div {...PROFILE_MOTION} className="min-w-0">
+							<motion.div {...PROFILE_MOTION} className="order-4 min-w-0 lg:order-none">
 								<Card className={SECTION_CARD}>
 									<div className="pointer-events-none absolute inset-0 bg-[radial-gradient(700px_circle_at_85%_0%,rgba(245,197,66,0.18),transparent_55%),radial-gradient(700px_circle_at_15%_100%,rgba(59,130,246,0.14),transparent_55%)]" />
 									<div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-yellow-300/70 to-transparent" />

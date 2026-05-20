@@ -240,6 +240,7 @@ const SPEC_ICONS = [Cpu, Network, BarChart3, ShieldCheck, Lightbulb, Workflow, D
 
 const WECHAT_USERNAME = '@umirzakov_u'
 const MAPS_BASE = 'https://www.google.com/maps/search/?api=1&query='
+const DEPLOY_MARKER = 'public-card-social-icons-2026-05-20'
 
 function WeChatIcon({ className = '' }: { className?: string }) {
 	return (
@@ -691,7 +692,10 @@ export function PublicCardPage() {
 	const wechatTitle = 'WeChat: ' + WECHAT_USERNAME
 
 	return (
-		<div className="min-h-screen w-full max-w-full overflow-x-hidden text-white">
+		<div
+			className="min-h-screen w-full max-w-full overflow-x-hidden text-white"
+			data-deploy-marker={DEPLOY_MARKER}
+		>
 			<Helmet>
 				<title>{pageTitle}</title>
 				<meta name="description" content={pageDesc} />

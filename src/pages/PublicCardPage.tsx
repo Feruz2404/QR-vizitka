@@ -213,6 +213,8 @@ const BAR_MOTION = {
 const PULSE_2 = { animationDelay: '150ms' } as const
 const PULSE_3 = { animationDelay: '300ms' } as const
 
+const DEBUG_OVERLAY_STYLE = { whiteSpace: 'pre-wrap' as const }
+
 const CTA_PRIMARY =
 	'inline-flex w-full min-w-0 items-center justify-center gap-2 rounded-2xl border border-yellow-300/55 bg-gradient-to-b from-yellow-300/55 via-yellow-300/28 to-yellow-300/12 px-3 py-2.5 text-sm font-semibold text-yellow-50 shadow-[0_12px_36px_rgba(245,197,66,0.28)] backdrop-blur-md transition hover:from-yellow-300/65 hover:via-yellow-300/35 hover:to-yellow-300/18 hover:shadow-[0_0_30px_rgba(245,197,66,0.32)] active:scale-[0.98] sm:px-4'
 
@@ -363,6 +365,45 @@ function BackgroundLayers({ backgroundImage }: { backgroundImage: string | null 
 	)
 }
 
+function DebugOverlay(props: {
+	pathname: string
+	search: string
+	paramsSlug: string | undefined
+	resolvedSlug: string
+	safeSlug: string
+	isLoading: boolean
+	isError: boolean
+	hasData: boolean
+	dataId: string | null
+	dataSlug: string | null
+	dataIsActive: boolean | null
+	supabaseUrl: string
+}) {
+	const lines = [
+		'pathname: ' + props.pathname,
+		'search: ' + props.search,
+		'params.slug: ' + (props.paramsSlug ?? '(undefined)'),
+		'resolvedSlug: ' + props.resolvedSlug,
+		'safeSlug: ' + props.safeSlug,
+		'querySlug: ' + props.safeSlug,
+		'isLoading: ' + String(props.isLoading),
+		'isError: ' + String(props.isError),
+		'hasData: ' + String(props.hasData),
+		'data.id: ' + (props.dataId ?? '(none)'),
+		'data.slug: ' + (props.dataSlug ?? '(none)'),
+		'data.is_active: ' + (props.dataIsActive === null ? '(none)' : String(props.dataIsActive)),
+		'VITE_SUPABASE_URL: ' + props.supabaseUrl,
+	].join('\n')
+	return (
+		<pre
+			className="fixed bottom-2 right-2 z-[100] max-w-[92vw] overflow-auto rounded-lg border border-yellow-300/40 bg-black/85 p-3 text-[10px] leading-tight text-yellow-100 shadow-xl backdrop-blur-md"
+			style={DEBUG_OVERLAY_STYLE}
+		>
+			{lines}
+		</pre>
+	)
+}
+
 function PublicCardLoader({
 	lang,
 	orgLogo,
@@ -444,13 +485,35 @@ export function PublicCardPage() {
 		return raw.split('?')[0].split('#')[0].trim().toLowerCase()
 	})()
 
+	const isDebug = new URLSearchParams(location.search).get('debug') === 'card'
+
+	const { data, isLoading, isError } = useGetCardBySlugQuery(safeSlug, { skip: safeSlug.length === 0 })
+	const { data: settings } = useGetAppSettingsQuery()
+
+	useEffect(() => {
+		if (!isDebug) return
+		// eslint-disable-next-line no-console
+		console.log('[PublicCardPage debug]', {
+			pathname: location.pathname,
+			search: location.search,
+			paramsSlug: params.slug,
+			resolvedSlug,
+			safeSlug,
+			querySlug: safeSlug,
+			isLoading,
+			isError,
+			hasData: Boolean(data),
+			dataId: data?.id ?? null,
+			dataSlug: data?.slug ?? null,
+			dataIsActive: data?.is_active ?? null,
+			supabaseUrl: (import.meta.env.VITE_SUPABASE_URL as string | undefined) ?? '(unset)',
+		})
+	}, [isDebug, location.pathname, location.search, params.slug, resolvedSlug, safeSlug, isLoading, isError, data])
+
 	if (import.meta.env.DEV) {
 		// eslint-disable-next-line no-console
 		console.log('PublicCardPage slug:', safeSlug)
 	}
-
-	const { data, isLoading, isError } = useGetCardBySlugQuery(safeSlug, { skip: safeSlug.length === 0 })
-	const { data: settings } = useGetAppSettingsQuery()
 
 	const [lang, setLang] = useState<PublicLang>('uz')
 	const labels = T[lang]
@@ -525,39 +588,65 @@ export function PublicCardPage() {
 			.catch(() => {})
 	}
 
+	const debugOverlay = isDebug ? (
+		<DebugOverlay
+			pathname={location.pathname}
+			search={location.search}
+			paramsSlug={params.slug}
+			resolvedSlug={resolvedSlug}
+			safeSlug={safeSlug}
+			isLoading={isLoading}
+			isError={isError}
+			hasData={Boolean(data)}
+			dataId={data?.id ?? null}
+			dataSlug={data?.slug ?? null}
+			dataIsActive={data?.is_active ?? null}
+			supabaseUrl={(import.meta.env.VITE_SUPABASE_URL as string | undefined) ?? '(unset)'}
+		/>
+	) : null
+
 	const showLoader = !introDone || isLoading
 	if (showLoader) {
 		return (
-			<PublicCardLoader
-				lang={lang}
-				orgLogo={orgLogo}
-				backgroundImage={backgroundImage}
-				orgName={displayOrgName}
-			/>
+			<>
+				<PublicCardLoader
+					lang={lang}
+					orgLogo={orgLogo}
+					backgroundImage={backgroundImage}
+					orgName={displayOrgName}
+				/>
+				{debugOverlay}
+			</>
 		)
 	}
 
 	if (isError || !data) {
 		return (
-			<div className="min-h-screen grid w-full max-w-full place-items-center overflow-x-hidden p-6 text-white">
-				<BackgroundLayers backgroundImage={backgroundImage} />
-				<Card className="relative w-full max-w-lg overflow-hidden rounded-[24px] border border-yellow-300/25 bg-gradient-to-br from-white/[0.08] via-white/[0.03] to-transparent p-6 text-center shadow-[0_30px_80px_rgba(0,0,0,0.55)] backdrop-blur-2xl">
-					<div className="text-xl font-semibold">{labels.notFound}</div>
-					<p className="mt-2 text-sm text-white/70">{labels.notFoundDescription}</p>
-				</Card>
-			</div>
+			<>
+				<div className="min-h-screen grid w-full max-w-full place-items-center overflow-x-hidden p-6 text-white">
+					<BackgroundLayers backgroundImage={backgroundImage} />
+					<Card className="relative w-full max-w-lg overflow-hidden rounded-[24px] border border-yellow-300/25 bg-gradient-to-br from-white/[0.08] via-white/[0.03] to-transparent p-6 text-center shadow-[0_30px_80px_rgba(0,0,0,0.55)] backdrop-blur-2xl">
+						<div className="text-xl font-semibold">{labels.notFound}</div>
+						<p className="mt-2 text-sm text-white/70">{labels.notFoundDescription}</p>
+					</Card>
+				</div>
+				{debugOverlay}
+			</>
 		)
 	}
 
 	if (!data.is_active) {
 		return (
-			<div className="min-h-screen grid w-full max-w-full place-items-center overflow-x-hidden p-6 text-white">
-				<BackgroundLayers backgroundImage={backgroundImage} />
-				<Card className="relative w-full max-w-lg overflow-hidden rounded-[24px] border border-yellow-300/25 bg-gradient-to-br from-white/[0.08] via-white/[0.03] to-transparent p-6 text-center shadow-[0_30px_80px_rgba(0,0,0,0.55)] backdrop-blur-2xl">
-					<div className="text-xl font-semibold">{labels.unavailable}</div>
-					<p className="mt-2 text-sm text-white/70">{labels.unavailableDescription}</p>
-				</Card>
-			</div>
+			<>
+				<div className="min-h-screen grid w-full max-w-full place-items-center overflow-x-hidden p-6 text-white">
+					<BackgroundLayers backgroundImage={backgroundImage} />
+					<Card className="relative w-full max-w-lg overflow-hidden rounded-[24px] border border-yellow-300/25 bg-gradient-to-br from-white/[0.08] via-white/[0.03] to-transparent p-6 text-center shadow-[0_30px_80px_rgba(0,0,0,0.55)] backdrop-blur-2xl">
+						<div className="text-xl font-semibold">{labels.unavailable}</div>
+						<p className="mt-2 text-sm text-white/70">{labels.unavailableDescription}</p>
+					</Card>
+				</div>
+				{debugOverlay}
+			</>
 		)
 	}
 
@@ -624,7 +713,7 @@ export function PublicCardPage() {
 														src={heroPhoto}
 														alt={displayFullName + ' photo'}
 														className="h-full w-full object-cover"
-														loading="lazy"
+													loading="lazy"
 													/>
 												) : (
 													<div className="grid h-full w-full place-items-center text-4xl font-semibold text-white/90 sm:text-5xl">
@@ -762,102 +851,3 @@ export function PublicCardPage() {
 											</div>
 										</div>
 									</Card>
-								</motion.div>
-							) : null}
-						</div>
-
-						<div className="flex w-full min-w-0 max-w-full flex-col gap-5 sm:gap-6">
-							<motion.div {...TR_MOTION} className="min-w-0">
-								<ContactSection card={data} labels={labels} />
-							</motion.div>
-
-							<motion.div {...PROFILE_MOTION} className="min-w-0">
-								<Card className={SECTION_CARD}>
-									<div className="pointer-events-none absolute inset-0 bg-[radial-gradient(700px_circle_at_85%_0%,rgba(245,197,66,0.18),transparent_55%),radial-gradient(700px_circle_at_15%_100%,rgba(59,130,246,0.14),transparent_55%)]" />
-									<div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-yellow-300/70 to-transparent" />
-									<div className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-yellow-300/30 to-transparent" />
-
-									<div className="relative flex h-full w-full min-w-0 max-w-full flex-col">
-										<div className={SECTION_TITLE}>
-											<ShieldCheck className="h-3.5 w-3.5 shrink-0 text-yellow-200" aria-hidden="true" />
-											<span className="min-w-0 break-words">{labels.officialProfileTitle}</span>
-										</div>
-
-										<div className="mt-3 flex w-full min-w-0 max-w-full flex-col gap-2">
-											<div className={PROFILE_ROW}>
-												<div className={PROFILE_ROW_ICON_BOX}>
-													{orgLogo ? (
-														<img src={orgLogo} alt="" className="h-full w-full object-cover" loading="lazy" />
-													) : (
-														<Landmark className="h-5 w-5" aria-hidden="true" />
-													)}
-												</div>
-												<div className="min-w-0 flex-1">
-													<div className={PROFILE_ROW_LABEL}>{labels.digitalCardLabel}</div>
-													<div className="mt-0.5 break-words text-sm font-semibold text-white sm:text-base">
-														{displayOrgName}
-													</div>
-												</div>
-											</div>
-
-											{websiteHref ? (
-												<a
-													href={websiteHref}
-													target="_blank"
-													rel="noreferrer noopener"
-													className={PROFILE_ROW}
-													aria-label={labels.website}
-													title={websiteHref}
-												>
-													<div className={PROFILE_ROW_ICON_BOX}>
-														<Globe2 className="h-5 w-5" aria-hidden="true" />
-													</div>
-													<div className="min-w-0 flex-1">
-														<div className={PROFILE_ROW_LABEL}>{labels.website}</div>
-														<div className="mt-0.5 truncate text-sm text-white/90 sm:text-[15px]">
-															{prettyUrl(websiteHref)}
-														</div>
-													</div>
-													<ExternalLink className="h-4 w-4 shrink-0 text-yellow-200/70 transition group-hover:text-yellow-200" aria-hidden="true" />
-												</a>
-											) : null}
-
-											{mapsHref ? (
-												<a
-													href={mapsHref}
-													target="_blank"
-													rel="noreferrer noopener"
-													className={PROFILE_ROW}
-													aria-label={labels.mapAction ?? labels.address}
-													title={addressValue}
-												>
-													<div className={PROFILE_ROW_ICON_BOX}>
-														<MapPin className="h-5 w-5" aria-hidden="true" />
-													</div>
-													<div className="min-w-0 flex-1">
-														<div className={PROFILE_ROW_LABEL}>{labels.address}</div>
-														<div className="mt-0.5 break-words text-sm text-white/90 sm:text-[15px]">
-															{addressValue}
-														</div>
-													</div>
-													<ExternalLink className="h-4 w-4 shrink-0 text-yellow-200/70 transition group-hover:text-yellow-200" aria-hidden="true" />
-												</a>
-											) : null}
-										</div>
-
-										<div className="mt-auto pt-4">
-											<div className="grid w-full min-w-0 max-w-full grid-cols-1 gap-2 sm:grid-cols-2">
-												<SaveContactButton card={data} className="w-full" overrides={saveOverrides} />
-												<ShareButton url={url} title={pageTitle} />
-											</div>
-										</div>
-									</div>
-								</Card>
-							</motion.div>
-						</div>
-					</div>
-				</motion.div>
-			</div>
-		</div>
-	)
-}

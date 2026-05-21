@@ -81,7 +81,7 @@ type CopyAction = { kind: 'copy'; value: string; label: string; actionIcon?: Rea
 type RowAction = LinkAction | CopyAction
 
 const ROW_BTN_CLS =
-	'grid h-9 w-9 shrink-0 place-items-center rounded-xl border border-yellow-300/30 bg-black/40 text-yellow-200 transition hover:border-yellow-300/55 hover:bg-yellow-300/15 active:scale-95'
+	'grid h-9 w-9 shrink-0 place-items-center rounded-xl border border-yellow-300/30 bg-black/20 text-yellow-200 backdrop-blur-xl transition hover:border-yellow-300/55 hover:bg-yellow-300/15 active:scale-95'
 
 function ContactRow({
 	icon,
@@ -102,9 +102,9 @@ function ContactRow({
 		<motion.div
 			initial={ROW_FROM}
 			animate={ROW_TO}
-			className="group flex w-full min-w-0 max-w-full items-center gap-2.5 overflow-hidden rounded-2xl border border-yellow-300/15 bg-gradient-to-br from-white/[0.05] via-white/[0.02] to-transparent px-2.5 py-2 transition hover:border-yellow-300/35 hover:from-yellow-300/[0.06] sm:gap-3 sm:px-3 sm:py-2.5"
+			className="group flex w-full min-w-0 max-w-full items-center gap-2.5 overflow-hidden rounded-2xl border border-yellow-300/15 bg-gradient-to-br from-white/[0.05] via-white/[0.02] to-transparent px-2.5 py-2 backdrop-blur-xl transition hover:border-yellow-300/35 hover:from-yellow-300/[0.06] sm:gap-3 sm:px-3 sm:py-2.5"
 		>
-			<div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-yellow-300/30 bg-gradient-to-br from-yellow-300/20 via-yellow-300/5 to-transparent text-yellow-200 shadow-[0_8px_30px_rgba(0,0,0,0.45)]">
+			<div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-yellow-300/30 bg-gradient-to-br from-yellow-300/20 via-yellow-300/5 to-transparent text-yellow-200 shadow-[0_8px_30px_rgba(0,0,0,0.35)]">
 				{icon}
 			</div>
 			<div className="min-w-0 flex-1 overflow-hidden">
@@ -234,7 +234,7 @@ export function ContactSection({
 	}
 
 	return (
-		<Card className="relative h-full w-full min-w-0 max-w-full overflow-hidden rounded-[20px] border border-yellow-300/25 bg-[#06090f]/85 p-4 shadow-[0_30px_80px_rgba(0,0,0,0.55)] sm:rounded-[24px] sm:p-5 lg:rounded-[28px] lg:p-6">
+		<Card className="relative h-full w-full min-w-0 max-w-full overflow-hidden rounded-[20px] border border-yellow-300/25 bg-[#06090f]/25 p-4 shadow-[0_20px_60px_rgba(0,0,0,0.35)] backdrop-blur-2xl sm:rounded-[24px] sm:p-5 lg:rounded-[28px] lg:p-6">
 			<div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-yellow-300/70 to-transparent" />
 			<div className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-yellow-300/25 to-transparent" />
 			<div className="pointer-events-none absolute inset-0 bg-[radial-gradient(500px_circle_at_-5%_-10%,rgba(245,197,66,0.10),transparent_55%)]" />

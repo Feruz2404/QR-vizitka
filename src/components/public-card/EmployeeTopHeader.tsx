@@ -14,7 +14,7 @@ function initials(fullName: string) {
 
 const LANG_BTN_ACTIVE =
 	'rounded-full bg-gradient-to-b from-yellow-300/40 via-yellow-300/20 to-yellow-300/10 text-yellow-100 shadow-inner ring-1 ring-yellow-300/35'
-const LANG_BTN_INACTIVE = 'text-white/65 hover:text-white'
+const LANG_BTN_INACTIVE = 'text-white/70 hover:text-white'
 
 export function EmployeeTopHeader({
 	orgName,
@@ -39,7 +39,7 @@ export function EmployeeTopHeader({
 }) {
 	return (
 		<header className="sticky top-0 z-40">
-			<div className="relative border-b border-yellow-300/25 bg-gradient-to-b from-[#02030a]/55 via-[#04060f]/40 to-[#04060f]/25 backdrop-blur-2xl">
+			<div className="relative border-b border-yellow-300/25 bg-black/10 backdrop-blur-2xl">
 				<div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-yellow-300/30 to-transparent" />
 				<div className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-yellow-300/60 to-transparent" />
 				<div className="mx-auto flex max-w-[1320px] flex-wrap items-center gap-3 px-4 py-3 sm:gap-4 sm:px-5 sm:py-4 lg:px-6 lg:py-5">
@@ -48,7 +48,7 @@ export function EmployeeTopHeader({
 							<div className="pointer-events-none absolute -inset-1.5 rounded-2xl bg-gradient-to-br from-yellow-300/35 via-yellow-300/10 to-blue-400/10 blur-md" />
 							<div
 								className={cn(
-									'relative grid h-12 w-12 place-items-center overflow-hidden rounded-2xl border border-yellow-300/45 bg-black/30 backdrop-blur-xl shadow-[0_18px_60px_rgba(0,0,0,0.45)] sm:h-14 sm:w-14 lg:h-16 lg:w-16'
+									'relative grid h-12 w-12 place-items-center overflow-hidden rounded-2xl border border-yellow-300/35 bg-black/10 backdrop-blur-xl shadow-[0_15px_45px_rgba(0,0,0,0.30)] sm:h-14 sm:w-14 lg:h-16 lg:w-16'
 								)}
 							>
 								{organizationLogoUrl ? (
@@ -65,10 +65,10 @@ export function EmployeeTopHeader({
 						</div>
 
 						<div className="min-w-0">
-							<div className="truncate text-base font-semibold uppercase leading-tight tracking-[0.22em] text-yellow-200 sm:text-lg lg:text-xl">
+							<div className="truncate text-base font-semibold uppercase leading-tight tracking-[0.22em] text-yellow-200 drop-shadow-[0_1px_2px_rgba(0,0,0,0.55)] sm:text-lg lg:text-xl">
 								{orgName}
 							</div>
-							<div className="truncate text-[10px] font-medium uppercase leading-tight tracking-[0.28em] text-white/55 sm:text-[11px] lg:text-xs">
+							<div className="truncate text-[10px] font-medium uppercase leading-tight tracking-[0.28em] text-white/65 drop-shadow-[0_1px_2px_rgba(0,0,0,0.55)] sm:text-[11px] lg:text-xs">
 								{subtitle}
 							</div>
 						</div>
@@ -77,10 +77,10 @@ export function EmployeeTopHeader({
 					<div className="flex w-full items-center justify-between gap-3 sm:w-auto sm:gap-4">
 						<div className="flex items-center gap-2">
 							<Globe2 className="h-4 w-4 text-yellow-200/80 sm:h-[18px] sm:w-[18px]" aria-hidden="true" />
-							<span className="hidden text-[10px] font-medium uppercase tracking-[0.28em] text-white/55 sm:inline">
+							<span className="hidden text-[10px] font-medium uppercase tracking-[0.28em] text-white/65 sm:inline">
 								{languageLabel}
 							</span>
-							<div className="inline-flex overflow-hidden rounded-full border border-yellow-300/30 bg-black/25 p-0.5 backdrop-blur-xl">
+							<div className="inline-flex overflow-hidden rounded-full border border-yellow-300/25 bg-black/10 p-0.5 backdrop-blur-xl">
 								{LANGS.map((code) => {
 									const active = lang === code
 									const cls =
@@ -102,8 +102,8 @@ export function EmployeeTopHeader({
 							</div>
 						</div>
 
-						<div className="hidden items-center gap-2.5 rounded-2xl border border-yellow-300/25 bg-black/25 px-2.5 py-1.5 shadow-[0_8px_30px_rgba(0,0,0,0.35)] backdrop-blur-xl sm:flex">
-							<div className="relative grid h-9 w-9 shrink-0 place-items-center overflow-hidden rounded-xl border border-yellow-300/35 bg-white/5">
+						<div className="hidden items-center gap-2.5 rounded-2xl border border-yellow-300/25 bg-black/10 px-2.5 py-1.5 shadow-[0_8px_24px_rgba(0,0,0,0.25)] backdrop-blur-xl sm:flex">
+							<div className="relative grid h-9 w-9 shrink-0 place-items-center overflow-hidden rounded-xl border border-yellow-300/30 bg-white/[0.06]">
 								{profilePhotoUrl ? (
 									<img
 										src={profilePhotoUrl}
@@ -118,8 +118,8 @@ export function EmployeeTopHeader({
 								)}
 							</div>
 							<div className="hidden min-w-0 md:block">
-								<div className="truncate text-xs font-semibold leading-tight text-white">{fullName}</div>
-								<div className="truncate text-[10px] leading-tight text-yellow-200/70">{position ?? ''}</div>
+								<div className="truncate text-xs font-semibold leading-tight text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.55)]">{fullName}</div>
+								<div className="truncate text-[10px] leading-tight text-yellow-200/75">{position ?? ''}</div>
 							</div>
 						</div>
 					</div>

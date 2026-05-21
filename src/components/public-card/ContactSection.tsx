@@ -81,7 +81,9 @@ type CopyAction = { kind: 'copy'; value: string; label: string; actionIcon?: Rea
 type RowAction = LinkAction | CopyAction
 
 const ROW_BTN_CLS =
-	'grid h-9 w-9 shrink-0 place-items-center rounded-xl border border-yellow-300/25 bg-black/10 text-yellow-200 backdrop-blur-xl transition hover:border-yellow-300/55 hover:bg-yellow-300/15 active:scale-95'
+	'grid h-9 w-9 shrink-0 place-items-center rounded-xl border border-yellow-300/20 bg-black/[0.04] text-yellow-200 backdrop-blur-[1px] transition hover:border-yellow-300/55 hover:bg-yellow-300/15 active:scale-95 md:border-yellow-300/25 md:bg-black/10 md:backdrop-blur-xl'
+
+const TEXT_SHADOW_STYLE = { textShadow: '0 1px 10px rgba(0,0,0,0.75)' } as const
 
 function ContactRow({
 	icon,
@@ -102,16 +104,23 @@ function ContactRow({
 		<motion.div
 			initial={ROW_FROM}
 			animate={ROW_TO}
-			className="group flex w-full min-w-0 max-w-full items-center gap-2.5 overflow-hidden rounded-2xl border border-yellow-300/15 bg-white/[0.04] px-2.5 py-2 backdrop-blur-xl transition hover:border-yellow-300/35 hover:bg-yellow-300/[0.08] sm:gap-3 sm:px-3 sm:py-2.5"
+			className="group flex w-full min-w-0 max-w-full items-center gap-2.5 overflow-hidden rounded-2xl border border-yellow-300/15 bg-transparent px-2.5 py-2 backdrop-blur-[1px] transition hover:border-yellow-300/35 hover:bg-yellow-300/[0.08] md:bg-white/[0.04] md:backdrop-blur-xl sm:gap-3 sm:px-3 sm:py-2.5"
 		>
-			<div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-yellow-300/25 bg-yellow-300/[0.10] text-yellow-200 backdrop-blur-xl shadow-[0_8px_24px_rgba(0,0,0,0.25)]">
+			<div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-yellow-300/20 bg-black/[0.04] text-yellow-200 backdrop-blur-[1px] shadow-[0_8px_24px_rgba(0,0,0,0.25)] md:border-yellow-300/25 md:bg-yellow-300/[0.10] md:backdrop-blur-xl">
 				{icon}
 			</div>
 			<div className="min-w-0 flex-1 overflow-hidden">
-				<div className="truncate text-[10px] font-semibold uppercase tracking-[0.18em] text-yellow-200/75 drop-shadow-[0_1px_2px_rgba(0,0,0,0.55)] sm:text-[10px] sm:tracking-[0.2em]">
+				<div
+					className="truncate text-[10px] font-semibold uppercase tracking-[0.18em] text-yellow-200/90 sm:text-[10px] sm:tracking-[0.2em]"
+					style={TEXT_SHADOW_STYLE}
+				>
 					{label}
 				</div>
-				<div className="truncate text-[13px] text-white/95 drop-shadow-[0_1px_2px_rgba(0,0,0,0.55)] sm:text-sm" title={value}>
+				<div
+					className="truncate text-[13px] text-white sm:text-sm"
+					title={value}
+					style={TEXT_SHADOW_STYLE}
+				>
 					{shown}
 				</div>
 			</div>
@@ -234,12 +243,15 @@ export function ContactSection({
 	}
 
 	return (
-		<Card className="relative h-full w-full min-w-0 max-w-full overflow-hidden rounded-[20px] border border-yellow-300/25 bg-black/10 p-4 shadow-[0_20px_60px_rgba(0,0,0,0.25)] backdrop-blur-2xl sm:rounded-[24px] sm:p-5 lg:rounded-[28px] lg:p-6">
+		<Card className="relative h-full w-full min-w-0 max-w-full overflow-hidden rounded-[20px] border border-yellow-300/25 bg-transparent p-4 shadow-[0_20px_60px_rgba(0,0,0,0.25)] backdrop-blur-[1px] md:bg-black/10 md:backdrop-blur-2xl sm:rounded-[24px] sm:p-5 lg:rounded-[28px] lg:p-6">
 			<div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-yellow-300/70 to-transparent" />
 			<div className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-yellow-300/25 to-transparent" />
 			<div className="pointer-events-none absolute inset-0 bg-[radial-gradient(500px_circle_at_-5%_-10%,rgba(245,197,66,0.10),transparent_55%)]" />
 			<div className="relative w-full min-w-0 max-w-full">
-				<div className="flex min-w-0 items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.22em] text-yellow-200/90 drop-shadow-[0_1px_2px_rgba(0,0,0,0.55)] sm:text-[11px] sm:tracking-[0.24em]">
+				<div
+					className="flex min-w-0 items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.22em] text-yellow-200 sm:text-[11px] sm:tracking-[0.24em]"
+					style={TEXT_SHADOW_STYLE}
+				>
 					<span className="h-1.5 w-1.5 shrink-0 rounded-full bg-yellow-300 shadow-[0_0_12px_rgba(245,197,66,0.8)]" />
 					<span className="min-w-0 truncate">{L.contactsTitle}</span>
 				</div>

@@ -39,16 +39,16 @@ export function EmployeeTopHeader({
 }) {
 	return (
 		<header className="sticky top-0 z-40">
-			<div className="relative border-b border-yellow-300/30 bg-gradient-to-b from-[#02030a]/95 via-[#04060f]/85 to-[#04060f]/65 backdrop-blur-2xl">
+			<div className="relative border-b border-yellow-300/25 bg-gradient-to-b from-[#02030a]/55 via-[#04060f]/40 to-[#04060f]/25 backdrop-blur-2xl">
 				<div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-yellow-300/30 to-transparent" />
-				<div className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-yellow-300/75 to-transparent" />
+				<div className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-yellow-300/60 to-transparent" />
 				<div className="mx-auto flex max-w-[1320px] flex-wrap items-center gap-3 px-4 py-3 sm:gap-4 sm:px-5 sm:py-4 lg:px-6 lg:py-5">
 					<div className="flex min-w-0 flex-1 items-center gap-3 sm:gap-4">
 						<div className="relative shrink-0">
 							<div className="pointer-events-none absolute -inset-1.5 rounded-2xl bg-gradient-to-br from-yellow-300/35 via-yellow-300/10 to-blue-400/10 blur-md" />
 							<div
 								className={cn(
-									'relative grid h-12 w-12 place-items-center overflow-hidden rounded-2xl border border-yellow-300/45 bg-[#05080f] shadow-[0_18px_60px_rgba(0,0,0,0.65)] sm:h-14 sm:w-14 lg:h-16 lg:w-16'
+									'relative grid h-12 w-12 place-items-center overflow-hidden rounded-2xl border border-yellow-300/45 bg-black/30 backdrop-blur-xl shadow-[0_18px_60px_rgba(0,0,0,0.45)] sm:h-14 sm:w-14 lg:h-16 lg:w-16'
 								)}
 							>
 								{organizationLogoUrl ? (
@@ -80,7 +80,7 @@ export function EmployeeTopHeader({
 							<span className="hidden text-[10px] font-medium uppercase tracking-[0.28em] text-white/55 sm:inline">
 								{languageLabel}
 							</span>
-							<div className="inline-flex overflow-hidden rounded-full border border-yellow-300/30 bg-black/45 p-0.5 backdrop-blur">
+							<div className="inline-flex overflow-hidden rounded-full border border-yellow-300/30 bg-black/25 p-0.5 backdrop-blur-xl">
 								{LANGS.map((code) => {
 									const active = lang === code
 									const cls =
@@ -102,7 +102,7 @@ export function EmployeeTopHeader({
 							</div>
 						</div>
 
-						<div className="hidden items-center gap-2.5 rounded-2xl border border-yellow-300/25 bg-black/40 px-2.5 py-1.5 shadow-[0_8px_30px_rgba(0,0,0,0.45)] sm:flex">
+						<div className="hidden items-center gap-2.5 rounded-2xl border border-yellow-300/25 bg-black/25 px-2.5 py-1.5 shadow-[0_8px_30px_rgba(0,0,0,0.35)] backdrop-blur-xl sm:flex">
 							<div className="relative grid h-9 w-9 shrink-0 place-items-center overflow-hidden rounded-xl border border-yellow-300/35 bg-white/5">
 								{profilePhotoUrl ? (
 									<img

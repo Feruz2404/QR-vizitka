@@ -138,6 +138,17 @@ export function CardTranslationsEditor({
 					/>
 					<div className="mt-1 text-xs text-brand-muted">One specialty per line.</div>
 				</div>
+
+				<div className="md:col-span-2">
+					<div className="text-xs text-brand-muted">Address</div>
+					<Textarea
+						value={current.address ?? ''}
+						disabled={disabled}
+						placeholder="Translated office address for this language."
+						onChange={(e) => patch('address', e.target.value || null)}
+					/>
+					<div className="mt-1 text-xs text-brand-muted">Shown on the public card when this language is selected. Falls back to the main address if empty.</div>
+				</div>
 			</div>
 		</Card>
 	)

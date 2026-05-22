@@ -7,6 +7,7 @@ export type EmployeeCardTranslation = {
 	organization_name?: string | null
 	bio?: string | null
 	specialties?: string[]
+	address?: string | null
 }
 
 export type EmployeeCardTranslations = Partial<Record<CardLanguage, EmployeeCardTranslation>>

@@ -220,7 +220,11 @@ const SPEC_ICON_BOX =
 	'grid h-7 w-7 shrink-0 place-items-center rounded-lg border border-yellow-300/20 bg-black/[0.04] text-yellow-200 backdrop-blur-[1px]'
 
 const SOCIAL_BTN =
-	'group relative grid h-11 w-11 shrink-0 place-items-center rounded-2xl border border-yellow-300/20 bg-black/[0.04] text-yellow-200 backdrop-blur-[1px] transition hover:border-yellow-300/55 hover:bg-yellow-300/15 hover:text-yellow-50 hover:shadow-[0_0_22px_rgba(245,197,66,0.30)] active:scale-95 sm:h-12 sm:w-12'
+	'group inline-flex shrink-0 items-center gap-2 rounded-full border border-yellow-300/25 bg-black/[0.04] px-3.5 py-2 text-xs font-semibold text-yellow-100 backdrop-blur-[1px] transition hover:border-yellow-300/55 hover:bg-yellow-300/15 hover:text-yellow-50 hover:shadow-[0_0_22px_rgba(245,197,66,0.30)] active:scale-95 sm:px-4 sm:py-2.5 sm:text-sm'
+
+const SOCIAL_BTN_ICON = 'h-4 w-4 shrink-0 sm:h-[18px] sm:w-[18px]'
+
+const SOCIAL_BTN_LABEL = 'whitespace-nowrap'
 
 const SECTION_CARD =
 	'relative h-full w-full min-w-0 max-w-full overflow-hidden rounded-[24px] border border-yellow-300/25 bg-transparent p-4 shadow-[0_20px_70px_rgba(0,0,0,0.25)] backdrop-blur-[1px] sm:rounded-[28px] sm:p-6'
@@ -241,7 +245,7 @@ const SPEC_ICONS = [Cpu, Network, BarChart3, ShieldCheck, Lightbulb, Workflow, D
 
 const WECHAT_URL = 'https://u.wechat.com/MIti95wYI7SoRjfZwXWoU2s?s=2'
 const MAPS_BASE = 'https://www.google.com/maps/search/?api=1&query='
-const DEPLOY_MARKER = 'public-card-columns-match-contact-2026-05-21'
+const DEPLOY_MARKER = 'public-card-hero-multilingual-2026-05-22'
 
 function WeChatIcon({ className = '' }: { className?: string }) {
 	return (
@@ -304,7 +308,7 @@ function telegramHref(card: {
 	return null
 }
 
-type LocalizableField = 'full_name' | 'position' | 'department' | 'organization_name' | 'bio'
+type LocalizableField = 'full_name' | 'position' | 'department' | 'organization_name' | 'bio' | 'address'
 
 function pickTranslatedField(
 	card: EmployeeCard,
@@ -549,6 +553,7 @@ export function PublicCardPage() {
 				department: '',
 				organizationName: '',
 				bio: '',
+				address: '',
 				specialties: [] as string[],
 			}
 		}
@@ -558,6 +563,7 @@ export function PublicCardPage() {
 			department: pickTranslatedField(data, lang, 'department'),
 			organizationName: pickTranslatedField(data, lang, 'organization_name'),
 			bio: pickTranslatedField(data, lang, 'bio'),
+			address: pickTranslatedField(data, lang, 'address'),
 			specialties: pickTranslatedSpecialties(data, lang),
 		}
 	}, [data, lang])
@@ -646,7 +652,7 @@ export function PublicCardPage() {
 	const hasSpecialties = localized.specialties.length > 0
 	const facebookHref = isHttpUrl(data.facebook_url) ? data.facebook_url : null
 	const websiteHref = isHttpUrl(data.website_url) ? data.website_url : null
-	const addressValue = (data.address ?? '').trim()
+	const addressValue = (localized.address || data.address || '').trim()
 	const mapsHref = addressValue ? MAPS_BASE + encodeURIComponent(addressValue) : null
 
 	return (
@@ -737,10 +743,10 @@ export function PublicCardPage() {
 												</div>
 											) : null}
 											<div
-												className="mt-3 flex w-full min-w-0 max-w-full items-start gap-2 text-[11px] font-semibold text-yellow-200 sm:text-xs"
+												className="mt-3 flex w-full min-w-0 max-w-full items-start gap-2.5 text-sm font-semibold leading-snug text-yellow-100 sm:gap-3 sm:text-[15px] lg:text-base"
 												style={TEXT_SHADOW_STYLE}
 											>
-												<Landmark className="mt-0.5 h-3.5 w-3.5 shrink-0 text-yellow-200" aria-hidden="true" />
+												<Landmark className="mt-0.5 h-4 w-4 shrink-0 text-yellow-200 sm:mt-1 sm:h-[18px] sm:w-[18px]" aria-hidden="true" />
 												<span className="min-w-0 max-w-full break-words leading-snug">{heroOrgName}</span>
 											</div>
 											{displayBio ? (
@@ -760,9 +766,9 @@ export function PublicCardPage() {
 														rel="noopener noreferrer"
 														className={SOCIAL_BTN}
 														title={labels.telegram}
-														aria-label={labels.telegram}
 													>
-														<Send className="h-5 w-5" aria-hidden="true" />
+														<Send className={SOCIAL_BTN_ICON} aria-hidden="true" />
+														<span className={SOCIAL_BTN_LABEL} style={TEXT_SHADOW_STYLE}>{labels.telegram}</span>
 													</a>
 												) : null}
 												{facebookHref ? (
@@ -772,9 +778,9 @@ export function PublicCardPage() {
 														rel="noopener noreferrer"
 														className={SOCIAL_BTN}
 														title={labels.facebook}
-														aria-label={labels.facebook}
 													>
-														<Facebook className="h-5 w-5" aria-hidden="true" />
+														<Facebook className={SOCIAL_BTN_ICON} aria-hidden="true" />
+														<span className={SOCIAL_BTN_LABEL} style={TEXT_SHADOW_STYLE}>{labels.facebook}</span>
 													</a>
 												) : null}
 												<a
@@ -783,9 +789,9 @@ export function PublicCardPage() {
 													rel="noopener noreferrer"
 													className={SOCIAL_BTN}
 													title="WeChat"
-													aria-label="WeChat"
 												>
-													<WeChatIcon className="h-5 w-5" />
+													<WeChatIcon className={SOCIAL_BTN_ICON} />
+													<span className={SOCIAL_BTN_LABEL} style={TEXT_SHADOW_STYLE}>WeChat</span>
 												</a>
 											</div>
 										</div>

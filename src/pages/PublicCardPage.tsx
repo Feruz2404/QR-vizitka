@@ -213,6 +213,39 @@ const DEBUG_OVERLAY_STYLE = { whiteSpace: 'pre-wrap' as const }
 const TEXT_SHADOW_STYLE = { textShadow: '0 1px 10px rgba(0,0,0,0.75)' } as const
 const HERO_TITLE_TEXT_SHADOW = { textShadow: '0 2px 12px rgba(0,0,0,0.85)' } as const
 
+// Mobile-stable fixed background layer.
+// Uses 100svh so the layer stays the size of the small viewport (URL bar visible)
+// and does NOT resize when the mobile address bar collapses on scroll.
+// translateZ(0) + backface-visibility hidden promote to a GPU compositor layer
+// so the background never re-paints during scroll → no jitter/shake/repositioning.
+const BG_FIXED_LAYER_STYLE = {
+	position: 'fixed',
+	top: 0,
+	left: 0,
+	width: '100vw',
+	height: '100svh',
+	minHeight: '100vh',
+	zIndex: -10,
+	overflow: 'hidden',
+	pointerEvents: 'none',
+	transform: 'translateZ(0)',
+	WebkitTransform: 'translateZ(0)',
+	willChange: 'transform',
+	backfaceVisibility: 'hidden',
+	WebkitBackfaceVisibility: 'hidden',
+} as const
+
+const BG_IMAGE_BASE_STYLE = {
+	backgroundSize: 'cover',
+	backgroundPosition: 'center center',
+	backgroundRepeat: 'no-repeat',
+	transform: 'translateZ(0)',
+	WebkitTransform: 'translateZ(0)',
+	willChange: 'transform',
+	backfaceVisibility: 'hidden',
+	WebkitBackfaceVisibility: 'hidden',
+} as const
+
 const SPEC_CHIP =
 	'group flex min-w-0 items-center gap-2 rounded-xl border border-yellow-300/15 bg-transparent px-2.5 py-1.5 backdrop-blur-[1px] transition hover:border-yellow-300/45 hover:bg-yellow-300/[0.10]'
 
@@ -245,7 +278,7 @@ const SPEC_ICONS = [Cpu, Network, BarChart3, ShieldCheck, Lightbulb, Workflow, D
 
 const WECHAT_URL = 'https://u.wechat.com/MIti95wYI7SoRjfZwXWoU2s?s=2'
 const MAPS_BASE = 'https://www.google.com/maps/search/?api=1&query='
-const DEPLOY_MARKER = 'public-card-hero-multilingual-2026-05-22'
+const DEPLOY_MARKER = 'public-card-mobile-bg-stable-2026-05-22'
 
 function WeChatIcon({ className = '' }: { className?: string }) {
 	return (
@@ -340,20 +373,16 @@ function pickTranslatedSpecialties(card: EmployeeCard, lang: PublicLang): string
 
 function BackgroundLayers({ backgroundImage }: { backgroundImage: string | null }) {
 	if (backgroundImage) {
+		const imageStyle = { ...BG_IMAGE_BASE_STYLE, backgroundImage: 'url(' + backgroundImage + ')' }
 		return (
-			<div className="pointer-events-none fixed inset-0 -z-10 overflow-hidden" aria-hidden="true">
-				<img
-					src={backgroundImage}
-					alt=""
-					className="absolute inset-0 h-full w-full object-cover object-center"
-					loading="eager"
-				/>
+			<div style={BG_FIXED_LAYER_STYLE} aria-hidden="true">
+				<div className="absolute inset-0" style={imageStyle} />
 				<div className="absolute inset-0 bg-gradient-to-b from-black/5 via-transparent to-black/10" />
 			</div>
 		)
 	}
 	return (
-		<div className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
+		<div style={BG_FIXED_LAYER_STYLE} aria-hidden="true">
 			<div className="absolute inset-0 bg-[radial-gradient(1200px_circle_at_10%_15%,rgba(245,197,66,0.18),transparent_55%),radial-gradient(1000px_circle_at_90%_25%,rgba(59,130,246,0.18),transparent_55%),radial-gradient(800px_circle_at_45%_95%,rgba(167,139,250,0.14),transparent_55%),linear-gradient(180deg,#050712_0%,#070A14_30%,#02030A_100%)]" />
 			<div className="absolute inset-0 opacity-[0.06] [background-image:radial-gradient(rgba(255,255,255,0.35)_1px,transparent_1px)] [background-size:18px_18px]" />
 			<div className="absolute -left-40 top-20 h-[420px] w-[420px] rounded-full bg-yellow-400/10 blur-3xl" />
@@ -415,9 +444,9 @@ function PublicCardLoader({
 }) {
 	const subtitle = T[lang].loadingSubtitle
 	return (
-		<div className="min-h-screen w-full max-w-full overflow-x-hidden text-white">
+		<div className="relative min-h-[100dvh] w-full max-w-full overflow-x-hidden text-white">
 			<BackgroundLayers backgroundImage={backgroundImage} />
-			<div className="relative grid min-h-screen w-full max-w-full place-items-center px-4 py-10">
+			<div className="relative z-0 grid min-h-[100dvh] w-full max-w-full place-items-center px-4 py-10">
 				<motion.div
 					{...LOADER_MOTION}
 					className="relative w-full max-w-sm overflow-hidden rounded-[28px] border border-yellow-300/25 bg-transparent p-6 text-center shadow-[0_20px_70px_rgba(0,0,0,0.25)] backdrop-blur-[1px] sm:p-7"
@@ -608,9 +637,9 @@ export function PublicCardPage() {
 	if (isError || !data) {
 		return (
 			<>
-				<div className="min-h-screen grid w-full max-w-full place-items-center overflow-x-hidden p-6 text-white">
+				<div className="relative grid min-h-[100dvh] w-full max-w-full place-items-center overflow-x-hidden p-6 text-white">
 					<BackgroundLayers backgroundImage={backgroundImage} />
-					<Card className="relative w-full max-w-lg overflow-hidden rounded-[24px] border border-yellow-300/25 bg-transparent p-6 text-center shadow-[0_20px_70px_rgba(0,0,0,0.25)] backdrop-blur-[1px]">
+					<Card className="relative z-0 w-full max-w-lg overflow-hidden rounded-[24px] border border-yellow-300/25 bg-transparent p-6 text-center shadow-[0_20px_70px_rgba(0,0,0,0.25)] backdrop-blur-[1px]">
 						<div className="text-xl font-semibold" style={TEXT_SHADOW_STYLE}>{labels.notFound}</div>
 						<p className="mt-2 text-sm text-white" style={TEXT_SHADOW_STYLE}>{labels.notFoundDescription}</p>
 					</Card>
@@ -623,9 +652,9 @@ export function PublicCardPage() {
 	if (!data.is_active) {
 		return (
 			<>
-				<div className="min-h-screen grid w-full max-w-full place-items-center overflow-x-hidden p-6 text-white">
+				<div className="relative grid min-h-[100dvh] w-full max-w-full place-items-center overflow-x-hidden p-6 text-white">
 					<BackgroundLayers backgroundImage={backgroundImage} />
-					<Card className="relative w-full max-w-lg overflow-hidden rounded-[24px] border border-yellow-300/25 bg-transparent p-6 text-center shadow-[0_20px_70px_rgba(0,0,0,0.25)] backdrop-blur-[1px]">
+					<Card className="relative z-0 w-full max-w-lg overflow-hidden rounded-[24px] border border-yellow-300/25 bg-transparent p-6 text-center shadow-[0_20px_70px_rgba(0,0,0,0.25)] backdrop-blur-[1px]">
 						<div className="text-xl font-semibold" style={TEXT_SHADOW_STYLE}>{labels.unavailable}</div>
 						<p className="mt-2 text-sm text-white" style={TEXT_SHADOW_STYLE}>{labels.unavailableDescription}</p>
 					</Card>
@@ -657,7 +686,7 @@ export function PublicCardPage() {
 
 	return (
 		<div
-			className="min-h-screen w-full max-w-full overflow-x-hidden text-white"
+			className="relative min-h-[100dvh] w-full max-w-full overflow-x-hidden text-white"
 			data-deploy-marker={DEPLOY_MARKER}
 		>
 			<Helmet>
@@ -669,269 +698,271 @@ export function PublicCardPage() {
 
 			<BackgroundLayers backgroundImage={backgroundImage} />
 
-			<EmployeeTopHeader
-				orgName={heroOrgName}
-				subtitle={labels.orgSubtitle}
-				organizationLogoUrl={orgLogo}
-				fullName={displayFullName}
-				position={displayPosition}
-				profilePhotoUrl={data.profile_photo_url}
-				lang={lang}
-				onLangChange={setLang}
-				languageLabel={labels.languageLabel}
-			/>
+			<div className="relative z-0">
+				<EmployeeTopHeader
+					orgName={heroOrgName}
+					subtitle={labels.orgSubtitle}
+					organizationLogoUrl={orgLogo}
+					fullName={displayFullName}
+					position={displayPosition}
+					profilePhotoUrl={data.profile_photo_url}
+					lang={lang}
+					onLangChange={setLang}
+					languageLabel={labels.languageLabel}
+				/>
 
-			<div className="mx-auto w-full max-w-[1320px] px-3 pb-12 pt-5 sm:px-5 sm:pt-7 lg:px-6 lg:pt-8">
-				<motion.div {...PAGE_MOTION}>
-					<div className="grid w-full max-w-full grid-cols-1 gap-5 sm:gap-6 lg:grid-cols-[1.15fr_0.85fr] lg:items-start lg:gap-6">
-						<div className="contents w-full min-w-0 max-w-full lg:flex lg:flex-col lg:gap-6">
-							<motion.div {...HERO_MOTION} className="order-1 min-w-0 lg:order-none">
-								<Card className="relative h-full w-full min-w-0 max-w-full overflow-hidden rounded-[24px] border border-yellow-300/25 bg-transparent p-4 shadow-[0_20px_70px_rgba(0,0,0,0.25)] backdrop-blur-[1px] sm:rounded-[28px] sm:p-6 lg:p-7">
-									<div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-yellow-300/80 to-transparent" />
-									<div className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-yellow-300/35 to-transparent" />
+				<div className="mx-auto w-full max-w-[1320px] px-3 pb-12 pt-5 sm:px-5 sm:pt-7 lg:px-6 lg:pt-8">
+					<motion.div {...PAGE_MOTION}>
+						<div className="grid w-full max-w-full grid-cols-1 gap-5 sm:gap-6 lg:grid-cols-[1.15fr_0.85fr] lg:items-start lg:gap-6">
+							<div className="contents w-full min-w-0 max-w-full lg:flex lg:flex-col lg:gap-6">
+								<motion.div {...HERO_MOTION} className="order-1 min-w-0 lg:order-none">
+									<Card className="relative h-full w-full min-w-0 max-w-full overflow-hidden rounded-[24px] border border-yellow-300/25 bg-transparent p-4 shadow-[0_20px_70px_rgba(0,0,0,0.25)] backdrop-blur-[1px] sm:rounded-[28px] sm:p-6 lg:p-7">
+										<div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-yellow-300/80 to-transparent" />
+										<div className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-yellow-300/35 to-transparent" />
 
-									<div className="relative flex w-full min-w-0 flex-col items-center gap-5 text-center sm:flex-row sm:items-start sm:gap-6 sm:text-left">
-										<div className="relative shrink-0">
-											<div className="pointer-events-none absolute -inset-4 rounded-full bg-gradient-to-br from-yellow-300/40 via-yellow-300/15 to-blue-400/10 blur-2xl" />
-											<div className="relative h-64 w-64 max-w-full overflow-hidden rounded-full border-[3px] border-yellow-300/55 bg-white/[0.06] shadow-[0_25px_70px_rgba(0,0,0,0.45)] sm:h-32 sm:w-32 lg:h-40 lg:w-40">
-												{heroPhoto ? (
-													<img
-														src={heroPhoto}
-														alt={displayFullName + ' photo'}
-														className="h-full w-full object-cover"
-													loading="lazy"
-													/>
-												) : (
-													<div
-														className="grid h-full w-full place-items-center text-4xl font-semibold text-white sm:text-5xl"
-													style={TEXT_SHADOW_STYLE}
-												>
-													{initials(displayFullName)}
-												</div>
-												)}
-											</div>
-											<div className="pointer-events-none absolute -inset-1 rounded-full border border-yellow-300/35" />
-										</div>
-
-										<div className="flex w-full min-w-0 max-w-full flex-1 flex-col items-center sm:items-start">
-											<div
-												className="inline-flex max-w-full items-center gap-1.5 rounded-full border border-yellow-300/35 bg-yellow-300/[0.08] px-2.5 py-1 text-[9px] font-semibold uppercase tracking-[0.18em] text-yellow-100 backdrop-blur-[1px] sm:gap-2 sm:px-3 sm:text-[10px] sm:tracking-[0.22em]"
-												style={TEXT_SHADOW_STYLE}
-											>
-												<ShieldCheck className="h-3 w-3 shrink-0 text-yellow-200 sm:h-3.5 sm:w-3.5" aria-hidden="true" />
-												<span className="min-w-0 truncate">{labels.profileBadge}</span>
-											</div>
-
-											<h1
-												className="mt-3 w-full break-words text-xl font-bold tracking-tight text-white sm:text-2xl lg:text-[28px]"
-												style={HERO_TITLE_TEXT_SHADOW}
-											>
-												{displayFullName}
-											</h1>
-											<div
-												className="mt-1.5 w-full break-words text-sm text-yellow-100 sm:text-base"
-												style={TEXT_SHADOW_STYLE}
-											>
-												{displayPosition}
-											</div>
-											{displayDepartment ? (
-												<div
-													className="mt-1 w-full break-words text-xs text-white sm:text-sm"
-													style={TEXT_SHADOW_STYLE}
-												>
-													{displayDepartment}
-												</div>
-											) : null}
-											<div
-												className="mt-3 flex w-full min-w-0 max-w-full items-start gap-2.5 text-sm font-semibold leading-snug text-yellow-100 sm:gap-3 sm:text-[15px] lg:text-base"
-												style={TEXT_SHADOW_STYLE}
-											>
-												<Landmark className="mt-0.5 h-4 w-4 shrink-0 text-yellow-200 sm:mt-1 sm:h-[18px] sm:w-[18px]" aria-hidden="true" />
-												<span className="min-w-0 max-w-full break-words leading-snug">{heroOrgName}</span>
-											</div>
-											{displayBio ? (
-												<p
-													className="mt-3 w-full max-w-prose break-words text-sm leading-relaxed text-white sm:text-[15px]"
-													style={TEXT_SHADOW_STYLE}
-												>
-													{displayBio}
-												</p>
-											) : null}
-
-											<div className="mt-5 flex w-full min-w-0 max-w-full flex-wrap items-center justify-center gap-2 sm:justify-start">
-												{tgHref ? (
-													<a
-														href={tgHref}
-														target="_blank"
-														rel="noopener noreferrer"
-														className={SOCIAL_BTN}
-														title={labels.telegram}
-													>
-														<Send className={SOCIAL_BTN_ICON} aria-hidden="true" />
-														<span className={SOCIAL_BTN_LABEL} style={TEXT_SHADOW_STYLE}>{labels.telegram}</span>
-													</a>
-												) : null}
-												{facebookHref ? (
-													<a
-														href={facebookHref}
-														target="_blank"
-														rel="noopener noreferrer"
-														className={SOCIAL_BTN}
-														title={labels.facebook}
-													>
-														<Facebook className={SOCIAL_BTN_ICON} aria-hidden="true" />
-														<span className={SOCIAL_BTN_LABEL} style={TEXT_SHADOW_STYLE}>{labels.facebook}</span>
-													</a>
-												) : null}
-												<a
-													href={WECHAT_URL}
-													target="_blank"
-													rel="noopener noreferrer"
-													className={SOCIAL_BTN}
-													title="WeChat"
-												>
-													<WeChatIcon className={SOCIAL_BTN_ICON} />
-													<span className={SOCIAL_BTN_LABEL} style={TEXT_SHADOW_STYLE}>WeChat</span>
-												</a>
-											</div>
-										</div>
-									</div>
-								</Card>
-							</motion.div>
-
-							{hasSpecialties ? (
-								<motion.div {...SPEC_MOTION} className="order-3 min-w-0 lg:order-none">
-									<Card className={SECTION_CARD}>
-										<div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-yellow-300/55 to-transparent" />
-										<div className="relative">
-											<div className={SECTION_TITLE} style={TEXT_SHADOW_STYLE}>
-												<span className="h-1.5 w-1.5 shrink-0 rounded-full bg-yellow-300 shadow-[0_0_12px_rgba(245,197,66,0.8)]" />
-												<span className="min-w-0 break-words">{labels.specialtiesTitle}</span>
-											</div>
-											<div className="mt-3 grid w-full min-w-0 max-w-full grid-cols-1 gap-2 sm:grid-cols-2">
-												{localized.specialties.map((item, idx) => {
-													const Icon = SPEC_ICONS[idx % SPEC_ICONS.length]
-													return (
-														<div key={idx} className={SPEC_CHIP}>
-															<span className={SPEC_ICON_BOX}>
-																<Icon className="h-3.5 w-3.5" aria-hidden="true" />
-															</span>
-															<span
-																className="min-w-0 flex-1 break-words text-left text-xs text-white sm:text-[13px]"
-																style={TEXT_SHADOW_STYLE}
-															>
-																{item}
-															</span>
-															<ChevronRight className="h-3.5 w-3.5 shrink-0 text-yellow-200/55 transition group-hover:translate-x-0.5 group-hover:text-yellow-200" aria-hidden="true" />
+										<div className="relative flex w-full min-w-0 flex-col items-center gap-5 text-center sm:flex-row sm:items-start sm:gap-6 sm:text-left">
+											<div className="relative shrink-0">
+												<div className="pointer-events-none absolute -inset-4 rounded-full bg-gradient-to-br from-yellow-300/40 via-yellow-300/15 to-blue-400/10 blur-2xl" />
+												<div className="relative h-64 w-64 max-w-full overflow-hidden rounded-full border-[3px] border-yellow-300/55 bg-white/[0.06] shadow-[0_25px_70px_rgba(0,0,0,0.45)] sm:h-32 sm:w-32 lg:h-40 lg:w-40">
+													{heroPhoto ? (
+														<img
+															src={heroPhoto}
+															alt={displayFullName + ' photo'}
+															className="h-full w-full object-cover"
+															loading="lazy"
+														/>
+													) : (
+														<div
+															className="grid h-full w-full place-items-center text-4xl font-semibold text-white sm:text-5xl"
+															style={TEXT_SHADOW_STYLE}
+														>
+															{initials(displayFullName)}
 														</div>
-													)
-												})}
+													)}
+												</div>
+												<div className="pointer-events-none absolute -inset-1 rounded-full border border-yellow-300/35" />
+											</div>
+
+											<div className="flex w-full min-w-0 max-w-full flex-1 flex-col items-center sm:items-start">
+												<div
+													className="inline-flex max-w-full items-center gap-1.5 rounded-full border border-yellow-300/35 bg-yellow-300/[0.08] px-2.5 py-1 text-[9px] font-semibold uppercase tracking-[0.18em] text-yellow-100 backdrop-blur-[1px] sm:gap-2 sm:px-3 sm:text-[10px] sm:tracking-[0.22em]"
+													style={TEXT_SHADOW_STYLE}
+												>
+													<ShieldCheck className="h-3 w-3 shrink-0 text-yellow-200 sm:h-3.5 sm:w-3.5" aria-hidden="true" />
+													<span className="min-w-0 truncate">{labels.profileBadge}</span>
+												</div>
+
+												<h1
+													className="mt-3 w-full break-words text-xl font-bold tracking-tight text-white sm:text-2xl lg:text-[28px]"
+													style={HERO_TITLE_TEXT_SHADOW}
+												>
+													{displayFullName}
+												</h1>
+												<div
+													className="mt-1.5 w-full break-words text-sm text-yellow-100 sm:text-base"
+													style={TEXT_SHADOW_STYLE}
+												>
+													{displayPosition}
+												</div>
+												{displayDepartment ? (
+													<div
+														className="mt-1 w-full break-words text-xs text-white sm:text-sm"
+														style={TEXT_SHADOW_STYLE}
+													>
+														{displayDepartment}
+													</div>
+												) : null}
+												<div
+													className="mt-3 flex w-full min-w-0 max-w-full items-start gap-2.5 text-sm font-semibold leading-snug text-yellow-100 sm:gap-3 sm:text-[15px] lg:text-base"
+													style={TEXT_SHADOW_STYLE}
+												>
+													<Landmark className="mt-0.5 h-4 w-4 shrink-0 text-yellow-200 sm:mt-1 sm:h-[18px] sm:w-[18px]" aria-hidden="true" />
+													<span className="min-w-0 max-w-full break-words leading-snug">{heroOrgName}</span>
+												</div>
+												{displayBio ? (
+													<p
+														className="mt-3 w-full max-w-prose break-words text-sm leading-relaxed text-white sm:text-[15px]"
+														style={TEXT_SHADOW_STYLE}
+													>
+														{displayBio}
+													</p>
+												) : null}
+
+												<div className="mt-5 flex w-full min-w-0 max-w-full flex-wrap items-center justify-center gap-2 sm:justify-start">
+													{tgHref ? (
+														<a
+															href={tgHref}
+															target="_blank"
+															rel="noopener noreferrer"
+															className={SOCIAL_BTN}
+															title={labels.telegram}
+														>
+															<Send className={SOCIAL_BTN_ICON} aria-hidden="true" />
+															<span className={SOCIAL_BTN_LABEL} style={TEXT_SHADOW_STYLE}>{labels.telegram}</span>
+														</a>
+													) : null}
+													{facebookHref ? (
+														<a
+															href={facebookHref}
+															target="_blank"
+															rel="noopener noreferrer"
+															className={SOCIAL_BTN}
+															title={labels.facebook}
+														>
+															<Facebook className={SOCIAL_BTN_ICON} aria-hidden="true" />
+															<span className={SOCIAL_BTN_LABEL} style={TEXT_SHADOW_STYLE}>{labels.facebook}</span>
+														</a>
+													) : null}
+													<a
+														href={WECHAT_URL}
+														target="_blank"
+													rel="noopener noreferrer"
+														className={SOCIAL_BTN}
+														title="WeChat"
+													>
+														<WeChatIcon className={SOCIAL_BTN_ICON} />
+														<span className={SOCIAL_BTN_LABEL} style={TEXT_SHADOW_STYLE}>WeChat</span>
+													</a>
+												</div>
 											</div>
 										</div>
 									</Card>
 								</motion.div>
-							) : null}
-						</div>
 
-						<div className="contents w-full min-w-0 max-w-full lg:flex lg:flex-col lg:gap-6">
-							<motion.div {...TR_MOTION} className="order-2 min-w-0 lg:order-none">
-								<ContactSection card={data} labels={labels} />
-							</motion.div>
-
-							<motion.div {...PROFILE_MOTION} className="order-4 min-w-0 lg:order-none">
-								<Card className={SECTION_CARD}>
-									<div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-yellow-300/70 to-transparent" />
-									<div className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-yellow-300/30 to-transparent" />
-
-									<div className="relative flex h-full w-full min-w-0 max-w-full flex-col">
-										<div className={SECTION_TITLE} style={TEXT_SHADOW_STYLE}>
-											<ShieldCheck className="h-3.5 w-3.5 shrink-0 text-yellow-200" aria-hidden="true" />
-											<span className="min-w-0 break-words">{labels.officialProfileTitle}</span>
-										</div>
-
-										<div className="mt-3 flex w-full min-w-0 max-w-full flex-col gap-2">
-											<div className={PROFILE_ROW}>
-												<div className={PROFILE_ROW_ICON_BOX}>
-													{orgLogo ? (
-														<img src={orgLogo} alt="" className="h-full w-full object-cover" loading="lazy" />
-													) : (
-														<Landmark className="h-5 w-5" aria-hidden="true" />
-													)}
+								{hasSpecialties ? (
+									<motion.div {...SPEC_MOTION} className="order-3 min-w-0 lg:order-none">
+										<Card className={SECTION_CARD}>
+											<div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-yellow-300/55 to-transparent" />
+											<div className="relative">
+												<div className={SECTION_TITLE} style={TEXT_SHADOW_STYLE}>
+													<span className="h-1.5 w-1.5 shrink-0 rounded-full bg-yellow-300 shadow-[0_0_12px_rgba(245,197,66,0.8)]" />
+													<span className="min-w-0 break-words">{labels.specialtiesTitle}</span>
 												</div>
-												<div className="min-w-0 flex-1">
-													<div className={PROFILE_ROW_LABEL} style={TEXT_SHADOW_STYLE}>{labels.digitalCardLabel}</div>
-													<div
-														className="mt-0.5 break-words text-sm font-semibold text-white sm:text-base"
-														style={TEXT_SHADOW_STYLE}
+												<div className="mt-3 grid w-full min-w-0 max-w-full grid-cols-1 gap-2 sm:grid-cols-2">
+													{localized.specialties.map((item, idx) => {
+														const Icon = SPEC_ICONS[idx % SPEC_ICONS.length]
+														return (
+															<div key={idx} className={SPEC_CHIP}>
+																<span className={SPEC_ICON_BOX}>
+																	<Icon className="h-3.5 w-3.5" aria-hidden="true" />
+																</span>
+																<span
+																	className="min-w-0 flex-1 break-words text-left text-xs text-white sm:text-[13px]"
+																	style={TEXT_SHADOW_STYLE}
+																>
+																	{item}
+																</span>
+																<ChevronRight className="h-3.5 w-3.5 shrink-0 text-yellow-200/55 transition group-hover:translate-x-0.5 group-hover:text-yellow-200" aria-hidden="true" />
+															</div>
+														)
+													})}
+												</div>
+											</div>
+										</Card>
+									</motion.div>
+								) : null}
+							</div>
+
+							<div className="contents w-full min-w-0 max-w-full lg:flex lg:flex-col lg:gap-6">
+								<motion.div {...TR_MOTION} className="order-2 min-w-0 lg:order-none">
+									<ContactSection card={data} labels={labels} />
+								</motion.div>
+
+								<motion.div {...PROFILE_MOTION} className="order-4 min-w-0 lg:order-none">
+									<Card className={SECTION_CARD}>
+										<div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-yellow-300/70 to-transparent" />
+										<div className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-yellow-300/30 to-transparent" />
+
+										<div className="relative flex h-full w-full min-w-0 max-w-full flex-col">
+											<div className={SECTION_TITLE} style={TEXT_SHADOW_STYLE}>
+												<ShieldCheck className="h-3.5 w-3.5 shrink-0 text-yellow-200" aria-hidden="true" />
+												<span className="min-w-0 break-words">{labels.officialProfileTitle}</span>
+											</div>
+
+											<div className="mt-3 flex w-full min-w-0 max-w-full flex-col gap-2">
+												<div className={PROFILE_ROW}>
+													<div className={PROFILE_ROW_ICON_BOX}>
+														{orgLogo ? (
+															<img src={orgLogo} alt="" className="h-full w-full object-cover" loading="lazy" />
+														) : (
+															<Landmark className="h-5 w-5" aria-hidden="true" />
+														)}
+													</div>
+													<div className="min-w-0 flex-1">
+														<div className={PROFILE_ROW_LABEL} style={TEXT_SHADOW_STYLE}>{labels.digitalCardLabel}</div>
+														<div
+															className="mt-0.5 break-words text-sm font-semibold text-white sm:text-base"
+															style={TEXT_SHADOW_STYLE}
+														>
+															{heroOrgName}
+														</div>
+													</div>
+												</div>
+
+												{websiteHref ? (
+													<a
+														href={websiteHref}
+													target="_blank"
+														rel="noreferrer noopener"
+														className={PROFILE_ROW}
+														aria-label={labels.website}
+														title={websiteHref}
 													>
-														{heroOrgName}
-													</div>
+														<div className={PROFILE_ROW_ICON_BOX}>
+															<Globe2 className="h-5 w-5" aria-hidden="true" />
+														</div>
+														<div className="min-w-0 flex-1">
+															<div className={PROFILE_ROW_LABEL} style={TEXT_SHADOW_STYLE}>{labels.website}</div>
+															<div
+																className="mt-0.5 truncate text-sm text-white sm:text-[15px]"
+																style={TEXT_SHADOW_STYLE}
+															>
+																{prettyUrl(websiteHref)}
+															</div>
+														</div>
+														<ExternalLink className="h-4 w-4 shrink-0 text-yellow-200/70 transition group-hover:text-yellow-200" aria-hidden="true" />
+													</a>
+												) : null}
+
+												{mapsHref ? (
+													<a
+														href={mapsHref}
+														target="_blank"
+														rel="noreferrer noopener"
+														className={PROFILE_ROW}
+														aria-label={labels.mapAction ?? labels.address}
+														title={addressValue}
+													>
+														<div className={PROFILE_ROW_ICON_BOX}>
+															<MapPin className="h-5 w-5" aria-hidden="true" />
+														</div>
+														<div className="min-w-0 flex-1">
+															<div className={PROFILE_ROW_LABEL} style={TEXT_SHADOW_STYLE}>{labels.address}</div>
+															<div
+																className="mt-0.5 break-words text-sm text-white sm:text-[15px]"
+																style={TEXT_SHADOW_STYLE}
+															>
+																{addressValue}
+															</div>
+														</div>
+														<ExternalLink className="h-4 w-4 shrink-0 text-yellow-200/70 transition group-hover:text-yellow-200" aria-hidden="true" />
+													</a>
+												) : null}
+											</div>
+
+											<div className="mt-auto pt-4">
+												<div className="grid w-full min-w-0 max-w-full grid-cols-1 gap-2 sm:grid-cols-2">
+													<SaveContactButton card={data} className="w-full" overrides={saveOverrides} />
+													<ShareButton url={url} title={pageTitle} />
 												</div>
 											</div>
-
-											{websiteHref ? (
-												<a
-													href={websiteHref}
-													target="_blank"
-													rel="noreferrer noopener"
-													className={PROFILE_ROW}
-													aria-label={labels.website}
-													title={websiteHref}
-												>
-													<div className={PROFILE_ROW_ICON_BOX}>
-														<Globe2 className="h-5 w-5" aria-hidden="true" />
-													</div>
-													<div className="min-w-0 flex-1">
-														<div className={PROFILE_ROW_LABEL} style={TEXT_SHADOW_STYLE}>{labels.website}</div>
-														<div
-															className="mt-0.5 truncate text-sm text-white sm:text-[15px]"
-															style={TEXT_SHADOW_STYLE}
-														>
-															{prettyUrl(websiteHref)}
-														</div>
-													</div>
-													<ExternalLink className="h-4 w-4 shrink-0 text-yellow-200/70 transition group-hover:text-yellow-200" aria-hidden="true" />
-												</a>
-											) : null}
-
-											{mapsHref ? (
-												<a
-													href={mapsHref}
-													target="_blank"
-													rel="noreferrer noopener"
-													className={PROFILE_ROW}
-													aria-label={labels.mapAction ?? labels.address}
-													title={addressValue}
-												>
-													<div className={PROFILE_ROW_ICON_BOX}>
-														<MapPin className="h-5 w-5" aria-hidden="true" />
-													</div>
-													<div className="min-w-0 flex-1">
-														<div className={PROFILE_ROW_LABEL} style={TEXT_SHADOW_STYLE}>{labels.address}</div>
-														<div
-															className="mt-0.5 break-words text-sm text-white sm:text-[15px]"
-															style={TEXT_SHADOW_STYLE}
-														>
-															{addressValue}
-														</div>
-													</div>
-													<ExternalLink className="h-4 w-4 shrink-0 text-yellow-200/70 transition group-hover:text-yellow-200" aria-hidden="true" />
-												</a>
-											) : null}
 										</div>
-
-										<div className="mt-auto pt-4">
-											<div className="grid w-full min-w-0 max-w-full grid-cols-1 gap-2 sm:grid-cols-2">
-												<SaveContactButton card={data} className="w-full" overrides={saveOverrides} />
-												<ShareButton url={url} title={pageTitle} />
-											</div>
-										</div>
-									</div>
-								</Card>
-							</motion.div>
+									</Card>
+								</motion.div>
+							</div>
 						</div>
-					</div>
-				</motion.div>
+					</motion.div>
+				</div>
 			</div>
 			{debugOverlay}
 		</div>

@@ -278,7 +278,7 @@ const SPEC_ICONS = [Cpu, Network, BarChart3, ShieldCheck, Lightbulb, Workflow, D
 
 const WECHAT_URL = 'https://u.wechat.com/MIti95wYI7SoRjfZwXWoU2s?s=2'
 const MAPS_BASE = 'https://www.google.com/maps/search/?api=1&query='
-const DEPLOY_MARKER = 'public-card-mobile-bg-stable-2026-05-22'
+const DEPLOY_MARKER = 'public-card-hero-org-larger-2026-05-25'
 
 function WeChatIcon({ className = '' }: { className?: string }) {
 	return (
@@ -773,7 +773,7 @@ export function PublicCardPage() {
 													</div>
 												) : null}
 												<div
-													className="mt-3 flex w-full min-w-0 max-w-full items-start gap-2.5 text-sm font-semibold leading-snug text-yellow-100 sm:gap-3 sm:text-[15px] lg:text-base"
+													className="mt-3 flex w-full min-w-0 max-w-full items-start gap-2.5 text-[15px] font-bold leading-snug text-yellow-200 drop-shadow-[0_1px_8px_rgba(0,0,0,0.85)] sm:gap-3 sm:text-base lg:text-lg"
 													style={TEXT_SHADOW_STYLE}
 												>
 													<Landmark className="mt-0.5 h-4 w-4 shrink-0 text-yellow-200 sm:mt-1 sm:h-[18px] sm:w-[18px]" aria-hidden="true" />

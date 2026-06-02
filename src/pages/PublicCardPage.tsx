@@ -24,6 +24,7 @@ import { EmployeeTopHeader } from '../components/public-card/EmployeeTopHeader'
 import { ContactSection, type ContactLabels } from '../components/public-card/ContactSection'
 import { SaveContactButton } from '../components/public-card/SaveContactButton'
 import { ShareButton } from '../components/public-card/ShareButton'
+import { QRCodeBlock } from '../components/public-card/QRCodeBlock'
 import { useGetAppSettingsQuery } from '../services/appSettingsApi'
 import { useGetCardBySlugQuery } from '../services/employeeCardsApi'
 import type { EmployeeCard, EmployeeCardTranslation } from '../types/employee'
@@ -53,9 +54,12 @@ type Translations = ContactLabels & {
 	unavailableDescription: string
 }
 
+const OFFICIAL_ORG_NAME_UZ =
+	"O‘zbekiston Respublikasi Ekologiya va iqlim o‘zgarishi milliy qo‘mitasi huzuridagi Gidrometeorologiya xizmati agentligi"
+
 const T: Record<PublicLang, Translations> = {
 	uz: {
-		orgName: 'O‘zbekiston Respublikasi Ekologiya va iqlim o‘zgarishi milliy qo‘mitasi huzuridagi Gidrometeorologiya xizmati agentligi',
+		orgName: OFFICIAL_ORG_NAME_UZ,
 		orgSubtitle: 'Rasmiy raqamli vizitka',
 		brandBadge: 'Raqamli vizitka',
 		profileBadge: 'Rasmiy raqamli profil',
@@ -213,11 +217,6 @@ const DEBUG_OVERLAY_STYLE = { whiteSpace: 'pre-wrap' as const }
 const TEXT_SHADOW_STYLE = { textShadow: '0 1px 10px rgba(0,0,0,0.75)' } as const
 const HERO_TITLE_TEXT_SHADOW = { textShadow: '0 2px 12px rgba(0,0,0,0.85)' } as const
 
-// Mobile-stable fixed background layer.
-// Uses 100svh so the layer stays the size of the small viewport (URL bar visible)
-// and does NOT resize when the mobile address bar collapses on scroll.
-// translateZ(0) + backface-visibility hidden promote to a GPU compositor layer
-// so the background never re-paints during scroll → no jitter/shake/repositioning.
 const BG_FIXED_LAYER_STYLE = {
 	position: 'fixed',
 	top: 0,
@@ -250,10 +249,10 @@ const SPEC_CHIP =
 	'group flex min-w-0 items-center gap-2 rounded-xl border border-yellow-300/15 bg-transparent px-2.5 py-1.5 backdrop-blur-[1px] transition hover:border-yellow-300/45 hover:bg-yellow-300/[0.10]'
 
 const SPEC_ICON_BOX =
-	'grid h-7 w-7 shrink-0 place-items-center rounded-lg border border-yellow-300/20 bg-black/[0.04] text-yellow-200 backdrop-blur-[1px]'
+	'grid h-7 w-7 shrink-0 place-items-center rounded-lg border border-yellow-300/20 bg-transparent text-yellow-200 backdrop-blur-[1px]'
 
 const SOCIAL_BTN =
-	'group inline-flex shrink-0 items-center gap-2 rounded-full border border-yellow-300/25 bg-black/[0.04] px-3.5 py-2 text-xs font-semibold text-yellow-100 backdrop-blur-[1px] transition hover:border-yellow-300/55 hover:bg-yellow-300/15 hover:text-yellow-50 hover:shadow-[0_0_22px_rgba(245,197,66,0.30)] active:scale-95 sm:px-4 sm:py-2.5 sm:text-sm'
+	'group inline-flex shrink-0 items-center gap-2 rounded-full border border-yellow-300/25 bg-transparent px-3.5 py-2 text-xs font-semibold text-yellow-100 backdrop-blur-[1px] transition hover:border-yellow-300/55 hover:bg-yellow-300/15 hover:text-yellow-50 hover:shadow-[0_0_22px_rgba(245,197,66,0.30)] active:scale-95 sm:px-4 sm:py-2.5 sm:text-sm'
 
 const SOCIAL_BTN_ICON = 'h-4 w-4 shrink-0 sm:h-[18px] sm:w-[18px]'
 
@@ -269,7 +268,7 @@ const PROFILE_ROW =
 	'group flex w-full min-w-0 max-w-full items-center gap-3 rounded-2xl border border-yellow-300/15 bg-transparent p-3 backdrop-blur-[1px] transition hover:border-yellow-300/45 hover:bg-yellow-300/[0.10]'
 
 const PROFILE_ROW_ICON_BOX =
-	'grid h-10 w-10 shrink-0 place-items-center overflow-hidden rounded-xl border border-yellow-300/20 bg-black/[0.04] text-yellow-200 backdrop-blur-[1px]'
+	'grid h-10 w-10 shrink-0 place-items-center overflow-hidden rounded-xl border border-yellow-300/20 bg-transparent text-yellow-200 backdrop-blur-[1px]'
 
 const PROFILE_ROW_LABEL =
 	'text-[10px] font-semibold uppercase tracking-[0.2em] text-yellow-200 sm:text-[11px] sm:tracking-[0.24em]'
@@ -457,7 +456,7 @@ function PublicCardLoader({
 					<div className="relative mx-auto grid h-20 w-20 place-items-center sm:h-24 sm:w-24">
 						<div className="absolute inset-0 rounded-full border-[3px] border-yellow-300/15" />
 						<div className="absolute inset-0 animate-spin rounded-full border-[3px] border-transparent border-t-yellow-300 border-r-yellow-300/55" />
-						<div className="relative grid h-14 w-14 place-items-center overflow-hidden rounded-full border border-yellow-300/35 bg-black/[0.04] backdrop-blur-[1px] sm:h-16 sm:w-16">
+						<div className="relative grid h-14 w-14 place-items-center overflow-hidden rounded-full border border-yellow-300/35 bg-transparent backdrop-blur-[1px] sm:h-16 sm:w-16">
 							{orgLogo ? (
 								<img src={orgLogo} alt="" className="h-full w-full object-cover" loading="eager" />
 							) : (
@@ -568,11 +567,10 @@ export function PublicCardPage() {
 	const employeeBg = isHttpUrl(data?.background_image_url) ? data!.background_image_url : null
 	const backgroundImage = globalBg ?? employeeBg ?? null
 
-	const globalLogo = isHttpUrl(settings?.organization_logo_url)
+	// Single source of truth: app_settings.organization_logo_url
+	const orgLogo = isHttpUrl(settings?.organization_logo_url)
 		? settings!.organization_logo_url
 		: null
-	const employeeLogo = isHttpUrl(data?.logo_url) ? data!.logo_url : null
-	const orgLogo = globalLogo ?? employeeLogo ?? null
 
 	const localized = useMemo(() => {
 		if (!data) {
@@ -598,8 +596,6 @@ export function PublicCardPage() {
 	}, [data, lang])
 
 	const displayOrgName = localized.organizationName || labels.orgName
-	// In the hero, always show the full official organization name from translations,
-	// regardless of any short form stored in the DB (e.g. "O‘zgidromet").
 	const heroOrgName = labels.orgName
 
 	const debugOverlay = isDebug ? (
@@ -816,7 +812,7 @@ export function PublicCardPage() {
 													<a
 														href={WECHAT_URL}
 														target="_blank"
-													rel="noopener noreferrer"
+														rel="noopener noreferrer"
 														className={SOCIAL_BTN}
 														title="WeChat"
 													>
@@ -948,6 +944,10 @@ export function PublicCardPage() {
 														<ExternalLink className="h-4 w-4 shrink-0 text-yellow-200/70 transition group-hover:text-yellow-200" aria-hidden="true" />
 													</a>
 												) : null}
+											</div>
+
+											<div className="mt-5">
+												<QRCodeBlock url={url} filenameBase={safeSlug || data.slug} logoUrl={orgLogo} />
 											</div>
 
 											<div className="mt-auto pt-4">

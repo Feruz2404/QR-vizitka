@@ -156,19 +156,6 @@ export const employeeCardsApi = createApi({
 			},
 		}),
 
-		uploadLogo: builder.mutation<string, { file: File; cardId: string }>({
-			async queryFn({ file, cardId }) {
-				const ext = file.name.split('.').pop() || 'png'
-				const path = `${cardId}/${Date.now()}-logo.${ext}`
-				const { error: uploadError } = await supabase.storage
-					.from('organization-logos')
-					.upload(path, file, { upsert: true })
-				if (uploadError) return { error: uploadError }
-				const { data } = supabase.storage.from('organization-logos').getPublicUrl(path)
-				return { data: data.publicUrl }
-			},
-		}),
-
 		uploadBackgroundImage: builder.mutation<string, { file: File; cardId: string }>({
 			async queryFn({ file, cardId }) {
 				if (!BACKGROUND_ALLOWED_TYPES.includes(file.type)) {
@@ -214,7 +201,6 @@ export const {
 	useDeleteCardMutation,
 	useToggleCardStatusMutation,
 	useUploadProfilePhotoMutation,
-	useUploadLogoMutation,
 	useUploadBackgroundImageMutation,
 	useLazyCheckSlugAvailabilityQuery,
 } = employeeCardsApi

@@ -1,68 +1,67 @@
-import { Copy, Download } from 'lucide-react'
-import QRCode from 'react-qr-code'
+import { Download } from 'lucide-react'
 
-import { downloadSvg } from '../../lib/qr'
+import { downloadQrPng, downloadQrSvg } from '../../lib/qr'
 import { Button } from '../../ui/Button'
 import { Card } from '../../ui/Card'
-import { useToast } from '../../ui/Toast'
+import { BrandedQr } from '../BrandedQr'
 
-export function QRCodeBlock({ url, filename }: { url: string; filename: string }) {
-	const toast = useToast()
-
+export function QRCodeBlock({
+	url,
+	filenameBase,
+	logoUrl,
+}: {
+	url: string
+	filenameBase: string
+	logoUrl: string | null
+}) {
 	return (
 		<Card className="p-5">
 			<div className="flex items-start justify-between gap-3">
 				<div>
 					<div className="text-sm font-semibold">QR Business Card</div>
 					<div className="mt-1 text-xs text-brand-muted">Scan to open this digital card</div>
+					<div className="mt-1 text-[11px] text-brand-muted">Error correction: H</div>
 				</div>
 
-				<Button
-					variant="secondary"
-					size="sm"
-					onClick={() => {
-						const svg = document.getElementById('employee-qr') as SVGSVGElement | null
-						if (svg) downloadSvg(svg, filename)
-					}}
-					aria-label="Download QR"
-				>
-					<Download className="h-4 w-4" /> Download QR
-				</Button>
+				<div className="flex flex-wrap gap-2">
+					<Button
+						variant="secondary"
+						size="sm"
+						onClick={() =>
+							downloadQrSvg({
+								value: url,
+								logoUrl,
+								options: { size: 240, margin: 2, errorCorrectionLevel: 'H' },
+								filename: filenameBase + '.svg',
+							})
+						}
+						aria-label="Download QR SVG"
+					>
+						<Download className="h-4 w-4" /> SVG
+					</Button>
+					<Button
+						variant="secondary"
+						size="sm"
+						onClick={() =>
+							downloadQrPng({
+								value: url,
+								logoUrl,
+								options: { size: 1024, margin: 2, errorCorrectionLevel: 'H' },
+								filename: filenameBase + '.png',
+							})
+						}
+						aria-label="Download QR PNG"
+					>
+						<Download className="h-4 w-4" /> PNG
+					</Button>
+				</div>
 			</div>
 
 			<div className="mt-4 grid place-items-center">
 				<div className="rounded-3xl border border-white/10 bg-white/5 p-4 shadow-[0_30px_90px_rgba(0,0,0,0.55)]">
 					<div className="rounded-2xl bg-white p-4">
-						<QRCode id="employee-qr" value={url} size={188} bgColor="#ffffff" fgColor="#0b0f1a" />
+						<BrandedQr value={url} logoUrl={logoUrl} size={188} />
 					</div>
-				</div>
-			</div>
-
-			<div className="mt-4 flex flex-col gap-2">
-				<div className="rounded-2xl border border-white/10 bg-white/5 px-3 py-2">
-					<div className="text-[11px] uppercase tracking-wide text-white/50">Public URL</div>
-					<div className="mt-1 truncate text-sm text-white/80" title={url}>
-						{url}
-					</div>
-				</div>
-				<div className="grid grid-cols-2 gap-2">
-					<Button
-						variant="secondary"
-						onClick={async () => {
-							await navigator.clipboard.writeText(url)
-							toast.push('Link copied')
-						}}
-						aria-label="Copy link"
-					>
-						<Copy className="h-4 w-4" /> Copy Link
-					</Button>
-					<Button
-						variant="ghost"
-						onClick={() => window.open(url, '_blank', 'noreferrer')}
-						aria-label="Open link"
-					>
-						Open
-					</Button>
 				</div>
 			</div>
 		</Card>

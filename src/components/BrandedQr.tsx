@@ -38,13 +38,7 @@ export function BrandedQr({
 	}, [value, logoUrl, opts, logoScale])
 
 	if (!svg) {
-		return (
-			<div
-				className={className}
-				style= width: size, height: size 
-				aria-label="QR code loading"
-			/>
-		)
+		return <div className={className} style= width: size, height: size  aria-label="QR code loading" />
 	}
 
 	return (

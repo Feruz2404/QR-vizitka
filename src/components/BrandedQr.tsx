@@ -41,11 +41,5 @@ export function BrandedQr({
 		return <div className={className} style= width: size, height: size  aria-label="QR code loading" />
 	}
 
-	return (
-		<div
-			className={className}
-			dangerouslySetInnerHTML= __html: svg 
-			aria-label="QR code"
-		/>
-	)
+	return <div className={className} dangerouslySetInnerHTML= __html: svg  aria-label="QR code" />
 }

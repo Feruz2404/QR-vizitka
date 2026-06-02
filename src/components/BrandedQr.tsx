@@ -7,13 +7,16 @@ export function BrandedQr({
 	logoUrl,
 	size,
 	className,
+	logoScale = 0.19,
 }: {
 	value: string
 	logoUrl: string | null
 	size: number
 	className?: string
+	logoScale?: number
 }) {
 	const [svg, setSvg] = useState<string | null>(null)
+
 	const opts: QrRenderOptions = useMemo(
 		() => ({ size, margin: 2, fgColor: '#0b0f1a', bgColor: '#ffffff', errorCorrectionLevel: 'H' }),
 		[size],
@@ -22,7 +25,7 @@ export function BrandedQr({
 	useEffect(() => {
 		let canceled = false
 		setSvg(null)
-		renderQrSvg({ value, logoUrl, options: opts, logoScale: 0.19 })
+		renderQrSvg({ value, logoUrl, options: opts, logoScale })
 			.then((s) => {
 				if (!canceled) setSvg(s)
 			})
@@ -32,11 +35,15 @@ export function BrandedQr({
 		return () => {
 			canceled = true
 		}
-	}, [value, logoUrl, opts])
+	}, [value, logoUrl, opts, logoScale])
 
 	if (!svg) {
 		return (
-			<div className={className} style= width: size, height: size  aria-label="QR code loading" />
+			<div
+				className={className}
+				style= width: size, height: size 
+				aria-label="QR code loading"
+			/>
 		)
 	}
 

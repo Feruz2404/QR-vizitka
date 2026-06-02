@@ -2,19 +2,15 @@ import { useEffect, useMemo, useState } from 'react'
 
 import { renderQrSvg, type QrRenderOptions } from '../lib/qr'
 
-export function BrandedQr({
-	value,
-	logoUrl,
-	size,
-	className,
-	logoScale = 0.19,
-}: {
+type Props = {
 	value: string
 	logoUrl: string | null
 	size: number
 	className?: string
 	logoScale?: number
-}) {
+}
+
+export function BrandedQr({ value, logoUrl, size, className, logoScale = 0.19 }: Props) {
 	const [svg, setSvg] = useState<string | null>(null)
 
 	const opts: QrRenderOptions = useMemo(
@@ -45,7 +41,7 @@ export function BrandedQr({
 		}
 	}, [value, logoUrl, opts, logoScale])
 
-	const boxStyle = { width: size, height: size }
+	const boxStyle: React.CSSProperties = { width: size, height: size }
 
 	if (!svg) {
 		return <div className={className} style={boxStyle} aria-label="QR code loading" />

@@ -45,7 +45,7 @@ export function BrandedQr({
 		}
 	}, [value, logoUrl, opts, logoScale])
 
-	const boxStyle: React.CSSProperties = { width: size, height: size }
+	const boxStyle = { width: size, height: size }
 
 	if (!svg) {
 		return <div className={className} style={boxStyle} aria-label="QR code loading" />

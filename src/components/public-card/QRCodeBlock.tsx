@@ -1,6 +1,7 @@
 import { Copy, Download, ImageDown } from 'lucide-react'
 import { useMemo, useRef } from 'react'
 
+import { useGetAppSettingsQuery } from '../../services/appSettingsApi'
 import { BrandedQrCode, type BrandedQrCodeHandle } from '../qr/BrandedQrCode'
 import { Button } from '../../ui/Button'
 import { Card } from '../../ui/Card'
@@ -16,7 +17,10 @@ export function QRCodeBlock({
 	organizationLogoUrl?: string | null
 }) {
 	const toast = useToast()
+	const { data: settings } = useGetAppSettingsQuery()
 	const qrRef = useRef<BrandedQrCodeHandle | null>(null)
+
+	const logo = organizationLogoUrl ?? settings?.organization_logo_url ?? null
 
 	const svgName = useMemo(() => (filename.toLowerCase().endsWith('.svg') ? filename : filename + '.svg'), [filename])
 	const pngName = useMemo(() => filename.replace(/\.svg$/i, '') + '.png', [filename])
@@ -60,8 +64,8 @@ export function QRCodeBlock({
 							ref={qrRef}
 							value={url}
 							size={188}
-							logoUrl={organizationLogoUrl}
-							watermarkUrl={organizationLogoUrl}
+							logoUrl={logo}
+							watermarkUrl={logo}
 							accentColor="#D4AF37"
 							dotsColor="#0b0f1a"
 						/>

@@ -190,7 +190,11 @@ export const BrandedQrCode = forwardRef<BrandedQrCodeHandle, BrandedQrCodeProps>
 			{!isReady ? (
 				<div
 					aria-hidden="true"
-					style= position: 'absolute', inset: 0, background: 'transparent' 
+					style=
+						position: 'absolute',
+						inset: 0,
+						background: 'transparent',
+					
 				/>
 			) : null}
 		</div>

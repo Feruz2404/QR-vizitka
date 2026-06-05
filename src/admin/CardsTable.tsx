@@ -1,26 +1,27 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useState, useRef } from 'react'
 import { Link } from 'react-router-dom'
-import { Copy, Download, Eye, Pencil, Power, QrCode, Trash2, X } from 'lucide-react'
-import QRCode from 'react-qr-code'
+import { Copy, Download, Eye, ImageDown, Pencil, Power, QrCode, Trash2, X } from 'lucide-react'
 
 import {
 	useDeleteCardMutation,
 	useGetCardsQuery,
 	useToggleCardStatusMutation,
 } from '../services/employeeCardsApi'
-import { downloadSvg } from '../lib/qr'
+import { useGetAppSettingsQuery } from '../services/appSettingsApi'
 import { Button } from '../ui/Button'
 import { Card } from '../ui/Card'
 import { Skeleton } from '../ui/Skeleton'
 import { StatusBadge } from './StatusBadge'
 import { DeleteConfirmModal } from './DeleteConfirmModal'
 import { useToast } from '../ui/Toast'
+import { BrandedQrCode, type BrandedQrCodeHandle } from '../components/qr/BrandedQrCode'
 
 type QrTarget = { id: string; full_name: string; slug: string }
 
 export function CardsTable() {
 	const toast = useToast()
 	const { data, isLoading, isError } = useGetCardsQuery()
+	const { data: settings } = useGetAppSettingsQuery()
 	const [toggleStatus, toggleState] = useToggleCardStatusMutation()
 	const [deleteCard, deleteState] = useDeleteCardMutation()
 
@@ -29,6 +30,7 @@ export function CardsTable() {
 
 	const [qrOpen, setQrOpen] = useState(false)
 	const [qrTarget, setQrTarget] = useState<QrTarget | null>(null)
+	const qrRef = useRef<BrandedQrCodeHandle | null>(null)
 
 	const rows = useMemo(() => data ?? [], [data])
 	const baseUrl = typeof window !== 'undefined' ? window.location.origin : ''
@@ -52,10 +54,14 @@ export function CardsTable() {
 		toast.push('Link copied')
 	}
 
-	const onDownloadQr = () => {
-		const svg = document.getElementById('admin-qr-svg') as SVGSVGElement | null
-		if (!svg || !qrTarget) return
-		downloadSvg(svg, qrTarget.slug + '.svg')
+	const onDownloadQrSvg = async () => {
+		if (!qrTarget) return
+		await qrRef.current?.downloadSvg(qrTarget.slug + '.svg')
+	}
+
+	const onDownloadQrPng = async () => {
+		if (!qrTarget) return
+		await qrRef.current?.downloadPng(qrTarget.slug + '.png', { scale: 4 })
 	}
 
 	const onTogglePublish = (id: string, isActive: boolean) => {
@@ -103,6 +109,8 @@ export function CardsTable() {
 			</Card>
 		)
 	}
+
+	const orgLogoUrl = settings?.organization_logo_url ?? null
 
 	return (
 		<>
@@ -198,7 +206,9 @@ export function CardsTable() {
 						<div className="flex items-start justify-between gap-3">
 							<div className="min-w-0">
 								<div className="truncate text-base font-semibold text-white">{qrTarget.full_name}</div>
-								<div className="mt-1 truncate text-xs text-brand-muted" title={qrUrl}>{qrUrl}</div>
+								<div className="mt-1 truncate text-xs text-brand-muted" title={qrUrl}>
+									{qrUrl}
+								</div>
 							</div>
 							<button
 								type="button"
@@ -212,7 +222,15 @@ export function CardsTable() {
 
 						<div className="mt-4 grid place-items-center">
 							<div className="rounded-xl bg-white p-4">
-								<QRCode id="admin-qr-svg" value={qrUrl} size={200} bgColor="#ffffff" fgColor="#000000" />
+								<BrandedQrCode
+									ref={qrRef}
+									value={qrUrl}
+									size={200}
+									logoUrl={orgLogoUrl}
+									watermarkUrl={orgLogoUrl}
+									accentColor="#D4AF37"
+									dotsColor="#0b0f1a"
+								/>
 							</div>
 						</div>
 
@@ -220,10 +238,15 @@ export function CardsTable() {
 							<Button size="sm" variant="secondary" aria-label="Copy link" onClick={onCopyQrLink}>
 								<Copy className="mr-1 h-4 w-4" /> Copy Link
 							</Button>
-							<Button size="sm" variant="secondary" aria-label="Download QR" onClick={onDownloadQr}>
-								<Download className="mr-1 h-4 w-4" /> Download QR
+							<Button size="sm" variant="secondary" aria-label="Download QR SVG" onClick={onDownloadQrSvg}>
+								<Download className="mr-1 h-4 w-4" /> SVG
 							</Button>
-							<Button size="sm" aria-label="Close" onClick={onCloseQr}>Close</Button>
+							<Button size="sm" variant="secondary" aria-label="Download QR PNG" onClick={onDownloadQrPng}>
+								<ImageDown className="mr-1 h-4 w-4" /> PNG
+							</Button>
+							<Button size="sm" aria-label="Close" onClick={onCloseQr}>
+								Close
+							</Button>
 						</div>
 					</div>
 				</div>

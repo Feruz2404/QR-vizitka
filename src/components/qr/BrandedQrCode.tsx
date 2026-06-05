@@ -24,6 +24,15 @@ function pickEcLevel(hasLogo: boolean) {
 	return hasLogo ? 'H' : 'M'
 }
 
+function downloadBlob(blob: Blob, filename: string) {
+	const url = URL.createObjectURL(blob)
+	const a = document.createElement('a')
+	a.href = url
+	a.download = filename
+	a.click()
+	URL.revokeObjectURL(url)
+}
+
 export const BrandedQrCode = forwardRef<BrandedQrCodeHandle, BrandedQrCodeProps>(function BrandedQrCode(
 	{
 		value,
@@ -96,7 +105,6 @@ export const BrandedQrCode = forwardRef<BrandedQrCodeHandle, BrandedQrCodeProps>
 		}
 
 		init().catch(() => {
-			// if QR styling fails to load, keep component mounted but mark not-ready
 			if (!cancelled) setIsReady(false)
 		})
 
@@ -109,21 +117,15 @@ export const BrandedQrCode = forwardRef<BrandedQrCodeHandle, BrandedQrCodeProps>
 		async downloadSvg(filename: string) {
 			if (!qrRef.current) return
 			const blob: Blob = await qrRef.current.getRawData('svg')
-			const url = URL.createObjectURL(blob)
-			const a = document.createElement('a')
-			a.href = url
-			a.download = filename
-			a.click()
-			URL.revokeObjectURL(url)
+			downloadBlob(blob, filename)
 		},
 		async downloadPng(filename: string, opts?: { scale?: number }) {
-			if (!qrRef.current) return
+			const scale = Math.max(1, Math.min(6, opts?.scale ?? 4))
 
 			// qr-code-styling renders PNG via canvas when type is 'canvas'.
-			// We create a temporary instance to avoid mutating the on-screen SVG.
+			// Create a temporary instance to avoid mutating the on-screen SVG.
 			const mod = await import('qr-code-styling')
 			const QRCodeStyling = (mod as any).default ?? (mod as any)
-			const scale = Math.max(1, Math.min(6, opts?.scale ?? 4))
 
 			const tmp = new QRCodeStyling({
 				width: size * scale,
@@ -158,12 +160,7 @@ export const BrandedQrCode = forwardRef<BrandedQrCodeHandle, BrandedQrCodeProps>
 			})
 
 			const blob: Blob = await tmp.getRawData('png')
-			const url = URL.createObjectURL(blob)
-			const a = document.createElement('a')
-			a.href = url
-			a.download = filename
-			a.click()
-			URL.revokeObjectURL(url)
+			downloadBlob(blob, filename)
 		},
 	}))
 
@@ -211,15 +208,11 @@ export const BrandedQrCode = forwardRef<BrandedQrCodeHandle, BrandedQrCodeProps>
 				
 			/>
 
-			{/* In case of transient loading, keep layout stable. */}
+			{/* Keep layout stable while loading. */}
 			{!isReady ? (
 				<div
 					aria-hidden="true"
-					style=
-						position: 'absolute',
-						inset: 0,
-						background: 'transparent',
-					
+					style= position: 'absolute', inset: 0, background: 'transparent' 
 				/>
 			) : null}
 		</div>

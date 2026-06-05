@@ -36,11 +36,10 @@ const IMAGE_SIZE = 0.2
 const IMAGE_MARGIN = 6
 const QR_MARGIN = 10
 
-// Keep modules engineered (avoid default) but still circular.
+// Modules: engineered rounded dots (reference-like).
 const DOTS_OPTIONS = { type: 'rounded' as const }
 
-// We draw the premium ring eyes as an overlay to better match the reference.
-// Underlying QR eyes are rendered in ink (not gold) to avoid dominance.
+// Underlying QR eyes are rendered in ink to keep them subtle.
 const CORNERS_SQUARE_OPTIONS = { type: 'extra-rounded' as const }
 const CORNERS_DOT_OPTIONS = { type: 'dot' as const }
 
@@ -137,6 +136,16 @@ export const BrandedQrCode = forwardRef<BrandedQrCodeHandle, BrandedQrCodeProps>
 		[]
 	)
 
+	const overlayLayerStyle: CSSProperties = useMemo(
+		() => ({
+			position: 'absolute',
+			inset: 0,
+			zIndex: 2,
+			pointerEvents: 'none',
+		}),
+		[]
+	)
+
 	const loadingOverlayStyle: CSSProperties = useMemo(
 		() => ({
 			position: 'absolute',
@@ -147,28 +156,26 @@ export const BrandedQrCode = forwardRef<BrandedQrCodeHandle, BrandedQrCodeProps>
 		[]
 	)
 
-	// Finder eye overlay — matches reference ring look.
-	const eyeSize = useMemo(() => {
-		// Keep eyes visually smaller and lighter than typical.
-		return clamp(Math.round(size * 0.18), 34, 56)
-	}, [size])
+	// Finder eye overlay — subtle gold ring + dark center, like the reference.
+	const eyeSize = useMemo(() => clamp(Math.round(size * 0.18), 34, 56), [size])
 	const eyeRing = useMemo(() => Math.max(2, Math.round(eyeSize * 0.08)), [eyeSize])
 	const eyeInset = useMemo(() => QR_MARGIN + Math.round(size * 0.015), [size])
-	const eyeAccent = useMemo(() => mixHex(accentColor, dotsColor, 0.45), [accentColor, dotsColor])
 
-	const eyeOuterStyle: CSSProperties = useMemo(
+	// Use site palette: gold mixed toward ink to keep it subtle.
+	const ringColor = useMemo(() => mixHex(accentColor, dotsColor, 0.55), [accentColor, dotsColor])
+	const ringStroke2 = useMemo(() => mixHex(ringColor, backgroundColor, 0.45), [ringColor, backgroundColor])
+
+	const eyeOuterStyleBase: CSSProperties = useMemo(
 		() => ({
 			position: 'absolute',
 			width: eyeSize,
 			height: eyeSize,
 			borderRadius: 999,
-			border: eyeRing + 'px solid ' + eyeAccent,
-			background: backgroundColor,
-			boxShadow: '0 0 0 1px ' + mixHex(eyeAccent, backgroundColor, 0.55),
-			zIndex: 2,
-			pointerEvents: 'none',
+			border: `${eyeRing}px solid ${ringColor}`,
+			backgroundColor,
+			boxShadow: `0 0 0 1px ${ringStroke2}`,
 		}),
-		[eyeSize, eyeRing, eyeAccent, backgroundColor]
+		[eyeSize, eyeRing, ringColor, ringStroke2, backgroundColor]
 	)
 
 	const eyeInnerStyle: CSSProperties = useMemo(
@@ -176,11 +183,10 @@ export const BrandedQrCode = forwardRef<BrandedQrCodeHandle, BrandedQrCodeProps>
 			position: 'absolute',
 			inset: Math.round(eyeSize * 0.28),
 			borderRadius: 999,
-			border: Math.max(2, Math.round(eyeRing * 0.9)) + 'px solid ' + mixHex(eyeAccent, dotsColor, 0.35),
-			background: backgroundColor,
-			pointerEvents: 'none',
+			border: `${Math.max(2, Math.round(eyeRing * 0.9))}px solid ${mixHex(ringColor, dotsColor, 0.35)}`,
+			backgroundColor,
 		}),
-		[eyeSize, eyeRing, eyeAccent, dotsColor, backgroundColor]
+		[eyeSize, eyeRing, ringColor, dotsColor, backgroundColor]
 	)
 
 	const eyeCenterDotStyle: CSSProperties = useMemo(
@@ -188,20 +194,14 @@ export const BrandedQrCode = forwardRef<BrandedQrCodeHandle, BrandedQrCodeProps>
 			position: 'absolute',
 			inset: Math.round(eyeSize * 0.42),
 			borderRadius: 999,
-			background: dotsColor,
-			pointerEvents: 'none',
+			backgroundColor: dotsColor,
 		}),
 		[eyeSize, dotsColor]
 	)
 
-	const eyePos = useMemo(
-		() => ({
-			tl: { left: eyeInset, top: eyeInset },
-			tr: { right: eyeInset, top: eyeInset },
-			bl: { left: eyeInset, bottom: eyeInset },
-		}),
-		[eyeInset]
-	)
+	const eyeTL: CSSProperties = useMemo(() => ({ left: eyeInset, top: eyeInset }), [eyeInset])
+	const eyeTR: CSSProperties = useMemo(() => ({ right: eyeInset, top: eyeInset }), [eyeInset])
+	const eyeBL: CSSProperties = useMemo(() => ({ left: eyeInset, bottom: eyeInset }), [eyeInset])
 
 	useEffect(() => {
 		let cancelled = false
@@ -306,19 +306,19 @@ export const BrandedQrCode = forwardRef<BrandedQrCodeHandle, BrandedQrCodeProps>
 
 			<div ref={containerRef} style={qrContainerStyle} />
 
-			{/* Premium finder eye overlay (subtle gold ring + dark center) */}
-			<div style= position: 'absolute', inset: 0, zIndex: 2, pointerEvents: 'none'  aria-hidden="true">
-				<div style= ...eyeOuterStyle, ...eyePos.tl >
+			{/* Premium ring eyes overlay */}
+			<div style={overlayLayerStyle} aria-hidden="true">
+				<div style= ...eyeOuterStyleBase, ...eyeTL >
 					<div style={eyeInnerStyle}>
 						<div style={eyeCenterDotStyle} />
 					</div>
 				</div>
-				<div style= ...eyeOuterStyle, ...eyePos.tr >
+				<div style= ...eyeOuterStyleBase, ...eyeTR >
 					<div style={eyeInnerStyle}>
 						<div style={eyeCenterDotStyle} />
 					</div>
 				</div>
-				<div style= ...eyeOuterStyle, ...eyePos.bl >
+				<div style= ...eyeOuterStyleBase, ...eyeBL >
 					<div style={eyeInnerStyle}>
 						<div style={eyeCenterDotStyle} />
 					</div>

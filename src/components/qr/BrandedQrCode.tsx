@@ -291,6 +291,10 @@ export const BrandedQrCode = forwardRef<BrandedQrCodeHandle, BrandedQrCodeProps>
 		},
 	}))
 
+	const eyeTLStyle = useMemo(() => ({ ...eyeOuterStyleBase, ...eyeTL }), [eyeOuterStyleBase, eyeTL])
+	const eyeTRStyle = useMemo(() => ({ ...eyeOuterStyleBase, ...eyeTR }), [eyeOuterStyleBase, eyeTR])
+	const eyeBLStyle = useMemo(() => ({ ...eyeOuterStyleBase, ...eyeBL }), [eyeOuterStyleBase, eyeBL])
+
 	return (
 		<div className={className} style={containerStyle}>
 			{safeWatermark ? (
@@ -308,17 +312,17 @@ export const BrandedQrCode = forwardRef<BrandedQrCodeHandle, BrandedQrCodeProps>
 
 			{/* Premium ring eyes overlay */}
 			<div style={overlayLayerStyle} aria-hidden="true">
-				<div style= ...eyeOuterStyleBase, ...eyeTL >
+				<div style={eyeTLStyle}>
 					<div style={eyeInnerStyle}>
 						<div style={eyeCenterDotStyle} />
 					</div>
 				</div>
-				<div style= ...eyeOuterStyleBase, ...eyeTR >
+				<div style={eyeTRStyle}>
 					<div style={eyeInnerStyle}>
 						<div style={eyeCenterDotStyle} />
 					</div>
 				</div>
-				<div style= ...eyeOuterStyleBase, ...eyeBL >
+				<div style={eyeBLStyle}>
 					<div style={eyeInnerStyle}>
 						<div style={eyeCenterDotStyle} />
 					</div>
@@ -337,7 +341,6 @@ export const BRANDED_QR_STYLE = {
 	dotsOptions: DOTS_OPTIONS,
 	cornersSquareOptions: CORNERS_SQUARE_OPTIONS,
 	cornersDotOptions: CORNERS_DOT_OPTIONS,
-	// overlay eyes
 	eyeOverlay: {
 		sizeRatio: 0.18,
 		ringRatio: 0.08,

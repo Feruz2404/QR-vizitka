@@ -13,13 +13,12 @@ type BrandedQrCodeProps = {
 	value: string
 	size: number
 	logoUrl?: string | null
-	watermarkUrl?: string | null
 	className?: string
 	/** Background behind the QR modules (default white for scan reliability). */
 	backgroundColor?: string
 	/** Module color (default near-black for scan reliability). */
 	dotsColor?: string
-	/** Accent color (used for finder eyes). Should come from existing theme palette. */
+	/** Accent color (optional subtle eye accent). */
 	accentColor?: string
 }
 
@@ -30,20 +29,19 @@ export type BrandedQrCodeHandle = {
 
 type ErrorCorrectionLevel = 'L' | 'M' | 'Q' | 'H'
 
-// ---- Premium styling tuning (single source of truth) ----
-// Do NOT change these (per requirements).
-const IMAGE_SIZE = 0.2
-const IMAGE_MARGIN = 6
-const QR_MARGIN = 10
+type DotType = 'rounded' | 'classy-rounded' | 'dots' | 'square' | 'extra-rounded'
 
-// Modules: engineered rounded dots (reference-like).
-const DOTS_OPTIONS = { type: 'rounded' as const }
+type CornerSquareType = 'square' | 'dot' | 'extra-rounded'
 
-// Underlying QR eyes are rendered in ink to keep them subtle.
-const CORNERS_SQUARE_OPTIONS = { type: 'extra-rounded' as const }
-const CORNERS_DOT_OPTIONS = { type: 'dot' as const }
+type CornerDotType = 'square' | 'dot'
+
+// Reliability-first defaults (clean, modern, scannable).
+const DEFAULT_DOT_TYPE: DotType = 'rounded'
+const DEFAULT_CORNER_SQUARE_TYPE: CornerSquareType = 'extra-rounded'
+const DEFAULT_CORNER_DOT_TYPE: CornerDotType = 'dot'
 
 function pickEcLevel(hasLogo: boolean): ErrorCorrectionLevel {
+	// Use H when embedding a logo.
 	return hasLogo ? 'H' : 'M'
 }
 
@@ -56,35 +54,15 @@ function downloadBlob(blob: Blob, filename: string) {
 	URL.revokeObjectURL(url)
 }
 
-function clamp(n: number, min: number, max: number) {
-	return Math.max(min, Math.min(max, n))
-}
-
-function mixHex(a: string, b: string, t: number) {
-	const parse = (x: string) => {
-		const v = x.replace('#', '')
-		const n = parseInt(v.length === 3 ? v.split('').map((c) => c + c).join('') : v, 16)
-		return { r: (n >> 16) & 255, g: (n >> 8) & 255, bl: n & 255 }
-	}
-	const A = parse(a)
-	const B = parse(b)
-	const lerp = (x: number, y: number) => Math.round(x + (y - x) * t)
-	const r = lerp(A.r, B.r)
-	const g = lerp(A.g, B.g)
-	const bl = lerp(A.bl, B.bl)
-	return '#' + [r, g, bl].map((c) => c.toString(16).padStart(2, '0')).join('')
-}
-
 export const BrandedQrCode = forwardRef<BrandedQrCodeHandle, BrandedQrCodeProps>(function BrandedQrCode(
 	{
 		value,
 		size,
 		logoUrl,
-		watermarkUrl,
 		className,
 		backgroundColor = '#ffffff',
 		dotsColor = '#0b0f1a',
-		accentColor = '#D4AF37',
+		accentColor,
 	},
 	ref
 ) {
@@ -93,115 +71,16 @@ export const BrandedQrCode = forwardRef<BrandedQrCodeHandle, BrandedQrCodeProps>
 	const [isReady, setIsReady] = useState(false)
 
 	const safeLogo = safeUrl(logoUrl)
-	const safeWatermark = safeUrl(watermarkUrl)
 	const ecLevel = useMemo<ErrorCorrectionLevel>(() => pickEcLevel(Boolean(safeLogo)), [safeLogo])
 
+	// Keep this as a thin wrapper: one container for qr-code-styling to render into.
 	const containerStyle: CSSProperties = useMemo(
 		() => ({
-			position: 'relative',
 			width: size,
 			height: size,
-			backgroundColor,
-			overflow: 'hidden',
-			borderRadius: 18,
-		}),
-		[size, backgroundColor]
-	)
-
-	const watermarkStyle: CSSProperties = useMemo(
-		() => ({
-			position: 'absolute',
-			inset: -size * 0.12,
-			width: size * 1.24,
-			height: size * 1.24,
-			objectFit: 'contain',
-			opacity: 0.02,
-			filter: 'grayscale(100%)',
-			pointerEvents: 'none',
-			userSelect: 'none',
-			zIndex: 0,
 		}),
 		[size]
 	)
-
-	const qrContainerStyle: CSSProperties = useMemo(
-		() => ({
-			position: 'relative',
-			width: '100%',
-			height: '100%',
-			display: 'grid',
-			placeItems: 'center',
-			zIndex: 1,
-		}),
-		[]
-	)
-
-	const overlayLayerStyle: CSSProperties = useMemo(
-		() => ({
-			position: 'absolute',
-			inset: 0,
-			zIndex: 2,
-			pointerEvents: 'none',
-		}),
-		[]
-	)
-
-	const loadingOverlayStyle: CSSProperties = useMemo(
-		() => ({
-			position: 'absolute',
-			inset: 0,
-			backgroundColor: 'transparent',
-			zIndex: 3,
-		}),
-		[]
-	)
-
-	// Finder eye overlay — subtle ring identity like the reference.
-	const eyeSize = useMemo(() => clamp(Math.round(size * 0.18), 34, 56), [size])
-	const eyeRing = useMemo(() => Math.max(2, Math.round(eyeSize * 0.08)), [eyeSize])
-	const eyeInset = useMemo(() => QR_MARGIN + Math.round(size * 0.015), [size])
-
-	// Use site palette: gold mixed toward ink to keep it subtle.
-	const ringColor = useMemo(() => mixHex(accentColor, dotsColor, 0.55), [accentColor, dotsColor])
-	const ringStroke2 = useMemo(() => mixHex(ringColor, backgroundColor, 0.45), [ringColor, backgroundColor])
-
-	const eyeOuterStyleBase: CSSProperties = useMemo(
-		() => ({
-			position: 'absolute',
-			width: eyeSize,
-			height: eyeSize,
-			borderRadius: 999,
-			border: `${eyeRing}px solid ${ringColor}`,
-			backgroundColor,
-			boxShadow: `0 0 0 1px ${ringStroke2}`,
-		}),
-		[eyeSize, eyeRing, ringColor, ringStroke2, backgroundColor]
-	)
-
-	const eyeInnerStyle: CSSProperties = useMemo(
-		() => ({
-			position: 'absolute',
-			inset: Math.round(eyeSize * 0.28),
-			borderRadius: 999,
-			border: `${Math.max(2, Math.round(eyeRing * 0.9))}px solid ${mixHex(ringColor, dotsColor, 0.35)}`,
-			backgroundColor,
-		}),
-		[eyeSize, eyeRing, ringColor, dotsColor, backgroundColor]
-	)
-
-	const eyeCenterDotStyle: CSSProperties = useMemo(
-		() => ({
-			position: 'absolute',
-			inset: Math.round(eyeSize * 0.42),
-			borderRadius: 999,
-			backgroundColor: dotsColor,
-		}),
-		[eyeSize, dotsColor]
-	)
-
-	const eyeTL: CSSProperties = useMemo(() => ({ left: eyeInset, top: eyeInset }), [eyeInset])
-	const eyeTR: CSSProperties = useMemo(() => ({ right: eyeInset, top: eyeInset }), [eyeInset])
-	const eyeBL: CSSProperties = useMemo(() => ({ left: eyeInset, bottom: eyeInset }), [eyeInset])
 
 	useEffect(() => {
 		let cancelled = false
@@ -214,6 +93,9 @@ export const BrandedQrCode = forwardRef<BrandedQrCodeHandle, BrandedQrCodeProps>
 			const mod = await import('qr-code-styling')
 			const QRCodeStyling = (mod as any).default ?? (mod as any)
 
+			// Note: finder geometry is QR-spec-defined; we only style within library.
+			const eyeColor = accentColor ?? dotsColor
+
 			const qr = new QRCodeStyling({
 				width: size,
 				height: size,
@@ -221,17 +103,17 @@ export const BrandedQrCode = forwardRef<BrandedQrCodeHandle, BrandedQrCodeProps>
 				data: value,
 				qrOptions: {
 					errorCorrectionLevel: ecLevel,
-					margin: QR_MARGIN,
+					margin: 10,
 				},
 				backgroundOptions: { color: backgroundColor },
-				dotsOptions: { color: dotsColor, ...DOTS_OPTIONS },
-				cornersSquareOptions: { color: dotsColor, ...CORNERS_SQUARE_OPTIONS },
-				cornersDotOptions: { color: dotsColor, ...CORNERS_DOT_OPTIONS },
+				dotsOptions: { color: dotsColor, type: DEFAULT_DOT_TYPE },
+				cornersSquareOptions: { color: eyeColor, type: DEFAULT_CORNER_SQUARE_TYPE },
+				cornersDotOptions: { color: dotsColor, type: DEFAULT_CORNER_DOT_TYPE },
 				image: safeLogo ?? undefined,
 				imageOptions: {
 					crossOrigin: 'anonymous',
-					margin: IMAGE_MARGIN,
-					size: IMAGE_SIZE,
+					margin: 6,
+					size: 0.2,
 					hideBackgroundDots: true,
 				},
 			})
@@ -264,6 +146,8 @@ export const BrandedQrCode = forwardRef<BrandedQrCodeHandle, BrandedQrCodeProps>
 			const mod = await import('qr-code-styling')
 			const QRCodeStyling = (mod as any).default ?? (mod as any)
 
+			const eyeColor = accentColor ?? dotsColor
+
 			const tmp = new QRCodeStyling({
 				width: size * scale,
 				height: size * scale,
@@ -271,17 +155,17 @@ export const BrandedQrCode = forwardRef<BrandedQrCodeHandle, BrandedQrCodeProps>
 				data: value,
 				qrOptions: {
 					errorCorrectionLevel: ecLevel,
-					margin: QR_MARGIN * scale,
+					margin: 10 * scale,
 				},
 				backgroundOptions: { color: backgroundColor },
-				dotsOptions: { color: dotsColor, ...DOTS_OPTIONS },
-				cornersSquareOptions: { color: dotsColor, ...CORNERS_SQUARE_OPTIONS },
-				cornersDotOptions: { color: dotsColor, ...CORNERS_DOT_OPTIONS },
+				dotsOptions: { color: dotsColor, type: DEFAULT_DOT_TYPE },
+				cornersSquareOptions: { color: eyeColor, type: DEFAULT_CORNER_SQUARE_TYPE },
+				cornersDotOptions: { color: dotsColor, type: DEFAULT_CORNER_DOT_TYPE },
 				image: safeLogo ?? undefined,
 				imageOptions: {
 					crossOrigin: 'anonymous',
-					margin: IMAGE_MARGIN * scale,
-					size: IMAGE_SIZE,
+					margin: 6 * scale,
+					size: 0.2,
 					hideBackgroundDots: true,
 				},
 			})
@@ -291,60 +175,19 @@ export const BrandedQrCode = forwardRef<BrandedQrCodeHandle, BrandedQrCodeProps>
 		},
 	}))
 
-	const eyeTLStyle = useMemo(() => ({ ...eyeOuterStyleBase, ...eyeTL }), [eyeOuterStyleBase, eyeTL])
-	const eyeTRStyle = useMemo(() => ({ ...eyeOuterStyleBase, ...eyeTR }), [eyeOuterStyleBase, eyeTR])
-	const eyeBLStyle = useMemo(() => ({ ...eyeOuterStyleBase, ...eyeBL }), [eyeOuterStyleBase, eyeBL])
-
 	return (
 		<div className={className} style={containerStyle}>
-			{safeWatermark ? (
-				<img
-					src={safeWatermark}
-					alt=""
-					aria-hidden="true"
-					loading="lazy"
-					crossOrigin="anonymous"
-					style={watermarkStyle}
-				/>
-			) : null}
-
-			<div ref={containerRef} style={qrContainerStyle} />
-
-			{/* Premium ring eyes overlay */}
-			<div style={overlayLayerStyle} aria-hidden="true">
-				<div style={eyeTLStyle}>
-					<div style={eyeInnerStyle}>
-						<div style={eyeCenterDotStyle} />
-					</div>
-				</div>
-				<div style={eyeTRStyle}>
-					<div style={eyeInnerStyle}>
-						<div style={eyeCenterDotStyle} />
-					</div>
-				</div>
-				<div style={eyeBLStyle}>
-					<div style={eyeInnerStyle}>
-						<div style={eyeCenterDotStyle} />
-					</div>
-				</div>
-			</div>
-
-			{!isReady ? <div aria-hidden="true" style={loadingOverlayStyle} /> : null}
+			<div ref={containerRef} />
+			{!isReady ? <div aria-hidden="true" /> : null}
 		</div>
 	)
 })
 
 export const BRANDED_QR_STYLE = {
-	imageSize: IMAGE_SIZE,
-	imageMargin: IMAGE_MARGIN,
-	margin: QR_MARGIN,
-	dotsOptions: DOTS_OPTIONS,
-	cornersSquareOptions: CORNERS_SQUARE_OPTIONS,
-	cornersDotOptions: CORNERS_DOT_OPTIONS,
-	eyeOverlay: {
-		sizeRatio: 0.18,
-		ringRatio: 0.08,
-		ringMixT: 0.55,
-		stroke2MixT: 0.45,
-	},
+	dotType: DEFAULT_DOT_TYPE,
+	cornerSquareType: DEFAULT_CORNER_SQUARE_TYPE,
+	cornerDotType: DEFAULT_CORNER_DOT_TYPE,
+	imageSize: 0.2,
+	imageMargin: 6,
+	margin: 10,
 } as const

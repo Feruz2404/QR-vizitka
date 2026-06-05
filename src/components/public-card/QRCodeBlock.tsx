@@ -65,7 +65,6 @@ export function QRCodeBlock({
 							value={url}
 							size={188}
 							logoUrl={logo}
-							watermarkUrl={logo}
 							accentColor="#D4AF37"
 							dotsColor="#0b0f1a"
 						/>

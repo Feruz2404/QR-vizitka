@@ -337,4 +337,11 @@ export const BRANDED_QR_STYLE = {
 	dotsOptions: DOTS_OPTIONS,
 	cornersSquareOptions: CORNERS_SQUARE_OPTIONS,
 	cornersDotOptions: CORNERS_DOT_OPTIONS,
+	// overlay eyes
+	eyeOverlay: {
+		sizeRatio: 0.18,
+		ringRatio: 0.08,
+		ringMixT: 0.55,
+		stroke2MixT: 0.45,
+	},
 } as const

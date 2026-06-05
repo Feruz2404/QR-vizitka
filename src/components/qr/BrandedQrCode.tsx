@@ -150,8 +150,8 @@ export const BrandedQrCode = forwardRef<BrandedQrCodeHandle, BrandedQrCodeProps>
 				width: size,
 				height: size,
 				background: backgroundColor,
-				borderRadius: 20,
 				overflow: 'hidden',
+				borderRadius: 18,
 			
 		>
 			{safeWatermark ? (
@@ -163,11 +163,11 @@ export const BrandedQrCode = forwardRef<BrandedQrCodeHandle, BrandedQrCodeProps>
 					crossOrigin="anonymous"
 					style=
 						position: 'absolute',
-						inset: -Math.round(size * 0.18),
-						width: Math.round(size * 1.36),
-						height: Math.round(size * 1.36),
+						inset: '-12%',
+						width: '124%',
+						height: '124%',
 						objectFit: 'contain',
-						opacity: 0.08,
+						opacity: 0.07,
 						filter: 'grayscale(100%)',
 						pointerEvents: 'none',
 						userSelect: 'none',
@@ -179,7 +179,6 @@ export const BrandedQrCode = forwardRef<BrandedQrCodeHandle, BrandedQrCodeProps>
 				ref={containerRef}
 				style=
 					position: 'relative',
-					zIndex: 1,
 					width: '100%',
 					height: '100%',
 					display: 'grid',
@@ -187,11 +186,10 @@ export const BrandedQrCode = forwardRef<BrandedQrCodeHandle, BrandedQrCodeProps>
 				
 			/>
 
-			{/* Keep layout stable while the SVG is appended. */}
 			{!isReady ? (
 				<div
 					aria-hidden="true"
-					style= position: 'absolute', inset: 0, zIndex: 2 
+					style= position: 'absolute', inset: 0 
 				/>
 			) : null}
 		</div>

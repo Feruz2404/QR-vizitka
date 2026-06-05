@@ -156,7 +156,7 @@ export const BrandedQrCode = forwardRef<BrandedQrCodeHandle, BrandedQrCodeProps>
 		[]
 	)
 
-	// Finder eye overlay — subtle gold ring + dark center, like the reference.
+	// Finder eye overlay — subtle ring identity like the reference.
 	const eyeSize = useMemo(() => clamp(Math.round(size * 0.18), 34, 56), [size])
 	const eyeRing = useMemo(() => Math.max(2, Math.round(eyeSize * 0.08)), [eyeSize])
 	const eyeInset = useMemo(() => QR_MARGIN + Math.round(size * 0.015), [size])

@@ -21,6 +21,7 @@ export type BrandedQrCodeHandle = {
 }
 
 function pickEcLevel(hasLogo: boolean) {
+	// Force high reliability when logo is present.
 	return hasLogo ? 'H' : 'M'
 }
 
@@ -52,7 +53,6 @@ export const BrandedQrCode = forwardRef<BrandedQrCodeHandle, BrandedQrCodeProps>
 
 	const safeLogo = safeUrl(logoUrl)
 	const safeWatermark = safeUrl(watermarkUrl)
-
 	const ecLevel = useMemo(() => pickEcLevel(Boolean(safeLogo)), [safeLogo])
 
 	useEffect(() => {
@@ -74,21 +74,10 @@ export const BrandedQrCode = forwardRef<BrandedQrCodeHandle, BrandedQrCodeProps>
 				qrOptions: {
 					errorCorrectionLevel: ecLevel,
 				},
-				backgroundOptions: {
-					color: backgroundColor,
-				},
-				dotsOptions: {
-					color: dotsColor,
-					type: 'dots',
-				},
-				cornersSquareOptions: {
-					color: accentColor,
-					type: 'extra-rounded',
-				},
-				cornersDotOptions: {
-					color: accentColor,
-					type: 'dot',
-				},
+				backgroundOptions: { color: backgroundColor },
+				dotsOptions: { color: dotsColor, type: 'dots' },
+				cornersSquareOptions: { color: accentColor, type: 'extra-rounded' },
+				cornersDotOptions: { color: accentColor, type: 'dot' },
 				image: safeLogo ?? undefined,
 				imageOptions: {
 					crossOrigin: 'anonymous',
@@ -135,21 +124,10 @@ export const BrandedQrCode = forwardRef<BrandedQrCodeHandle, BrandedQrCodeProps>
 				qrOptions: {
 					errorCorrectionLevel: ecLevel,
 				},
-				backgroundOptions: {
-					color: backgroundColor,
-				},
-				dotsOptions: {
-					color: dotsColor,
-					type: 'dots',
-				},
-				cornersSquareOptions: {
-					color: accentColor,
-					type: 'extra-rounded',
-				},
-				cornersDotOptions: {
-					color: accentColor,
-					type: 'dot',
-				},
+				backgroundOptions: { color: backgroundColor },
+				dotsOptions: { color: dotsColor, type: 'dots' },
+				cornersSquareOptions: { color: accentColor, type: 'extra-rounded' },
+				cornersDotOptions: { color: accentColor, type: 'dot' },
 				image: safeLogo ?? undefined,
 				imageOptions: {
 					crossOrigin: 'anonymous',
@@ -181,6 +159,8 @@ export const BrandedQrCode = forwardRef<BrandedQrCodeHandle, BrandedQrCodeProps>
 					src={safeWatermark}
 					alt=""
 					aria-hidden="true"
+					loading="lazy"
+					crossOrigin="anonymous"
 					style=
 						position: 'absolute',
 						inset: -size * 0.15,
@@ -192,8 +172,6 @@ export const BrandedQrCode = forwardRef<BrandedQrCodeHandle, BrandedQrCodeProps>
 						pointerEvents: 'none',
 						userSelect: 'none',
 					
-					loading="lazy"
-					crossOrigin="anonymous"
 				/>
 			) : null}
 
@@ -208,7 +186,7 @@ export const BrandedQrCode = forwardRef<BrandedQrCodeHandle, BrandedQrCodeProps>
 				
 			/>
 
-			{/* Keep layout stable while loading. */}
+			{/* Keep layout stable while the SVG is appended. */}
 			{!isReady ? (
 				<div
 					aria-hidden="true"

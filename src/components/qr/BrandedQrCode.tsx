@@ -1,17 +1,16 @@
-import { forwardRef, useEffect, useImperativeHandle, useMemo, useRef, useState, type CSSProperties } from 'react'
+import { forwardRef, useEffect, useImperativeHandle, useMemo, useRef, type CSSProperties } from 'react'
 import { safeUrl } from '../../lib/utils'
 
 type BrandedQrCodeProps = {
 	value: string
 	size: number
 	logoUrl?: string | null
-	watermarkUrl?: string | null
 	className?: string
 	/** Background behind the QR modules (default white for scan reliability). */
 	backgroundColor?: string
 	/** Module color (default near-black for scan reliability). */
 	dotsColor?: string
-	/** Accent color (used for finder eyes). Should come from existing theme palette. */
+	/** Optional subtle accent for corner squares (defaults to dotsColor). */
 	accentColor?: string
 }
 
@@ -20,8 +19,26 @@ export type BrandedQrCodeHandle = {
 	downloadPng: (filename: string, opts?: { scale?: number }) => Promise<void>
 }
 
-function pickEcLevel(hasLogo: boolean) {
-	// Force high reliability when logo is present.
+type ErrorCorrectionLevel = 'L' | 'M' | 'Q' | 'H'
+
+type DotType = 'rounded' | 'classy-rounded' | 'dots' | 'square' | 'extra-rounded'
+
+type CornerSquareType = 'square' | 'dot' | 'extra-rounded'
+
+type CornerDotType = 'square' | 'dot'
+
+// Reliability-first defaults (clean, modern, scannable).
+const DEFAULT_DOT_TYPE: DotType = 'rounded'
+const DEFAULT_CORNER_SQUARE_TYPE: CornerSquareType = 'extra-rounded'
+const DEFAULT_CORNER_DOT_TYPE: CornerDotType = 'dot'
+
+// Keep these stable for scan reliability (logo integrated, not isolated).
+const DEFAULT_MARGIN = 10
+const DEFAULT_IMAGE_SIZE = 0.2
+const DEFAULT_IMAGE_MARGIN = 6
+
+function pickEcLevel(hasLogo: boolean): ErrorCorrectionLevel {
+	// Use H when embedding a logo.
 	return hasLogo ? 'H' : 'M'
 }
 
@@ -34,82 +51,35 @@ function downloadBlob(blob: Blob, filename: string) {
 	URL.revokeObjectURL(url)
 }
 
-type ErrorCorrectionLevel = 'L' | 'M' | 'Q' | 'H'
-
 export const BrandedQrCode = forwardRef<BrandedQrCodeHandle, BrandedQrCodeProps>(function BrandedQrCode(
 	{
 		value,
 		size,
 		logoUrl,
-		watermarkUrl,
 		className,
 		backgroundColor = '#ffffff',
 		dotsColor = '#0b0f1a',
-		accentColor = '#D4AF37',
+		accentColor,
 	},
 	ref
 ) {
 	const containerRef = useRef<HTMLDivElement | null>(null)
 	const qrRef = useRef<unknown>(null)
-	const [isReady, setIsReady] = useState(false)
 
 	const safeLogo = safeUrl(logoUrl)
-	const safeWatermark = safeUrl(watermarkUrl)
 	const ecLevel = useMemo<ErrorCorrectionLevel>(() => pickEcLevel(Boolean(safeLogo)), [safeLogo])
 
+	// Thin wrapper: a single container for qr-code-styling to render into.
 	const containerStyle: CSSProperties = useMemo(
 		() => ({
-			position: 'relative',
 			width: size,
 			height: size,
-			backgroundColor,
-			overflow: 'hidden',
-			borderRadius: 16,
-		}),
-		[size, backgroundColor]
-	)
-
-	const watermarkStyle: CSSProperties = useMemo(
-		() => ({
-			position: 'absolute',
-			inset: -size * 0.15,
-			width: size * 1.3,
-			height: size * 1.3,
-			objectFit: 'contain',
-			opacity: 0.08,
-			filter: 'grayscale(100%)',
-			pointerEvents: 'none',
-			userSelect: 'none',
-			zIndex: 0,
 		}),
 		[size]
 	)
 
-	const qrContainerStyle: CSSProperties = useMemo(
-		() => ({
-			position: 'relative',
-			width: '100%',
-			height: '100%',
-			display: 'grid',
-			placeItems: 'center',
-			zIndex: 1,
-		}),
-		[]
-	)
-
-	const loadingOverlayStyle: CSSProperties = useMemo(
-		() => ({
-			position: 'absolute',
-			inset: 0,
-			backgroundColor: 'transparent',
-			zIndex: 2,
-		}),
-		[]
-	)
-
 	useEffect(() => {
 		let cancelled = false
-		setIsReady(false)
 
 		async function init() {
 			if (!containerRef.current) return
@@ -118,6 +88,8 @@ export const BrandedQrCode = forwardRef<BrandedQrCodeHandle, BrandedQrCodeProps>
 			const mod = await import('qr-code-styling')
 			const QRCodeStyling = (mod as any).default ?? (mod as any)
 
+			const cornerSquareColor = accentColor ?? dotsColor
+
 			const qr = new QRCodeStyling({
 				width: size,
 				height: size,
@@ -125,16 +97,17 @@ export const BrandedQrCode = forwardRef<BrandedQrCodeHandle, BrandedQrCodeProps>
 				data: value,
 				qrOptions: {
 					errorCorrectionLevel: ecLevel,
+					margin: DEFAULT_MARGIN,
 				},
 				backgroundOptions: { color: backgroundColor },
-				dotsOptions: { color: dotsColor, type: 'dots' },
-				cornersSquareOptions: { color: accentColor, type: 'extra-rounded' },
-				cornersDotOptions: { color: accentColor, type: 'dot' },
+				dotsOptions: { color: dotsColor, type: DEFAULT_DOT_TYPE },
+				cornersSquareOptions: { color: cornerSquareColor, type: DEFAULT_CORNER_SQUARE_TYPE },
+				cornersDotOptions: { color: dotsColor, type: DEFAULT_CORNER_DOT_TYPE },
 				image: safeLogo ?? undefined,
 				imageOptions: {
 					crossOrigin: 'anonymous',
-					margin: 8,
-					size: 0.24,
+					margin: DEFAULT_IMAGE_MARGIN,
+					size: DEFAULT_IMAGE_SIZE,
 					hideBackgroundDots: true,
 				},
 			})
@@ -142,11 +115,10 @@ export const BrandedQrCode = forwardRef<BrandedQrCodeHandle, BrandedQrCodeProps>
 			if (cancelled) return
 			qrRef.current = qr as unknown
 			qr.append(containerRef.current)
-			if (!cancelled) setIsReady(true)
 		}
 
 		init().catch(() => {
-			if (!cancelled) setIsReady(false)
+			// If rendering fails, keep component mounted.
 		})
 
 		return () => {
@@ -164,10 +136,10 @@ export const BrandedQrCode = forwardRef<BrandedQrCodeHandle, BrandedQrCodeProps>
 		async downloadPng(filename: string, opts?: { scale?: number }) {
 			const scale = Math.max(1, Math.min(6, opts?.scale ?? 4))
 
-			// qr-code-styling renders PNG via canvas when type is 'canvas'.
-			// Create a temporary instance to avoid mutating the on-screen SVG.
 			const mod = await import('qr-code-styling')
 			const QRCodeStyling = (mod as any).default ?? (mod as any)
+
+			const cornerSquareColor = accentColor ?? dotsColor
 
 			const tmp = new QRCodeStyling({
 				width: size * scale,
@@ -176,16 +148,17 @@ export const BrandedQrCode = forwardRef<BrandedQrCodeHandle, BrandedQrCodeProps>
 				data: value,
 				qrOptions: {
 					errorCorrectionLevel: ecLevel,
+					margin: DEFAULT_MARGIN * scale,
 				},
 				backgroundOptions: { color: backgroundColor },
-				dotsOptions: { color: dotsColor, type: 'dots' },
-				cornersSquareOptions: { color: accentColor, type: 'extra-rounded' },
-				cornersDotOptions: { color: accentColor, type: 'dot' },
+				dotsOptions: { color: dotsColor, type: DEFAULT_DOT_TYPE },
+				cornersSquareOptions: { color: cornerSquareColor, type: DEFAULT_CORNER_SQUARE_TYPE },
+				cornersDotOptions: { color: dotsColor, type: DEFAULT_CORNER_DOT_TYPE },
 				image: safeLogo ?? undefined,
 				imageOptions: {
 					crossOrigin: 'anonymous',
-					margin: 8 * scale,
-					size: 0.24,
+					margin: DEFAULT_IMAGE_MARGIN * scale,
+					size: DEFAULT_IMAGE_SIZE,
 					hideBackgroundDots: true,
 				},
 			})
@@ -195,22 +168,14 @@ export const BrandedQrCode = forwardRef<BrandedQrCodeHandle, BrandedQrCodeProps>
 		},
 	}))
 
-	return (
-		<div className={className} style={containerStyle}>
-			{safeWatermark ? (
-				<img
-					src={safeWatermark}
-					alt=""
-					aria-hidden="true"
-					loading="lazy"
-					crossOrigin="anonymous"
-					style={watermarkStyle}
-				/>
-			) : null}
-
-			<div ref={containerRef} style={qrContainerStyle} />
-
-			{!isReady ? <div aria-hidden="true" style={loadingOverlayStyle} /> : null}
-		</div>
-	)
+	return <div ref={containerRef} className={className} style={containerStyle} />
 })
+
+export const BRANDED_QR_STYLE = {
+	dotType: DEFAULT_DOT_TYPE,
+	cornerSquareType: DEFAULT_CORNER_SQUARE_TYPE,
+	cornerDotType: DEFAULT_CORNER_DOT_TYPE,
+	imageSize: DEFAULT_IMAGE_SIZE,
+	imageMargin: DEFAULT_IMAGE_MARGIN,
+	margin: DEFAULT_MARGIN,
+} as const

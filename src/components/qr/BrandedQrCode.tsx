@@ -1,4 +1,4 @@
-import { forwardRef, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react'
+import { forwardRef, useEffect, useImperativeHandle, useMemo, useRef, useState, type CSSProperties } from 'react'
 import { safeUrl } from '../../lib/utils'
 
 type BrandedQrCodeProps = {
@@ -34,6 +34,8 @@ function downloadBlob(blob: Blob, filename: string) {
 	URL.revokeObjectURL(url)
 }
 
+type ErrorCorrectionLevel = 'L' | 'M' | 'Q' | 'H'
+
 export const BrandedQrCode = forwardRef<BrandedQrCodeHandle, BrandedQrCodeProps>(function BrandedQrCode(
 	{
 		value,
@@ -48,12 +50,62 @@ export const BrandedQrCode = forwardRef<BrandedQrCodeHandle, BrandedQrCodeProps>
 	ref
 ) {
 	const containerRef = useRef<HTMLDivElement | null>(null)
-	const qrRef = useRef<any>(null)
+	const qrRef = useRef<unknown>(null)
 	const [isReady, setIsReady] = useState(false)
 
 	const safeLogo = safeUrl(logoUrl)
 	const safeWatermark = safeUrl(watermarkUrl)
-	const ecLevel = useMemo(() => pickEcLevel(Boolean(safeLogo)), [safeLogo])
+	const ecLevel = useMemo<ErrorCorrectionLevel>(() => pickEcLevel(Boolean(safeLogo)), [safeLogo])
+
+	const containerStyle: CSSProperties = useMemo(
+		() => ({
+			position: 'relative',
+			width: size,
+			height: size,
+			backgroundColor,
+			overflow: 'hidden',
+			borderRadius: 16,
+		}),
+		[size, backgroundColor]
+	)
+
+	const watermarkStyle: CSSProperties = useMemo(
+		() => ({
+			position: 'absolute',
+			inset: -size * 0.15,
+			width: size * 1.3,
+			height: size * 1.3,
+			objectFit: 'contain',
+			opacity: 0.08,
+			filter: 'grayscale(100%)',
+			pointerEvents: 'none',
+			userSelect: 'none',
+			zIndex: 0,
+		}),
+		[size]
+	)
+
+	const qrContainerStyle: CSSProperties = useMemo(
+		() => ({
+			position: 'relative',
+			width: '100%',
+			height: '100%',
+			display: 'grid',
+			placeItems: 'center',
+			zIndex: 1,
+		}),
+		[]
+	)
+
+	const loadingOverlayStyle: CSSProperties = useMemo(
+		() => ({
+			position: 'absolute',
+			inset: 0,
+			backgroundColor: 'transparent',
+			zIndex: 2,
+		}),
+		[]
+	)
 
 	useEffect(() => {
 		let cancelled = false
@@ -88,7 +140,7 @@ export const BrandedQrCode = forwardRef<BrandedQrCodeHandle, BrandedQrCodeProps>
 			})
 
 			if (cancelled) return
-			qrRef.current = qr
+			qrRef.current = qr as unknown
 			qr.append(containerRef.current)
 			if (!cancelled) setIsReady(true)
 		}
@@ -104,8 +156,9 @@ export const BrandedQrCode = forwardRef<BrandedQrCodeHandle, BrandedQrCodeProps>
 
 	useImperativeHandle(ref, () => ({
 		async downloadSvg(filename: string) {
-			if (!qrRef.current) return
-			const blob: Blob = await qrRef.current.getRawData('svg')
+			const current = qrRef.current as any
+			if (!current) return
+			const blob: Blob = await current.getRawData('svg')
 			downloadBlob(blob, filename)
 		},
 		async downloadPng(filename: string, opts?: { scale?: number }) {
@@ -143,16 +196,7 @@ export const BrandedQrCode = forwardRef<BrandedQrCodeHandle, BrandedQrCodeProps>
 	}))
 
 	return (
-		<div
-			className={className}
-			style=
-				position: 'relative',
-				width: size,
-				height: size,
-				background: backgroundColor,
-				overflow: 'hidden',
-			
-		>
+		<div className={className} style={containerStyle}>
 			{safeWatermark ? (
 				<img
 					src={safeWatermark}
@@ -160,37 +204,13 @@ export const BrandedQrCode = forwardRef<BrandedQrCodeHandle, BrandedQrCodeProps>
 					aria-hidden="true"
 					loading="lazy"
 					crossOrigin="anonymous"
-					style=
-						position: 'absolute',
-						inset: -size * 0.15,
-						width: size * 1.3,
-						height: size * 1.3,
-						objectFit: 'contain',
-						opacity: 0.08,
-						filter: 'grayscale(100%)',
-						pointerEvents: 'none',
-						userSelect: 'none',
-					
+					style={watermarkStyle}
 				/>
 			) : null}
 
-			<div
-				ref={containerRef}
-				style=
-					position: 'relative',
-					width: '100%',
-					height: '100%',
-					display: 'grid',
-					placeItems: 'center',
-				
-			/>
+			<div ref={containerRef} style={qrContainerStyle} />
 
-			{!isReady ? (
-				<div
-					aria-hidden="true"
-					style= position: 'absolute', inset: 0, background: 'transparent' 
-				/>
-			) : null}
+			{!isReady ? <div aria-hidden="true" style={loadingOverlayStyle} /> : null}
 		</div>
 	)
 })

@@ -36,19 +36,15 @@ const IMAGE_SIZE = 0.2
 const IMAGE_MARGIN = 6
 const QR_MARGIN = 10
 
-// Engineered module look (avoid default). Keep spacing visually tight via QR_MARGIN and dot type.
-const DOTS_OPTIONS = { type: 'classy-rounded' as const }
+// Keep modules engineered (avoid default) but still circular.
+const DOTS_OPTIONS = { type: 'rounded' as const }
 
-// Finder patterns: keep geometry QR-compliant, but restore subtle visual identity.
-// Strategy:
-// - Outer ring (cornersSquare) uses subtle gold accent.
-// - Inner dot (cornersDot) uses the same ink as modules.
-// This keeps eyes visible but secondary.
+// We draw the premium ring eyes as an overlay to better match the reference.
+// Underlying QR eyes are rendered in ink (not gold) to avoid dominance.
 const CORNERS_SQUARE_OPTIONS = { type: 'extra-rounded' as const }
 const CORNERS_DOT_OPTIONS = { type: 'dot' as const }
 
 function pickEcLevel(hasLogo: boolean): ErrorCorrectionLevel {
-	// Must be H when logo exists.
 	return hasLogo ? 'H' : 'M'
 }
 
@@ -59,6 +55,25 @@ function downloadBlob(blob: Blob, filename: string) {
 	a.download = filename
 	a.click()
 	URL.revokeObjectURL(url)
+}
+
+function clamp(n: number, min: number, max: number) {
+	return Math.max(min, Math.min(max, n))
+}
+
+function mixHex(a: string, b: string, t: number) {
+	const parse = (x: string) => {
+		const v = x.replace('#', '')
+		const n = parseInt(v.length === 3 ? v.split('').map((c) => c + c).join('') : v, 16)
+		return { r: (n >> 16) & 255, g: (n >> 8) & 255, bl: n & 255 }
+	}
+	const A = parse(a)
+	const B = parse(b)
+	const lerp = (x: number, y: number) => Math.round(x + (y - x) * t)
+	const r = lerp(A.r, B.r)
+	const g = lerp(A.g, B.g)
+	const bl = lerp(A.bl, B.bl)
+	return '#' + [r, g, bl].map((c) => c.toString(16).padStart(2, '0')).join('')
 }
 
 export const BrandedQrCode = forwardRef<BrandedQrCodeHandle, BrandedQrCodeProps>(function BrandedQrCode(
@@ -97,9 +112,9 @@ export const BrandedQrCode = forwardRef<BrandedQrCodeHandle, BrandedQrCodeProps>
 	const watermarkStyle: CSSProperties = useMemo(
 		() => ({
 			position: 'absolute',
-			inset: -size * 0.15,
-			width: size * 1.3,
-			height: size * 1.3,
+			inset: -size * 0.12,
+			width: size * 1.24,
+			height: size * 1.24,
 			objectFit: 'contain',
 			opacity: 0.02,
 			filter: 'grayscale(100%)',
@@ -127,9 +142,65 @@ export const BrandedQrCode = forwardRef<BrandedQrCodeHandle, BrandedQrCodeProps>
 			position: 'absolute',
 			inset: 0,
 			backgroundColor: 'transparent',
-			zIndex: 2,
+			zIndex: 3,
 		}),
 		[]
+	)
+
+	// Finder eye overlay — matches reference ring look.
+	const eyeSize = useMemo(() => {
+		// Keep eyes visually smaller and lighter than typical.
+		return clamp(Math.round(size * 0.18), 34, 56)
+	}, [size])
+	const eyeRing = useMemo(() => Math.max(2, Math.round(eyeSize * 0.08)), [eyeSize])
+	const eyeInset = useMemo(() => QR_MARGIN + Math.round(size * 0.015), [size])
+	const eyeAccent = useMemo(() => mixHex(accentColor, dotsColor, 0.45), [accentColor, dotsColor])
+
+	const eyeOuterStyle: CSSProperties = useMemo(
+		() => ({
+			position: 'absolute',
+			width: eyeSize,
+			height: eyeSize,
+			borderRadius: 999,
+			border: eyeRing + 'px solid ' + eyeAccent,
+			background: backgroundColor,
+			boxShadow: '0 0 0 1px ' + mixHex(eyeAccent, backgroundColor, 0.55),
+			zIndex: 2,
+			pointerEvents: 'none',
+		}),
+		[eyeSize, eyeRing, eyeAccent, backgroundColor]
+	)
+
+	const eyeInnerStyle: CSSProperties = useMemo(
+		() => ({
+			position: 'absolute',
+			inset: Math.round(eyeSize * 0.28),
+			borderRadius: 999,
+			border: Math.max(2, Math.round(eyeRing * 0.9)) + 'px solid ' + mixHex(eyeAccent, dotsColor, 0.35),
+			background: backgroundColor,
+			pointerEvents: 'none',
+		}),
+		[eyeSize, eyeRing, eyeAccent, dotsColor, backgroundColor]
+	)
+
+	const eyeCenterDotStyle: CSSProperties = useMemo(
+		() => ({
+			position: 'absolute',
+			inset: Math.round(eyeSize * 0.42),
+			borderRadius: 999,
+			background: dotsColor,
+			pointerEvents: 'none',
+		}),
+		[eyeSize, dotsColor]
+	)
+
+	const eyePos = useMemo(
+		() => ({
+			tl: { left: eyeInset, top: eyeInset },
+			tr: { right: eyeInset, top: eyeInset },
+			bl: { left: eyeInset, bottom: eyeInset },
+		}),
+		[eyeInset]
 	)
 
 	useEffect(() => {
@@ -154,7 +225,7 @@ export const BrandedQrCode = forwardRef<BrandedQrCodeHandle, BrandedQrCodeProps>
 				},
 				backgroundOptions: { color: backgroundColor },
 				dotsOptions: { color: dotsColor, ...DOTS_OPTIONS },
-				cornersSquareOptions: { color: accentColor, ...CORNERS_SQUARE_OPTIONS },
+				cornersSquareOptions: { color: dotsColor, ...CORNERS_SQUARE_OPTIONS },
 				cornersDotOptions: { color: dotsColor, ...CORNERS_DOT_OPTIONS },
 				image: safeLogo ?? undefined,
 				imageOptions: {
@@ -204,7 +275,7 @@ export const BrandedQrCode = forwardRef<BrandedQrCodeHandle, BrandedQrCodeProps>
 				},
 				backgroundOptions: { color: backgroundColor },
 				dotsOptions: { color: dotsColor, ...DOTS_OPTIONS },
-				cornersSquareOptions: { color: accentColor, ...CORNERS_SQUARE_OPTIONS },
+				cornersSquareOptions: { color: dotsColor, ...CORNERS_SQUARE_OPTIONS },
 				cornersDotOptions: { color: dotsColor, ...CORNERS_DOT_OPTIONS },
 				image: safeLogo ?? undefined,
 				imageOptions: {
@@ -234,6 +305,25 @@ export const BrandedQrCode = forwardRef<BrandedQrCodeHandle, BrandedQrCodeProps>
 			) : null}
 
 			<div ref={containerRef} style={qrContainerStyle} />
+
+			{/* Premium finder eye overlay (subtle gold ring + dark center) */}
+			<div style= position: 'absolute', inset: 0, zIndex: 2, pointerEvents: 'none'  aria-hidden="true">
+				<div style= ...eyeOuterStyle, ...eyePos.tl >
+					<div style={eyeInnerStyle}>
+						<div style={eyeCenterDotStyle} />
+					</div>
+				</div>
+				<div style= ...eyeOuterStyle, ...eyePos.tr >
+					<div style={eyeInnerStyle}>
+						<div style={eyeCenterDotStyle} />
+					</div>
+				</div>
+				<div style= ...eyeOuterStyle, ...eyePos.bl >
+					<div style={eyeInnerStyle}>
+						<div style={eyeCenterDotStyle} />
+					</div>
+				</div>
+			</div>
 
 			{!isReady ? <div aria-hidden="true" style={loadingOverlayStyle} /> : null}
 		</div>

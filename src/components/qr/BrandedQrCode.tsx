@@ -150,7 +150,6 @@ export const BrandedQrCode = forwardRef<BrandedQrCodeHandle, BrandedQrCodeProps>
 				width: size,
 				height: size,
 				background: backgroundColor,
-				borderRadius: 20,
 				overflow: 'hidden',
 			
 		>
@@ -163,9 +162,9 @@ export const BrandedQrCode = forwardRef<BrandedQrCodeHandle, BrandedQrCodeProps>
 					crossOrigin="anonymous"
 					style=
 						position: 'absolute',
-						inset: -size * 0.15,
-						width: size * 1.3,
-						height: size * 1.3,
+						inset: -Math.round(size * 0.15),
+						width: Math.round(size * 1.3),
+						height: Math.round(size * 1.3),
 						objectFit: 'contain',
 						opacity: 0.08,
 						filter: 'grayscale(100%)',
@@ -190,11 +189,7 @@ export const BrandedQrCode = forwardRef<BrandedQrCodeHandle, BrandedQrCodeProps>
 			{!isReady ? (
 				<div
 					aria-hidden="true"
-					style=
-						position: 'absolute',
-						inset: 0,
-						background: 'transparent',
-					
+					style= position: 'absolute', inset: 0, background: 'transparent' 
 				/>
 			) : null}
 		</div>

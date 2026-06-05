@@ -31,14 +31,16 @@ export type BrandedQrCodeHandle = {
 type ErrorCorrectionLevel = 'L' | 'M' | 'Q' | 'H'
 
 // ---- Premium styling tuning (single source of truth) ----
-// Target logo: ~18–22% of QR width.
+// Keep logo size stable (do NOT increase further). The focus is composition.
 const IMAGE_SIZE = 0.2
-// Padding around the logo (in QR pixels). Must be large enough for scan reliability.
-const IMAGE_MARGIN = 10
-// Quiet zone / margin around QR modules.
-const QR_MARGIN = 14
+// Reduce the center cutout / exclusion area so the logo integrates into the pattern.
+const IMAGE_MARGIN = 6
+// Reduce quiet zone slightly to visually densify without risking scanability.
+const QR_MARGIN = 10
 
-const DOTS_OPTIONS = { type: 'classy-rounded' as const }
+// Use a tighter, less "demo" look.
+const DOTS_OPTIONS = { type: 'dots' as const }
+// Finder patterns must keep geometry; reduce visual weight by avoiding strong accent fill.
 const CORNERS_SQUARE_OPTIONS = { type: 'extra-rounded' as const }
 const CORNERS_DOT_OPTIONS = { type: 'dot' as const }
 
@@ -77,7 +79,6 @@ export const BrandedQrCode = forwardRef<BrandedQrCodeHandle, BrandedQrCodeProps>
 	const safeWatermark = safeUrl(watermarkUrl)
 	const ecLevel = useMemo<ErrorCorrectionLevel>(() => pickEcLevel(Boolean(safeLogo)), [safeLogo])
 
-	// Slightly more premium: a subtle rounded container, but keep background pure white.
 	const containerStyle: CSSProperties = useMemo(
 		() => ({
 			position: 'relative',
@@ -97,7 +98,7 @@ export const BrandedQrCode = forwardRef<BrandedQrCodeHandle, BrandedQrCodeProps>
 			width: size * 1.3,
 			height: size * 1.3,
 			objectFit: 'contain',
-			opacity: 0.07,
+			opacity: 0.02,
 			filter: 'grayscale(100%)',
 			pointerEvents: 'none',
 			userSelect: 'none',
@@ -139,8 +140,7 @@ export const BrandedQrCode = forwardRef<BrandedQrCodeHandle, BrandedQrCodeProps>
 			const mod = await import('qr-code-styling')
 			const QRCodeStyling = (mod as any).default ?? (mod as any)
 
-			// Note: finder-pattern geometry is fixed by QR spec; we reduce visual weight
-			// by using an elegant rounded style + keeping the accent color lighter.
+			const eyeColor = dotsColor
 			const qr = new QRCodeStyling({
 				width: size,
 				height: size,
@@ -152,8 +152,8 @@ export const BrandedQrCode = forwardRef<BrandedQrCodeHandle, BrandedQrCodeProps>
 				},
 				backgroundOptions: { color: backgroundColor },
 				dotsOptions: { color: dotsColor, ...DOTS_OPTIONS },
-				cornersSquareOptions: { color: accentColor, ...CORNERS_SQUARE_OPTIONS },
-				cornersDotOptions: { color: accentColor, ...CORNERS_DOT_OPTIONS },
+				cornersSquareOptions: { color: eyeColor, ...CORNERS_SQUARE_OPTIONS },
+				cornersDotOptions: { color: eyeColor, ...CORNERS_DOT_OPTIONS },
 				image: safeLogo ?? undefined,
 				imageOptions: {
 					crossOrigin: 'anonymous',
@@ -191,6 +191,7 @@ export const BrandedQrCode = forwardRef<BrandedQrCodeHandle, BrandedQrCodeProps>
 			const mod = await import('qr-code-styling')
 			const QRCodeStyling = (mod as any).default ?? (mod as any)
 
+			const eyeColor = dotsColor
 			const tmp = new QRCodeStyling({
 				width: size * scale,
 				height: size * scale,
@@ -202,8 +203,8 @@ export const BrandedQrCode = forwardRef<BrandedQrCodeHandle, BrandedQrCodeProps>
 				},
 				backgroundOptions: { color: backgroundColor },
 				dotsOptions: { color: dotsColor, ...DOTS_OPTIONS },
-				cornersSquareOptions: { color: accentColor, ...CORNERS_SQUARE_OPTIONS },
-				cornersDotOptions: { color: accentColor, ...CORNERS_DOT_OPTIONS },
+				cornersSquareOptions: { color: eyeColor, ...CORNERS_SQUARE_OPTIONS },
+				cornersDotOptions: { color: eyeColor, ...CORNERS_DOT_OPTIONS },
 				image: safeLogo ?? undefined,
 				imageOptions: {
 					crossOrigin: 'anonymous',
@@ -238,7 +239,6 @@ export const BrandedQrCode = forwardRef<BrandedQrCodeHandle, BrandedQrCodeProps>
 	)
 })
 
-// Export the exact values for easy verification/reporting.
 export const BRANDED_QR_STYLE = {
 	imageSize: IMAGE_SIZE,
 	imageMargin: IMAGE_MARGIN,
@@ -246,4 +246,6 @@ export const BRANDED_QR_STYLE = {
 	dotsOptions: DOTS_OPTIONS,
 	cornersSquareOptions: CORNERS_SQUARE_OPTIONS,
 	cornersDotOptions: CORNERS_DOT_OPTIONS,
+	// Keep accentColor parameter for future refinement while staying in palette.
+	accentColor: 'brand-gold',
 } as const

@@ -151,7 +151,6 @@ export const BrandedQrCode = forwardRef<BrandedQrCodeHandle, BrandedQrCodeProps>
 				height: size,
 				background: backgroundColor,
 				overflow: 'hidden',
-				borderRadius: 20,
 			
 		>
 			{safeWatermark ? (

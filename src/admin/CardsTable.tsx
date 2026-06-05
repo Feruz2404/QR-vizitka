@@ -227,7 +227,6 @@ export function CardsTable() {
 									value={qrUrl}
 									size={200}
 									logoUrl={orgLogoUrl}
-									watermarkUrl={orgLogoUrl}
 									accentColor="#D4AF37"
 									dotsColor="#0b0f1a"
 								/>

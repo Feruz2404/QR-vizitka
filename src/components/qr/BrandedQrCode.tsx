@@ -1,4 +1,12 @@
-import { forwardRef, useEffect, useImperativeHandle, useMemo, useRef, useState, type CSSProperties } from 'react'
+import {
+	forwardRef,
+	useEffect,
+	useImperativeHandle,
+	useMemo,
+	useRef,
+	useState,
+	type CSSProperties,
+} from 'react'
 import { safeUrl } from '../../lib/utils'
 
 type BrandedQrCodeProps = {
@@ -20,8 +28,22 @@ export type BrandedQrCodeHandle = {
 	downloadPng: (filename: string, opts?: { scale?: number }) => Promise<void>
 }
 
-function pickEcLevel(hasLogo: boolean) {
-	// Force high reliability when logo is present.
+type ErrorCorrectionLevel = 'L' | 'M' | 'Q' | 'H'
+
+// ---- Premium styling tuning (single source of truth) ----
+// Target logo: ~18–22% of QR width.
+const IMAGE_SIZE = 0.2
+// Padding around the logo (in QR pixels). Must be large enough for scan reliability.
+const IMAGE_MARGIN = 10
+// Quiet zone / margin around QR modules.
+const QR_MARGIN = 14
+
+const DOTS_OPTIONS = { type: 'classy-rounded' as const }
+const CORNERS_SQUARE_OPTIONS = { type: 'extra-rounded' as const }
+const CORNERS_DOT_OPTIONS = { type: 'dot' as const }
+
+function pickEcLevel(hasLogo: boolean): ErrorCorrectionLevel {
+	// Must be H when logo exists.
 	return hasLogo ? 'H' : 'M'
 }
 
@@ -33,8 +55,6 @@ function downloadBlob(blob: Blob, filename: string) {
 	a.click()
 	URL.revokeObjectURL(url)
 }
-
-type ErrorCorrectionLevel = 'L' | 'M' | 'Q' | 'H'
 
 export const BrandedQrCode = forwardRef<BrandedQrCodeHandle, BrandedQrCodeProps>(function BrandedQrCode(
 	{
@@ -57,6 +77,7 @@ export const BrandedQrCode = forwardRef<BrandedQrCodeHandle, BrandedQrCodeProps>
 	const safeWatermark = safeUrl(watermarkUrl)
 	const ecLevel = useMemo<ErrorCorrectionLevel>(() => pickEcLevel(Boolean(safeLogo)), [safeLogo])
 
+	// Slightly more premium: a subtle rounded container, but keep background pure white.
 	const containerStyle: CSSProperties = useMemo(
 		() => ({
 			position: 'relative',
@@ -64,7 +85,7 @@ export const BrandedQrCode = forwardRef<BrandedQrCodeHandle, BrandedQrCodeProps>
 			height: size,
 			backgroundColor,
 			overflow: 'hidden',
-			borderRadius: 16,
+			borderRadius: 18,
 		}),
 		[size, backgroundColor]
 	)
@@ -76,7 +97,7 @@ export const BrandedQrCode = forwardRef<BrandedQrCodeHandle, BrandedQrCodeProps>
 			width: size * 1.3,
 			height: size * 1.3,
 			objectFit: 'contain',
-			opacity: 0.08,
+			opacity: 0.07,
 			filter: 'grayscale(100%)',
 			pointerEvents: 'none',
 			userSelect: 'none',
@@ -118,6 +139,8 @@ export const BrandedQrCode = forwardRef<BrandedQrCodeHandle, BrandedQrCodeProps>
 			const mod = await import('qr-code-styling')
 			const QRCodeStyling = (mod as any).default ?? (mod as any)
 
+			// Note: finder-pattern geometry is fixed by QR spec; we reduce visual weight
+			// by using an elegant rounded style + keeping the accent color lighter.
 			const qr = new QRCodeStyling({
 				width: size,
 				height: size,
@@ -125,16 +148,17 @@ export const BrandedQrCode = forwardRef<BrandedQrCodeHandle, BrandedQrCodeProps>
 				data: value,
 				qrOptions: {
 					errorCorrectionLevel: ecLevel,
+					margin: QR_MARGIN,
 				},
 				backgroundOptions: { color: backgroundColor },
-				dotsOptions: { color: dotsColor, type: 'dots' },
-				cornersSquareOptions: { color: accentColor, type: 'extra-rounded' },
-				cornersDotOptions: { color: accentColor, type: 'dot' },
+				dotsOptions: { color: dotsColor, ...DOTS_OPTIONS },
+				cornersSquareOptions: { color: accentColor, ...CORNERS_SQUARE_OPTIONS },
+				cornersDotOptions: { color: accentColor, ...CORNERS_DOT_OPTIONS },
 				image: safeLogo ?? undefined,
 				imageOptions: {
 					crossOrigin: 'anonymous',
-					margin: 8,
-					size: 0.24,
+					margin: IMAGE_MARGIN,
+					size: IMAGE_SIZE,
 					hideBackgroundDots: true,
 				},
 			})
@@ -164,8 +188,6 @@ export const BrandedQrCode = forwardRef<BrandedQrCodeHandle, BrandedQrCodeProps>
 		async downloadPng(filename: string, opts?: { scale?: number }) {
 			const scale = Math.max(1, Math.min(6, opts?.scale ?? 4))
 
-			// qr-code-styling renders PNG via canvas when type is 'canvas'.
-			// Create a temporary instance to avoid mutating the on-screen SVG.
 			const mod = await import('qr-code-styling')
 			const QRCodeStyling = (mod as any).default ?? (mod as any)
 
@@ -176,16 +198,17 @@ export const BrandedQrCode = forwardRef<BrandedQrCodeHandle, BrandedQrCodeProps>
 				data: value,
 				qrOptions: {
 					errorCorrectionLevel: ecLevel,
+					margin: QR_MARGIN * scale,
 				},
 				backgroundOptions: { color: backgroundColor },
-				dotsOptions: { color: dotsColor, type: 'dots' },
-				cornersSquareOptions: { color: accentColor, type: 'extra-rounded' },
-				cornersDotOptions: { color: accentColor, type: 'dot' },
+				dotsOptions: { color: dotsColor, ...DOTS_OPTIONS },
+				cornersSquareOptions: { color: accentColor, ...CORNERS_SQUARE_OPTIONS },
+				cornersDotOptions: { color: accentColor, ...CORNERS_DOT_OPTIONS },
 				image: safeLogo ?? undefined,
 				imageOptions: {
 					crossOrigin: 'anonymous',
-					margin: 8 * scale,
-					size: 0.24,
+					margin: IMAGE_MARGIN * scale,
+					size: IMAGE_SIZE,
 					hideBackgroundDots: true,
 				},
 			})
@@ -214,3 +237,13 @@ export const BrandedQrCode = forwardRef<BrandedQrCodeHandle, BrandedQrCodeProps>
 		</div>
 	)
 })
+
+// Export the exact values for easy verification/reporting.
+export const BRANDED_QR_STYLE = {
+	imageSize: IMAGE_SIZE,
+	imageMargin: IMAGE_MARGIN,
+	margin: QR_MARGIN,
+	dotsOptions: DOTS_OPTIONS,
+	cornersSquareOptions: CORNERS_SQUARE_OPTIONS,
+	cornersDotOptions: CORNERS_DOT_OPTIONS,
+} as const

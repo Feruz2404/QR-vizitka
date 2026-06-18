@@ -290,6 +290,20 @@ function WeChatIcon({ className = '' }: { className?: string }) {
 	)
 }
 
+function WhatsAppIcon({ className = '' }: { className?: string }) {
+	return (
+		<svg
+			viewBox="0 0 24 24"
+			className={className}
+			fill="currentColor"
+			aria-hidden="true"
+			focusable="false"
+		>
+			<path d="M19.05 4.91A9.82 9.82 0 0 0 12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2 22l5.25-1.38a9.9 9.9 0 0 0 4.79 1.22h.01c5.46 0 9.9-4.45 9.9-9.91 0-2.65-1.03-5.14-2.9-7.02Zm-7.01 15.24h-.01a8.2 8.2 0 0 1-4.18-1.15l-.3-.18-3.12.82.83-3.04-.2-.31a8.2 8.2 0 0 1-1.26-4.38c0-4.54 3.7-8.23 8.24-8.23a8.2 8.2 0 0 1 8.23 8.24c0 4.54-3.7 8.23-8.23 8.23Zm4.52-6.16c-.25-.12-1.47-.72-1.69-.81-.23-.08-.39-.12-.56.13-.16.25-.64.8-.79.97-.14.17-.29.19-.54.06-.25-.12-1.05-.39-1.99-1.23-.74-.66-1.23-1.47-1.38-1.72-.14-.25-.01-.39.11-.51.11-.11.25-.29.37-.43.13-.14.17-.25.25-.41.08-.17.04-.31-.02-.43-.06-.12-.56-1.34-.76-1.84-.2-.48-.4-.42-.56-.43h-.48c-.17 0-.43.06-.66.31-.22.25-.86.85-.86 2.07 0 1.22.89 2.4 1.01 2.56.12.17 1.75 2.67 4.23 3.74.59.26 1.05.41 1.41.52.59.19 1.13.16 1.56.1.48-.07 1.47-.6 1.68-1.18.21-.58.21-1.07.14-1.18-.06-.1-.22-.16-.47-.28Z" />
+		</svg>
+	)
+}
+
 function fullUrl(publicBaseUrl: string, slug: string) {
 	return publicBaseUrl.replace(/\/$/, '') + '/v/' + slug
 }
@@ -563,8 +577,17 @@ export function PublicCardPage() {
 		const val = data.wechat_url.trim()
 		if (!val) return null
 		if (isHttpUrl(val) || val.startsWith('weixin:')) return val
-		// Treat as a WeChat ID — build a deep link that opens the app (like Telegram)
-		return 'weixin://dl/chat?' + val.replace(/^@/, '')
+		// Username — prepend the WeChat base URL so the button opens in the browser
+		return 'https://u.wechat.com/' + val.replace(/^@/, '')
+	}, [data])
+	const whatsappHref = useMemo(() => {
+		if (!data?.whatsapp_url) return null
+		const val = data.whatsapp_url.trim()
+		if (!val) return null
+		if (isHttpUrl(val)) return val
+		// A phone number — build a wa.me link (digits only, country code included)
+		const digits = val.replace(/\D/g, '')
+		return digits ? 'https://wa.me/' + digits : null
 	}, [data])
 
 	const globalBg = isHttpUrl(settings?.background_image_url) ? settings!.background_image_url : null
@@ -684,7 +707,7 @@ export function PublicCardPage() {
 	const hasSpecialties = localized.specialties.length > 0
 	const facebookHref = isHttpUrl(data.facebook_url) ? data.facebook_url : null
 	const websiteHref = isHttpUrl(data.website_url) ? data.website_url : null
-	const hasSocialLinks = Boolean(tgHref || facebookHref || wechatHref)
+	const hasSocialLinks = Boolean(tgHref || whatsappHref || facebookHref || wechatHref)
 	const addressValue = (localized.address || data.address || '').trim()
 	const mapsHref = addressValue ? MAPS_BASE + encodeURIComponent(addressValue) : null
 
@@ -804,6 +827,18 @@ export function PublicCardPage() {
 														>
 															<Send className={SOCIAL_BTN_ICON} aria-hidden="true" />
 															<span className={SOCIAL_BTN_LABEL} style={TEXT_SHADOW_STYLE}>{labels.telegram}</span>
+														</a>
+													) : null}
+													{whatsappHref ? (
+														<a
+															href={whatsappHref}
+															target="_blank"
+															rel="noopener noreferrer"
+															className={SOCIAL_BTN}
+															title="WhatsApp"
+														>
+															<WhatsAppIcon className={SOCIAL_BTN_ICON} />
+															<span className={SOCIAL_BTN_LABEL} style={TEXT_SHADOW_STYLE}>WhatsApp</span>
 														</a>
 													) : null}
 													{facebookHref ? (

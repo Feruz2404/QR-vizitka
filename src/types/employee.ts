@@ -32,6 +32,7 @@ export type EmployeeCard = {
 	telegram_url: string | null
 	facebook_url: string | null
 	wechat_url: string | null
+	whatsapp_url: string | null
 	website_url: string | null
 	address: string | null
 	bio: string | null

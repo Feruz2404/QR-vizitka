@@ -303,6 +303,14 @@ export function CardForm({
 						/>
 					</div>
 					<div>
+						<div className="text-xs text-brand-muted">WhatsApp number / URL</div>
+						<Input
+							value={values.whatsapp_url ?? ''}
+							onChange={(e) => setValues((p) => ({ ...p, whatsapp_url: e.target.value || null }))}
+							placeholder="+998901234567 or https://wa.me/..."
+						/>
+					</div>
+					<div>
 						<div className="text-xs text-brand-muted">Website URL</div>
 						<Input
 							value={values.website_url ?? ''}

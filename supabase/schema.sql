@@ -102,3 +102,6 @@ create policy "Authenticated admins can manage app settings"
 	on public.app_settings for all
 	to authenticated
 	using (true) with check (true);
+
+-- Reload PostgREST schema cache so newly added columns are immediately writable.
+notify pgrst, 'reload schema';

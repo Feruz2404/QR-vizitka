@@ -28,7 +28,6 @@ import { useGetAppSettingsQuery } from '../services/appSettingsApi'
 import { useGetCardBySlugQuery } from '../services/employeeCardsApi'
 import type { EmployeeCard, EmployeeCardTranslation } from '../types/employee'
 import { Card } from '../ui/Card'
-import { useToast } from '../ui/Toast'
 
 type PublicLang = 'uz' | 'ru' | 'en'
 
@@ -42,7 +41,6 @@ type Translations = ContactLabels & {
 	socialTitle: string
 	officialProfileTitle: string
 	digitalCardLabel: string
-	wechatCopied: string
 	copiedLabel: string
 	loadingSubtitle: string
 	call: string
@@ -65,7 +63,6 @@ const T: Record<PublicLang, Translations> = {
 		socialTitle: 'Ijtimoiy tarmoqlar',
 		officialProfileTitle: 'Rasmiy raqamli profil',
 		digitalCardLabel: 'Raqamli vizitka',
-		wechatCopied: 'WeChat foydalanuvchi nomi nusxalandi',
 		copiedLabel: 'Nusxalandi',
 		loadingSubtitle: 'Raqamli vizitka yuklanmoqda',
 		contactsTitle: 'Aloqa ma’lumotlari',
@@ -101,7 +98,6 @@ const T: Record<PublicLang, Translations> = {
 		socialTitle: 'Социальные сети',
 		officialProfileTitle: 'Официальный цифровой профиль',
 		digitalCardLabel: 'Цифровая визитка',
-		wechatCopied: 'Имя пользователя WeChat скопировано',
 		copiedLabel: 'Скопировано',
 		loadingSubtitle: 'Цифровая визитка загружается',
 		contactsTitle: 'Контакты',
@@ -137,7 +133,6 @@ const T: Record<PublicLang, Translations> = {
 		socialTitle: 'Social media',
 		officialProfileTitle: 'Official digital profile',
 		digitalCardLabel: 'Digital business card',
-		wechatCopied: 'WeChat username copied',
 		copiedLabel: 'Copied',
 		loadingSubtitle: 'Loading digital business card',
 		contactsTitle: 'Contact information',
@@ -500,7 +495,6 @@ function PublicCardLoader({
 export function PublicCardPage() {
 	const params = useParams()
 	const location = useLocation()
-	const toast = useToast()
 
 	const resolvedSlug = (() => {
 		const fromParams = params.slug
@@ -568,9 +562,9 @@ export function PublicCardPage() {
 		if (!data?.wechat_url) return null
 		const val = data.wechat_url.trim()
 		if (!val) return null
-		if (isHttpUrl(val)) return val
-		// Treat as a username — build a WeChat contact link
-		return val
+		if (isHttpUrl(val) || val.startsWith('weixin:')) return val
+		// Treat as a WeChat ID — build a deep link that opens the app (like Telegram)
+		return 'weixin://dl/chat?' + val.replace(/^@/, '')
 	}, [data])
 
 	const globalBg = isHttpUrl(settings?.background_image_url) ? settings!.background_image_url : null
@@ -825,31 +819,16 @@ export function PublicCardPage() {
 														</a>
 													) : null}
 													{wechatHref ? (
-														isHttpUrl(wechatHref) ? (
-															<a
-																href={wechatHref}
-																target="_blank"
-																rel="noopener noreferrer"
-																className={SOCIAL_BTN}
-																title="WeChat"
-															>
-																<WeChatIcon className={SOCIAL_BTN_ICON} />
-																<span className={SOCIAL_BTN_LABEL} style={TEXT_SHADOW_STYLE}>WeChat</span>
-															</a>
-														) : (
-															<button
-																type="button"
-																className={SOCIAL_BTN}
-																title="WeChat"
-																onClick={async () => {
-																	await navigator.clipboard.writeText(wechatHref)
-																	toast.push(labels.wechatCopied)
-																}}
-															>
-																<WeChatIcon className={SOCIAL_BTN_ICON} />
-																<span className={SOCIAL_BTN_LABEL} style={TEXT_SHADOW_STYLE}>WeChat</span>
-															</button>
-														)
+														<a
+															href={wechatHref}
+															target={isHttpUrl(wechatHref) ? '_blank' : undefined}
+															rel={isHttpUrl(wechatHref) ? 'noopener noreferrer' : undefined}
+															className={SOCIAL_BTN}
+															title="WeChat"
+														>
+															<WeChatIcon className={SOCIAL_BTN_ICON} />
+															<span className={SOCIAL_BTN_LABEL} style={TEXT_SHADOW_STYLE}>WeChat</span>
+														</a>
 													) : null}
 												</div>
 												) : null}

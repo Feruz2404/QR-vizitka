@@ -142,7 +142,7 @@ function ContactRow({
 						aria-label={action.label}
 						onClick={async () => {
 							await navigator.clipboard.writeText(action.value)
-							toast.push('Copied')
+							toast.push(action.label)
 						}}
 						className={ROW_BTN_CLS}
 					>

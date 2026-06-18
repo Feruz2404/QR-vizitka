@@ -38,7 +38,7 @@ export function CardsTable() {
 
 	const onCopy = async (slug: string) => {
 		await navigator.clipboard.writeText(baseUrl + '/v/' + slug)
-		toast.push('Link copied')
+		toast.push('Link copied', 'success')
 	}
 
 	const onOpenQr = (r: { id: string; full_name: string; slug: string }) => {
@@ -51,7 +51,7 @@ export function CardsTable() {
 	const onCopyQrLink = async () => {
 		if (!qrUrl) return
 		await navigator.clipboard.writeText(qrUrl)
-		toast.push('Link copied')
+		toast.push('Link copied', 'success')
 	}
 
 	const onDownloadQrSvg = async () => {
@@ -76,7 +76,7 @@ export function CardsTable() {
 	const onConfirmDelete = async () => {
 		if (!deleteTarget) return
 		await deleteCard(deleteTarget.id)
-		toast.push('Deleted')
+		toast.push('Deleted', 'success')
 		setDeleteOpen(false)
 	}
 

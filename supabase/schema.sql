@@ -21,6 +21,7 @@ create table if not exists employee_cards (
 	telegram_username text,
 	telegram_url text,
 	facebook_url text,
+	wechat_url text,
 	website_url text,
 	address text,
 	bio text,
@@ -33,6 +34,10 @@ create table if not exists employee_cards (
 -- Safe upgrade for existing databases (no-op if column already exists)
 alter table employee_cards
 add column if not exists background_image_url text;
+
+-- Safe upgrade for wechat_url column
+alter table employee_cards
+add column if not exists wechat_url text;
 
 create or replace function update_updated_at_column()
 returns trigger as $$

@@ -28,6 +28,7 @@ import { useGetAppSettingsQuery } from '../services/appSettingsApi'
 import { useGetCardBySlugQuery } from '../services/employeeCardsApi'
 import type { EmployeeCard, EmployeeCardTranslation } from '../types/employee'
 import { Card } from '../ui/Card'
+import { useToast } from '../ui/Toast'
 
 type PublicLang = 'uz' | 'ru' | 'en'
 
@@ -276,7 +277,6 @@ const PROFILE_ROW_LABEL =
 
 const SPEC_ICONS = [Cpu, Network, BarChart3, ShieldCheck, Lightbulb, Workflow, Database, Settings2]
 
-const WECHAT_URL = 'https://u.wechat.com/MIti95wYI7SoRjfZwXWoU2s?s=2'
 const MAPS_BASE = 'https://www.google.com/maps/search/?api=1&query='
 const DEPLOY_MARKER = 'public-card-hero-org-larger-2026-05-25'
 
@@ -500,6 +500,7 @@ function PublicCardLoader({
 export function PublicCardPage() {
 	const params = useParams()
 	const location = useLocation()
+	const toast = useToast()
 
 	const resolvedSlug = (() => {
 		const fromParams = params.slug
@@ -563,6 +564,14 @@ export function PublicCardPage() {
 	const url = safeSlug ? fullUrl(publicBaseUrl, safeSlug) : window.location.href
 
 	const tgHref = useMemo(() => (data ? telegramHref(data) : null), [data])
+	const wechatHref = useMemo(() => {
+		if (!data?.wechat_url) return null
+		const val = data.wechat_url.trim()
+		if (!val) return null
+		if (isHttpUrl(val)) return val
+		// Treat as a username — build a WeChat contact link
+		return val
+	}, [data])
 
 	const globalBg = isHttpUrl(settings?.background_image_url) ? settings!.background_image_url : null
 	const employeeBg = isHttpUrl(data?.background_image_url) ? data!.background_image_url : null
@@ -681,6 +690,7 @@ export function PublicCardPage() {
 	const hasSpecialties = localized.specialties.length > 0
 	const facebookHref = isHttpUrl(data.facebook_url) ? data.facebook_url : null
 	const websiteHref = isHttpUrl(data.website_url) ? data.website_url : null
+	const hasSocialLinks = Boolean(tgHref || facebookHref || wechatHref)
 	const addressValue = (localized.address || data.address || '').trim()
 	const mapsHref = addressValue ? MAPS_BASE + encodeURIComponent(addressValue) : null
 
@@ -788,6 +798,7 @@ export function PublicCardPage() {
 													</p>
 												) : null}
 
+												{hasSocialLinks ? (
 												<div className="mt-5 flex w-full min-w-0 max-w-full flex-wrap items-center justify-center gap-2 sm:justify-start">
 													{tgHref ? (
 														<a
@@ -813,17 +824,35 @@ export function PublicCardPage() {
 															<span className={SOCIAL_BTN_LABEL} style={TEXT_SHADOW_STYLE}>{labels.facebook}</span>
 														</a>
 													) : null}
-													<a
-														href={WECHAT_URL}
-														target="_blank"
-													rel="noopener noreferrer"
-														className={SOCIAL_BTN}
-														title="WeChat"
-													>
-														<WeChatIcon className={SOCIAL_BTN_ICON} />
-														<span className={SOCIAL_BTN_LABEL} style={TEXT_SHADOW_STYLE}>WeChat</span>
-													</a>
+													{wechatHref ? (
+														isHttpUrl(wechatHref) ? (
+															<a
+																href={wechatHref}
+																target="_blank"
+																rel="noopener noreferrer"
+																className={SOCIAL_BTN}
+																title="WeChat"
+															>
+																<WeChatIcon className={SOCIAL_BTN_ICON} />
+																<span className={SOCIAL_BTN_LABEL} style={TEXT_SHADOW_STYLE}>WeChat</span>
+															</a>
+														) : (
+															<button
+																type="button"
+																className={SOCIAL_BTN}
+																title="WeChat"
+																onClick={async () => {
+																	await navigator.clipboard.writeText(wechatHref)
+																	toast.push(labels.wechatCopied)
+																}}
+															>
+																<WeChatIcon className={SOCIAL_BTN_ICON} />
+																<span className={SOCIAL_BTN_LABEL} style={TEXT_SHADOW_STYLE}>WeChat</span>
+															</button>
+														)
+													) : null}
 												</div>
+												) : null}
 											</div>
 										</div>
 									</Card>

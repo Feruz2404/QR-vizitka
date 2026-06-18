@@ -149,10 +149,10 @@ export function CardForm({
 
 					await onSave(nextValues)
 
-					toast.push('Saved')
+					toast.push('Saved', 'success')
 				} catch (err: any) {
-					const message = err?.message || err?.error?.message || 'Save failed'
-					toast.push(message)
+					const message = err?.data?.message || err?.message || err?.error?.message || 'Save failed'
+					toast.push(message, 'error')
 				} finally {
 					setSubmitting(false)
 				}
@@ -292,6 +292,14 @@ export function CardForm({
 						<Input
 							value={values.facebook_url ?? ''}
 							onChange={(e) => setValues((p) => ({ ...p, facebook_url: e.target.value || null }))}
+						/>
+					</div>
+					<div>
+						<div className="text-xs text-brand-muted">WeChat URL / Username</div>
+						<Input
+							value={values.wechat_url ?? ''}
+							onChange={(e) => setValues((p) => ({ ...p, wechat_url: e.target.value || null }))}
+							placeholder="https://u.wechat.com/... or username"
 						/>
 					</div>
 					<div>

@@ -15,6 +15,7 @@ import { Textarea } from '../ui/Textarea'
 import { useToast } from '../ui/Toast'
 import {
 	useLazyCheckSlugAvailabilityQuery,
+	useUploadBackgroundImageMutation,
 	useUploadLogoMutation,
 	useUploadProfilePhotoMutation,
 } from '../services/employeeCardsApi'
@@ -62,13 +63,15 @@ export function CardForm({
 	// Selected (new) files live in local state. DB is not updated until Save.
 	const [profilePhotoFile, setProfilePhotoFile] = useState<File | null>(null)
 	const [logoFile, setLogoFile] = useState<File | null>(null)
+	const [backgroundFile, setBackgroundFile] = useState<File | null>(null)
 	const [profilePreview, setProfilePreview] = useState<string | null>(null)
 	const [logoPreview, setLogoPreview] = useState<string | null>(null)
+	const [backgroundPreview, setBackgroundPreview] = useState<string | null>(null)
 
 	const [submitting, setSubmitting] = useState(false)
 	const busy = saving || submitting
 
-	const lastObjectUrlsRef = useRef<{ profile?: string; logo?: string }>({})
+	const lastObjectUrlsRef = useRef<{ profile?: string; logo?: string; background?: string }>({})
 
 	useEffect(() => {
 		setValues(initialValues)
@@ -76,20 +79,24 @@ export function CardForm({
 		setSlugTouched(false)
 		setProfilePhotoFile(null)
 		setLogoFile(null)
+		setBackgroundFile(null)
 		setProfilePreview(null)
 		setLogoPreview(null)
+		setBackgroundPreview(null)
 	}, [initialValues])
 
 	useEffect(() => {
 		return () => {
 			if (lastObjectUrlsRef.current.profile) URL.revokeObjectURL(lastObjectUrlsRef.current.profile)
 			if (lastObjectUrlsRef.current.logo) URL.revokeObjectURL(lastObjectUrlsRef.current.logo)
+			if (lastObjectUrlsRef.current.background) URL.revokeObjectURL(lastObjectUrlsRef.current.background)
 		}
 	}, [])
 
 	const [checkSlug, slugState] = useLazyCheckSlugAvailabilityQuery()
 	const [uploadProfilePhoto] = useUploadProfilePhotoMutation()
 	const [uploadLogo] = useUploadLogoMutation()
+	const [uploadBackground] = useUploadBackgroundImageMutation()
 
 	const slugError = useMemo(() => {
 		if (!values.slug) return 'Slug is required'
@@ -145,6 +152,10 @@ export function CardForm({
 					if (logoFile) {
 						const url = await uploadLogo({ file: logoFile, cardId: cardKey }).unwrap()
 						nextValues = { ...nextValues, logo_url: url }
+					}
+					if (backgroundFile) {
+						const url = await uploadBackground({ file: backgroundFile, cardId: cardKey }).unwrap()
+						nextValues = { ...nextValues, background_image_url: url }
 					}
 
 					await onSave(nextValues)
@@ -390,6 +401,31 @@ export function CardForm({
 					}}
 				/>
 			</div>
+
+			<ImageUploader
+				label="Background image"
+				helperText="Individual background for this card. Overrides global background. Recommended: wide image (16:9), JPG/PNG/WebP, max 8MB."
+				maxSizeBytes={8 * 1024 * 1024}
+				previewClassName="h-56 w-full object-cover"
+				value={backgroundPreview ?? (values.background_image_url as any)}
+				disabled={busy}
+				onPick={(file) => {
+					setBackgroundFile(file)
+					if (lastObjectUrlsRef.current.background) URL.revokeObjectURL(lastObjectUrlsRef.current.background)
+					const u = safeObjectUrl(file)
+					lastObjectUrlsRef.current.background = u
+					setBackgroundPreview(u)
+				}}
+				onClear={() => {
+					setBackgroundFile(null)
+					if (lastObjectUrlsRef.current.background) {
+						URL.revokeObjectURL(lastObjectUrlsRef.current.background)
+						lastObjectUrlsRef.current.background = undefined
+					}
+					setBackgroundPreview(null)
+					setValues((p) => ({ ...p, background_image_url: null }))
+				}}
+			/>
 		</form>
 	)
 }

@@ -592,7 +592,7 @@ export function PublicCardPage() {
 
 	const globalBg = isHttpUrl(settings?.background_image_url) ? settings!.background_image_url : null
 	const employeeBg = isHttpUrl(data?.background_image_url) ? data!.background_image_url : null
-	const backgroundImage = globalBg ?? employeeBg ?? null
+	const backgroundImage = employeeBg ?? globalBg ?? null
 
 	const globalLogo = isHttpUrl(settings?.organization_logo_url)
 		? settings!.organization_logo_url

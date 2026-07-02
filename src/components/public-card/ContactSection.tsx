@@ -19,6 +19,7 @@ export type ContactLabels = {
 	internalPhone?: string
 	telegram: string
 	facebook: string
+	instagram?: string
 	website?: string
 	address?: string
 	openAction?: string
@@ -38,6 +39,7 @@ const DEFAULT_LABELS: ContactLabels = {
 	internalPhone: 'Internal',
 	telegram: 'Telegram',
 	facebook: 'Facebook',
+	instagram: 'Instagram',
 	website: 'Website',
 	address: 'Address',
 	openAction: 'Open',

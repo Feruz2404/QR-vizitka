@@ -1,5 +1,5 @@
-import { Copy, Download, ImageDown } from 'lucide-react'
-import { useMemo, useRef } from 'react'
+import { Copy, Download, ImageDown, Loader2 } from 'lucide-react'
+import { useMemo, useRef, useState } from 'react'
 
 import { useGetAppSettingsQuery } from '../../services/appSettingsApi'
 import { BrandedQrCode, type BrandedQrCodeHandle } from '../qr/BrandedQrCode'
@@ -22,6 +22,10 @@ export function QRCodeBlock({
 
 	const logo = organizationLogoUrl ?? settings?.organization_logo_url ?? null
 
+	const [svgLoading, setSvgLoading] = useState(false)
+	const [pngLoading, setPngLoading] = useState(false)
+	const [copyLoading, setCopyLoading] = useState(false)
+
 	const svgName = useMemo(() => (filename.toLowerCase().endsWith('.svg') ? filename : filename + '.svg'), [filename])
 	const pngName = useMemo(() => filename.replace(/\.svg$/i, '') + '.png', [filename])
 
@@ -37,33 +41,49 @@ export function QRCodeBlock({
 					<Button
 						variant="secondary"
 						size="sm"
+						disabled={svgLoading || pngLoading}
+						aria-label="Download QR code as SVG"
+						aria-busy={svgLoading}
 						onClick={async () => {
-							await qrRef.current?.downloadSvg(svgName)
+							setSvgLoading(true)
+							try {
+								await qrRef.current?.downloadSvg(svgName)
+							} finally {
+								setSvgLoading(false)
+							}
 						}}
-						aria-label="Download QR (SVG)"
 					>
-						<Download className="h-4 w-4" /> SVG
+						{svgLoading ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> : <Download className="h-4 w-4" aria-hidden="true" />}
+						SVG
 					</Button>
 					<Button
 						variant="secondary"
 						size="sm"
+						disabled={svgLoading || pngLoading}
+						aria-label="Download QR code as PNG"
+						aria-busy={pngLoading}
 						onClick={async () => {
-							await qrRef.current?.downloadPng(pngName, { scale: 4 })
+							setPngLoading(true)
+							try {
+								await qrRef.current?.downloadPng(pngName, { scale: 4 })
+							} finally {
+								setPngLoading(false)
+							}
 						}}
-						aria-label="Download QR (PNG)"
 					>
-						<ImageDown className="h-4 w-4" /> PNG
+						{pngLoading ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> : <ImageDown className="h-4 w-4" aria-hidden="true" />}
+						PNG
 					</Button>
 				</div>
 			</div>
 
-			<div className="mt-4 grid place-items-center">
-				<div className="rounded-3xl border border-white/10 bg-white/5 p-4 shadow-[0_30px_90px_rgba(0,0,0,0.55)]">
-					<div className="rounded-2xl bg-white p-4">
+			<div className="mt-5 grid place-items-center">
+				<div className="rounded-3xl border border-white/10 bg-white/5 p-5 shadow-[0_30px_90px_rgba(0,0,0,0.55)]">
+					<div className="rounded-2xl bg-white p-5">
 						<BrandedQrCode
 							ref={qrRef}
 							value={url}
-							size={188}
+							size={220}
 							logoUrl={logo}
 							accentColor="#D4AF37"
 							dotsColor="#0b0f1a"
@@ -72,7 +92,7 @@ export function QRCodeBlock({
 				</div>
 			</div>
 
-			<div className="mt-4 flex flex-col gap-2">
+			<div className="mt-5 flex flex-col gap-2">
 				<div className="rounded-2xl border border-white/10 bg-white/5 px-3 py-2">
 					<div className="text-[11px] uppercase tracking-wide text-white/50">Public URL</div>
 					<div className="mt-1 truncate text-sm text-white/80" title={url}>
@@ -82,18 +102,26 @@ export function QRCodeBlock({
 				<div className="grid grid-cols-2 gap-2">
 					<Button
 						variant="secondary"
+						disabled={copyLoading}
+						aria-label="Copy public link to clipboard"
+						aria-busy={copyLoading}
 						onClick={async () => {
-							await navigator.clipboard.writeText(url)
-							toast.push('Link copied')
+							setCopyLoading(true)
+							try {
+								await navigator.clipboard.writeText(url)
+								toast.push('Link copied')
+							} finally {
+								setCopyLoading(false)
+							}
 						}}
-						aria-label="Copy link"
 					>
-						<Copy className="h-4 w-4" /> Copy Link
+						{copyLoading ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> : <Copy className="h-4 w-4" aria-hidden="true" />}
+						Copy Link
 					</Button>
 					<Button
 						variant="ghost"
+						aria-label="Open public card in new tab"
 						onClick={() => window.open(url, '_blank', 'noreferrer')}
-						aria-label="Open link"
 					>
 						Open
 					</Button>

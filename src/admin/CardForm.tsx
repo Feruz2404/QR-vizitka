@@ -26,6 +26,27 @@ function safeObjectUrl(file: File) {
 	return URL.createObjectURL(file)
 }
 
+/**
+ * Normalize any Instagram input to a canonical https://www.instagram.com/<username> URL.
+ * Accepts:
+ *   - https://instagram.com/username
+ *   - https://www.instagram.com/username
+ *   - @username
+ *   - username
+ */
+function normalizeInstagramUrl(raw: string): string {
+	const trimmed = raw.trim()
+	// Already a full Instagram URL
+	if (/^https?:\/\/(www\.)?instagram\.com\//i.test(trimmed)) {
+		// Ensure www prefix for consistency
+		return trimmed.replace(/^https?:\/\/instagram\.com\//i, 'https://www.instagram.com/')
+	}
+	// Extract username: strip leading @ if present
+	const username = trimmed.replace(/^@/, '').split('/')[0].split('?')[0]
+	if (!username) return raw
+	return 'https://www.instagram.com/' + username
+}
+
 function deriveInitialTranslations(iv: any): EmployeeCardTranslations {
 	const existing: EmployeeCardTranslations = (iv && iv.translations) || {}
 	if (existing.uz) return existing
@@ -322,6 +343,22 @@ export function CardForm({
 						/>
 					</div>
 					<div>
+						<div className="text-xs text-brand-muted">Instagram URL or username</div>
+						<Input
+							value={values.instagram_url ?? ''}
+							placeholder="https://instagram.com/username or @username"
+							onChange={(e) => {
+								setValues((p) => ({ ...p, instagram_url: e.target.value || null }))
+							}}
+							onBlur={(e) => {
+								const raw = e.target.value.trim()
+								if (!raw) return
+								const normalized = normalizeInstagramUrl(raw)
+								setValues((p) => ({ ...p, instagram_url: normalized }))
+							}}
+						/>
+					</div>
+					<div>
 						<div className="text-xs text-brand-muted">Website URL</div>
 						<Input
 							value={values.website_url ?? ''}
@@ -383,8 +420,10 @@ export function CardForm({
 				/>
 
 				<ImageUploader
-					label="Organization logo (fallback)"
-					helperText="Optional. Used only when global organization logo is not set in Settings."
+					label="Organization logo (per-card)"
+					helperText="Displayed in the header for this card. Overrides global organization logo."
+					maxSizeBytes={2 * 1024 * 1024}
+					allowedTypes={['image/png', 'image/jpeg', 'image/jpg', 'image/webp', 'image/svg+xml']}
 					value={logoPreview ?? (values.logo_url as any)}
 					disabled={busy}
 					onPick={(file) => {

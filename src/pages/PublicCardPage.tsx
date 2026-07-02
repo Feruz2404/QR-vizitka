@@ -46,6 +46,7 @@ type Translations = ContactLabels & {
 	call: string
 	email: string
 	telegram: string
+	instagram?: string
 	notFound: string
 	notFoundDescription: string
 	unavailable: string
@@ -74,6 +75,7 @@ const T: Record<PublicLang, Translations> = {
 		internalPhone: 'Ichki raqam',
 		telegram: 'Telegram',
 		facebook: 'Facebook',
+		instagram: 'Instagram',
 		website: 'Veb-sayt',
 		address: 'Manzil',
 		openAction: 'Ochish',
@@ -109,6 +111,7 @@ const T: Record<PublicLang, Translations> = {
 		internalPhone: 'Внутренний номер',
 		telegram: 'Telegram',
 		facebook: 'Facebook',
+		instagram: 'Instagram',
 		website: 'Веб-сайт',
 		address: 'Адрес',
 		openAction: 'Открыть',
@@ -144,6 +147,7 @@ const T: Record<PublicLang, Translations> = {
 		internalPhone: 'Internal',
 		telegram: 'Telegram',
 		facebook: 'Facebook',
+		instagram: 'Instagram',
 		website: 'Website',
 		address: 'Address',
 		openAction: 'Open',
@@ -249,7 +253,7 @@ const SPEC_ICON_BOX =
 	'grid h-7 w-7 shrink-0 place-items-center rounded-lg border border-yellow-300/20 bg-black/[0.04] text-yellow-200 backdrop-blur-[1px]'
 
 const SOCIAL_BTN =
-	'group inline-flex shrink-0 items-center gap-2 rounded-full border border-yellow-300/25 bg-black/[0.04] px-3.5 py-2 text-xs font-semibold text-yellow-100 backdrop-blur-[1px] transition hover:border-yellow-300/55 hover:bg-yellow-300/15 hover:text-yellow-50 hover:shadow-[0_0_22px_rgba(245,197,66,0.30)] active:scale-95 sm:px-4 sm:py-2.5 sm:text-sm'
+	'group inline-flex min-w-[100px] flex-1 items-center justify-center gap-2 rounded-full border border-yellow-300/25 bg-black/[0.04] px-3 py-2 text-xs font-semibold text-yellow-100 backdrop-blur-[1px] transition hover:border-yellow-300/55 hover:bg-yellow-300/15 hover:text-yellow-50 hover:shadow-[0_0_22px_rgba(245,197,66,0.30)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-yellow-300 active:scale-95 sm:px-4 sm:py-2.5 sm:text-sm'
 
 const SOCIAL_BTN_ICON = 'h-4 w-4 shrink-0 sm:h-[18px] sm:w-[18px]'
 
@@ -300,6 +304,20 @@ function WhatsAppIcon({ className = '' }: { className?: string }) {
 			focusable="false"
 		>
 			<path d="M19.05 4.91A9.82 9.82 0 0 0 12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2 22l5.25-1.38a9.9 9.9 0 0 0 4.79 1.22h.01c5.46 0 9.9-4.45 9.9-9.91 0-2.65-1.03-5.14-2.9-7.02Zm-7.01 15.24h-.01a8.2 8.2 0 0 1-4.18-1.15l-.3-.18-3.12.82.83-3.04-.2-.31a8.2 8.2 0 0 1-1.26-4.38c0-4.54 3.7-8.23 8.24-8.23a8.2 8.2 0 0 1 8.23 8.24c0 4.54-3.7 8.23-8.23 8.23Zm4.52-6.16c-.25-.12-1.47-.72-1.69-.81-.23-.08-.39-.12-.56.13-.16.25-.64.8-.79.97-.14.17-.29.19-.54.06-.25-.12-1.05-.39-1.99-1.23-.74-.66-1.23-1.47-1.38-1.72-.14-.25-.01-.39.11-.51.11-.11.25-.29.37-.43.13-.14.17-.25.25-.41.08-.17.04-.31-.02-.43-.06-.12-.56-1.34-.76-1.84-.2-.48-.4-.42-.56-.43h-.48c-.17 0-.43.06-.66.31-.22.25-.86.85-.86 2.07 0 1.22.89 2.4 1.01 2.56.12.17 1.75 2.67 4.23 3.74.59.26 1.05.41 1.41.52.59.19 1.13.16 1.56.1.48-.07 1.47-.6 1.68-1.18.21-.58.21-1.07.14-1.18-.06-.1-.22-.16-.47-.28Z" />
+		</svg>
+	)
+}
+
+function InstagramIcon({ className = '' }: { className?: string }) {
+	return (
+		<svg
+			viewBox="0 0 24 24"
+			className={className}
+			fill="currentColor"
+			aria-hidden="true"
+			focusable="false"
+		>
+			<path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" />
 		</svg>
 	)
 }
@@ -590,6 +608,16 @@ export function PublicCardPage() {
 		return digits ? 'https://wa.me/' + digits : null
 	}, [data])
 
+	const instagramHref = useMemo(() => {
+		if (!data?.instagram_url) return null
+		const val = data.instagram_url.trim()
+		if (!val) return null
+		if (isHttpUrl(val)) return val
+		// Bare username → full URL
+		const username = val.replace(/^@/, '')
+		return username ? 'https://www.instagram.com/' + username : null
+	}, [data])
+
 	const globalBg = isHttpUrl(settings?.background_image_url) ? settings!.background_image_url : null
 	const employeeBg = isHttpUrl(data?.background_image_url) ? data!.background_image_url : null
 	const backgroundImage = employeeBg ?? globalBg ?? null
@@ -598,7 +626,8 @@ export function PublicCardPage() {
 		? settings!.organization_logo_url
 		: null
 	const employeeLogo = isHttpUrl(data?.logo_url) ? data!.logo_url : null
-	const orgLogo = globalLogo ?? employeeLogo ?? null
+	// Per-card logo takes priority; global logo is the fallback for all cards.
+	const orgLogo = employeeLogo ?? globalLogo ?? null
 
 	const localized = useMemo(() => {
 		if (!data) {
@@ -707,7 +736,7 @@ export function PublicCardPage() {
 	const hasSpecialties = localized.specialties.length > 0
 	const facebookHref = isHttpUrl(data.facebook_url) ? data.facebook_url : null
 	const websiteHref = isHttpUrl(data.website_url) ? data.website_url : null
-	const hasSocialLinks = Boolean(tgHref || whatsappHref || facebookHref || wechatHref)
+	const hasSocialLinks = Boolean(tgHref || whatsappHref || facebookHref || wechatHref || instagramHref)
 	const addressValue = (localized.address || data.address || '').trim()
 	const mapsHref = addressValue ? MAPS_BASE + encodeURIComponent(addressValue) : null
 
@@ -816,7 +845,7 @@ export function PublicCardPage() {
 												) : null}
 
 												{hasSocialLinks ? (
-												<div className="mt-5 flex w-full min-w-0 max-w-full flex-wrap items-center justify-center gap-2 sm:justify-start">
+												<div className="mt-5 flex w-full min-w-0 max-w-full flex-wrap items-stretch justify-center gap-2 sm:justify-start">
 													{tgHref ? (
 														<a
 															href={tgHref}
@@ -824,6 +853,7 @@ export function PublicCardPage() {
 															rel="noopener noreferrer"
 															className={SOCIAL_BTN}
 															title={labels.telegram}
+															aria-label={`Open Telegram: ${labels.telegram}`}
 														>
 															<Send className={SOCIAL_BTN_ICON} aria-hidden="true" />
 															<span className={SOCIAL_BTN_LABEL} style={TEXT_SHADOW_STYLE}>{labels.telegram}</span>
@@ -836,6 +866,7 @@ export function PublicCardPage() {
 															rel="noopener noreferrer"
 															className={SOCIAL_BTN}
 															title="WhatsApp"
+															aria-label="Open WhatsApp"
 														>
 															<WhatsAppIcon className={SOCIAL_BTN_ICON} />
 															<span className={SOCIAL_BTN_LABEL} style={TEXT_SHADOW_STYLE}>WhatsApp</span>
@@ -848,6 +879,7 @@ export function PublicCardPage() {
 															rel="noopener noreferrer"
 															className={SOCIAL_BTN}
 															title={labels.facebook}
+															aria-label={`Open Facebook: ${labels.facebook}`}
 														>
 															<Facebook className={SOCIAL_BTN_ICON} aria-hidden="true" />
 															<span className={SOCIAL_BTN_LABEL} style={TEXT_SHADOW_STYLE}>{labels.facebook}</span>
@@ -860,9 +892,23 @@ export function PublicCardPage() {
 															rel={isHttpUrl(wechatHref) ? 'noopener noreferrer' : undefined}
 															className={SOCIAL_BTN}
 															title="WeChat"
+															aria-label="Open WeChat"
 														>
 															<WeChatIcon className={SOCIAL_BTN_ICON} />
 															<span className={SOCIAL_BTN_LABEL} style={TEXT_SHADOW_STYLE}>WeChat</span>
+														</a>
+													) : null}
+													{instagramHref ? (
+														<a
+															href={instagramHref}
+															target="_blank"
+															rel="noopener noreferrer"
+															className={SOCIAL_BTN}
+															title={labels.instagram ?? 'Instagram'}
+															aria-label={`Open Instagram: ${labels.instagram ?? 'Instagram'}`}
+														>
+															<InstagramIcon className={SOCIAL_BTN_ICON} />
+															<span className={SOCIAL_BTN_LABEL} style={TEXT_SHADOW_STYLE}>{labels.instagram ?? 'Instagram'}</span>
 														</a>
 													) : null}
 												</div>

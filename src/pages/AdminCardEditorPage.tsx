@@ -42,6 +42,7 @@ export function AdminCardEditorPage({ mode }: { mode: 'create' | 'edit' }) {
 			facebook_url: null,
 			wechat_url: null,
 			whatsapp_url: null,
+			instagram_url: null,
 			website_url: null,
 			address: null,
 			bio: null,

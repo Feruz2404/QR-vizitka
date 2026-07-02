@@ -32,6 +32,7 @@ export function generateVCard(card: EmployeeCard) {
 	if (card.website_url) lines.push(`URL:${card.website_url}`)
 	if (card.telegram_url) lines.push(`X-SOCIALPROFILE;type=telegram:${card.telegram_url}`)
 	if (card.facebook_url) lines.push(`X-SOCIALPROFILE;type=facebook:${card.facebook_url}`)
+	if (card.instagram_url) lines.push(`X-SOCIALPROFILE;type=instagram:${card.instagram_url}`)
 
 	lines.push('END:VCARD')
 	return lines.join('\n')

@@ -26,6 +26,20 @@ function safeObjectUrl(file: File) {
 	return URL.createObjectURL(file)
 }
 
+function normalizeInstagramUrl(input: string): string {
+	const trimmed = input.trim()
+
+	if (!trimmed) return ''
+
+	if (/^https?:\/\/(www\.)?instagram\.com\//i.test(trimmed)) {
+		return trimmed.replace(/^https?:\/\/instagram\.com\//i, 'https://www.instagram.com/')
+	}
+
+	const username = trimmed.replace(/^@/, '')
+
+	return 'https://www.instagram.com/' + username
+}
+
 function deriveInitialTranslations(iv: any): EmployeeCardTranslations {
 	const existing: EmployeeCardTranslations = (iv && iv.translations) || {}
 	if (existing.uz) return existing
@@ -131,6 +145,9 @@ export function CardForm({
 				}
 
 				const merged: EmployeeCardUpdate = { ...values, ...baseSync, translations }
+				if (merged.instagram_url) {
+					merged.instagram_url = normalizeInstagramUrl(merged.instagram_url)
+				}
 
 				if (!merged.full_name || !merged.slug || !merged.position) {
 					toast.push('Please fill required fields (Uzbek full name, position, slug)')
@@ -306,6 +323,19 @@ export function CardForm({
 						/>
 					</div>
 					<div>
+						<div className="text-xs text-brand-muted">Instagram URL / username</div>
+						<Input
+							value={values.instagram_url ?? ''}
+							onChange={(e) => setValues((p) => ({ ...p, instagram_url: e.target.value || null }))}
+							onBlur={(e) => {
+								const raw = e.target.value
+								if (!raw.trim()) return
+								setValues((p) => ({ ...p, instagram_url: normalizeInstagramUrl(raw) }))
+							}}
+							placeholder="@username or https://instagram.com/username"
+						/>
+					</div>
+					<div>
 						<div className="text-xs text-brand-muted">WeChat URL / Username</div>
 						<Input
 							value={values.wechat_url ?? ''}
@@ -383,8 +413,9 @@ export function CardForm({
 				/>
 
 				<ImageUploader
-					label="Organization logo (fallback)"
-					helperText="Optional. Used only when global organization logo is not set in Settings."
+					label="Organization logo"
+					helperText="Shown at the top of this employee's public card. Falls back to the global logo in Settings if left empty."
+					previewClassName="h-40 w-40 object-contain"
 					value={logoPreview ?? (values.logo_url as any)}
 					disabled={busy}
 					onPick={(file) => {

@@ -23,6 +23,7 @@ create table if not exists employee_cards (
 	facebook_url text,
 	wechat_url text,
 	whatsapp_url text,
+	instagram_url text,
 	website_url text,
 	address text,
 	bio text,
@@ -43,6 +44,10 @@ add column if not exists wechat_url text;
 -- Safe upgrade for whatsapp_url column
 alter table employee_cards
 add column if not exists whatsapp_url text;
+
+-- Safe upgrade for instagram_url column
+alter table employee_cards
+add column if not exists instagram_url text;
 
 create or replace function update_updated_at_column()
 returns trigger as $$

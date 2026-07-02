@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { Button } from '../ui/Button'
 import { Card } from '../ui/Card'
 
-const allowed = ['image/png', 'image/jpg', 'image/jpeg', 'image/webp']
+const allowed = ['image/png', 'image/jpg', 'image/jpeg', 'image/webp', 'image/svg+xml']
 
 export function ImageUploader({
 	label,
@@ -39,7 +39,7 @@ export function ImageUploader({
 			<div className="flex items-center justify-between gap-3">
 				<div>
 					<div className="text-sm font-semibold">{label}</div>
-					<div className="text-xs text-brand-muted">{helperText ?? 'PNG/JPG/JPEG/WEBP'}</div>
+					<div className="text-xs text-brand-muted">{helperText ?? 'PNG/JPG/JPEG/WEBP/SVG'}</div>
 				</div>
 				<div className="flex gap-2">
 					<Button
@@ -78,7 +78,7 @@ export function ImageUploader({
 					if (!file) return
 					setError(null)
 					if (!allowed.includes(file.type)) {
-						setError('Invalid file type. Use PNG, JPG, or WEBP.')
+						setError('Invalid file type. Use PNG, JPG, WEBP, or SVG.')
 						return
 					}
 					if (maxSizeBytes && file.size > maxSizeBytes) {

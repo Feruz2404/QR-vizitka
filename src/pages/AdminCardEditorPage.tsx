@@ -40,6 +40,7 @@ export function AdminCardEditorPage({ mode }: { mode: 'create' | 'edit' }) {
 			telegram_username: null,
 			telegram_url: null,
 			facebook_url: null,
+			instagram_url: null,
 			wechat_url: null,
 			whatsapp_url: null,
 			website_url: null,

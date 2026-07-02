@@ -156,6 +156,9 @@ export function AdminSettingsPage() {
 						setLogoUrl(null)
 					}}
 				/>
+				<div className="text-xs text-brand-muted">
+					Used as the default when an employee card has no logo of its own.
+				</div>
 			</div>
 		</AdminLayout>
 	)

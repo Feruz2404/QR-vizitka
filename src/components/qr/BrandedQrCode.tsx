@@ -34,8 +34,8 @@ const DEFAULT_CORNER_DOT_TYPE: CornerDotType = 'dot'
 
 // Keep these stable for scan reliability (logo integrated, not isolated).
 const DEFAULT_MARGIN = 10
-const DEFAULT_IMAGE_SIZE = 0.2
-const DEFAULT_IMAGE_MARGIN = 6
+const DEFAULT_IMAGE_SIZE = 0.32
+const DEFAULT_IMAGE_MARGIN = 3
 
 function pickEcLevel(hasLogo: boolean): ErrorCorrectionLevel {
 	// Use H when embedding a logo.

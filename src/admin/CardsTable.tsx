@@ -16,7 +16,7 @@ import { DeleteConfirmModal } from './DeleteConfirmModal'
 import { useToast } from '../ui/Toast'
 import { BrandedQrCode, type BrandedQrCodeHandle } from '../components/qr/BrandedQrCode'
 
-type QrTarget = { id: string; full_name: string; slug: string }
+type QrTarget = { id: string; full_name: string; slug: string; logo_url: string | null }
 
 export function CardsTable() {
 	const toast = useToast()
@@ -41,8 +41,8 @@ export function CardsTable() {
 		toast.push('Link copied', 'success')
 	}
 
-	const onOpenQr = (r: { id: string; full_name: string; slug: string }) => {
-		setQrTarget({ id: r.id, full_name: r.full_name, slug: r.slug })
+	const onOpenQr = (r: { id: string; full_name: string; slug: string; logo_url: string | null }) => {
+		setQrTarget({ id: r.id, full_name: r.full_name, slug: r.slug, logo_url: r.logo_url })
 		setQrOpen(true)
 	}
 
@@ -109,8 +109,6 @@ export function CardsTable() {
 			</Card>
 		)
 	}
-
-	const orgLogoUrl = settings?.organization_logo_url ?? null
 
 	return (
 		<>
@@ -225,8 +223,8 @@ export function CardsTable() {
 								<BrandedQrCode
 									ref={qrRef}
 									value={qrUrl}
-									size={200}
-									logoUrl={orgLogoUrl}
+									size={220}
+									logoUrl={qrTarget.logo_url ?? settings?.organization_logo_url ?? null}
 									accentColor="#D4AF37"
 									dotsColor="#0b0f1a"
 								/>

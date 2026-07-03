@@ -66,8 +66,8 @@ export function QRCodeBlock({
 						value={url}
 						size={220}
 						logoUrl={logo}
-						accentColor="#D4AF37"
-						dotsColor="#0057B8"
+						accentColor="#003B73"
+						dotsColor="#003B73"
 					/>
 				</BrandedQrFrame>
 			</div>

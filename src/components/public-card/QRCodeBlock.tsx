@@ -9,6 +9,8 @@ import { Card } from '../../ui/Card'
 import { useToast } from '../../ui/Toast'
 import { safeUrl } from '../../lib/utils'
 
+const QR_BLUE = '#003B73'
+
 export function QRCodeBlock({
 	url,
 	filename,
@@ -24,7 +26,11 @@ export function QRCodeBlock({
 
 	const logo = safeUrl(organizationLogoUrl) ?? safeUrl(settings?.organization_logo_url)
 
-	const svgName = useMemo(() => (filename.toLowerCase().endsWith('.svg') ? filename : filename + '.svg'), [filename])
+	const svgName = useMemo(
+		() => (filename.toLowerCase().endsWith('.svg') ? filename : filename + '.svg'),
+		[filename],
+	)
+
 	const pngName = useMemo(() => filename.replace(/\.svg$/i, '') + '.png', [filename])
 
 	return (
@@ -42,19 +48,22 @@ export function QRCodeBlock({
 						onClick={async () => {
 							await qrRef.current?.downloadSvg(svgName)
 						}}
-						aria-label="Download QR (SVG)"
+						aria-label="Download QR SVG"
 					>
-						<Download className="h-4 w-4" /> SVG
+						<Download className="h-4 w-4" />
+						SVG
 					</Button>
+
 					<Button
 						variant="secondary"
 						size="sm"
 						onClick={async () => {
 							await qrRef.current?.downloadPng(pngName, { scale: 4 })
 						}}
-						aria-label="Download QR (PNG)"
+						aria-label="Download QR PNG"
 					>
-						<ImageDown className="h-4 w-4" /> PNG
+						<ImageDown className="h-4 w-4" />
+						PNG
 					</Button>
 				</div>
 			</div>
@@ -62,12 +71,14 @@ export function QRCodeBlock({
 			<div className="mt-4 grid place-items-center">
 				<BrandedQrFrame>
 					<BrandedQrCode
+						key={`${url}-${logo ?? 'no-logo'}-${QR_BLUE}`}
 						ref={qrRef}
 						value={url}
 						size={220}
 						logoUrl={logo}
-						accentColor="#003B73"
-						dotsColor="#003B73"
+						backgroundColor="#ffffff"
+						dotsColor={QR_BLUE}
+						accentColor={QR_BLUE}
 					/>
 				</BrandedQrFrame>
 			</div>
@@ -79,6 +90,7 @@ export function QRCodeBlock({
 						{url}
 					</div>
 				</div>
+
 				<div className="grid grid-cols-2 gap-2">
 					<Button
 						variant="secondary"
@@ -88,8 +100,10 @@ export function QRCodeBlock({
 						}}
 						aria-label="Copy link"
 					>
-						<Copy className="h-4 w-4" /> Copy Link
+						<Copy className="h-4 w-4" />
+						Copy Link
 					</Button>
+
 					<Button
 						variant="ghost"
 						onClick={() => window.open(url, '_blank', 'noreferrer')}

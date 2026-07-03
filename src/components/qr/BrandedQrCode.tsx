@@ -59,7 +59,7 @@ export const BrandedQrCode = forwardRef<BrandedQrCodeHandle, BrandedQrCodeProps>
 		logoUrl,
 		className,
 		backgroundColor = '#ffffff',
-		dotsColor = '#0b0f1a',
+		dotsColor = '#0057B8',
 		accentColor,
 	},
 	ref

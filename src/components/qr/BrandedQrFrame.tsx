@@ -12,7 +12,7 @@ export function BrandedQrFrame({
 	return (
 		<div
 			className={cn(
-				'relative rounded-[28px] border border-yblue-300/35 bg-white p-3 shadow-[0_28px_90px_rgba(0,0,0,0.45)] ring-1 ring-black/5',
+				'relative rounded-[28px] border border-blue-300/35 bg-white p-3 shadow-[0_28px_90px_rgba(0,0,0,0.45)] ring-1 ring-black/5',
 				className,
 			)}
 		>

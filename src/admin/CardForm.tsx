@@ -32,7 +32,11 @@ function normalizeInstagramUrl(input: string): string {
 	if (!trimmed) return ''
 
 	if (/^https?:\/\/(www\.)?instagram\.com\//i.test(trimmed)) {
-		return trimmed.replace(/^https?:\/\/instagram\.com\//i, 'https://www.instagram.com/')
+		return trimmed.replace(/^https?:\/\/(www\.)?instagram\.com\//i, 'https://www.instagram.com/')
+	}
+
+	if (/^(www\.)?instagram\.com\//i.test(trimmed)) {
+		return trimmed.replace(/^(www\.)?instagram\.com\//i, 'https://www.instagram.com/')
 	}
 
 	const username = trimmed.replace(/^@/, '')

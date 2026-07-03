@@ -485,7 +485,7 @@ function PublicCardLoader({
 						<div className="absolute inset-0 animate-spin rounded-full border-[3px] border-transparent border-t-yellow-300 border-r-yellow-300/55" />
 						<div className="relative grid h-14 w-14 place-items-center overflow-hidden rounded-full border border-yellow-300/35 bg-black/[0.04] backdrop-blur-[1px] sm:h-16 sm:w-16">
 							{orgLogo ? (
-								<img src={orgLogo} alt="" className="h-full w-full object-cover" loading="eager" />
+								<img src={orgLogo} alt="" className="h-full w-full object-contain p-1.5" loading="eager" />
 							) : (
 								<ShieldCheck className="h-7 w-7 text-yellow-200" aria-hidden="true" />
 							)}
@@ -968,7 +968,7 @@ export function PublicCardPage() {
 												<div className={PROFILE_ROW}>
 													<div className={PROFILE_ROW_ICON_BOX}>
 														{orgLogo ? (
-															<img src={orgLogo} alt="" className="h-full w-full object-cover" loading="lazy" />
+															<img src={orgLogo} alt="" className="h-full w-full object-contain p-1" loading="lazy" />
 														) : (
 															<Landmark className="h-5 w-5" aria-hidden="true" />
 														)}

@@ -46,7 +46,7 @@ alter table employee_cards
 add column if not exists whatsapp_url text;
 
 -- Safe upgrade for instagram_url column
-alter table employee_cards
+alter table public.employee_cards
 add column if not exists instagram_url text;
 
 create or replace function update_updated_at_column()

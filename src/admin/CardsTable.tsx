@@ -236,8 +236,8 @@ export function CardsTable() {
 									value={qrUrl}
 									size={220}
 									logoUrl={qrLogo}
-									accentColor="#D4AF37"
-									dotsColor="#0b0f1a"
+									accentColor="#003B73"
+									dotsColor="#003B73"
 								/>
 							</BrandedQrFrame>
 						</div>

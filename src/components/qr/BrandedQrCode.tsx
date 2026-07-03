@@ -59,8 +59,8 @@ export const BrandedQrCode = forwardRef<BrandedQrCodeHandle, BrandedQrCodeProps>
 		logoUrl,
 		className,
 		backgroundColor = '#ffffff',
-		dotsColor = '#0b0f1a',
-		accentColor,
+		dotsColor = '#003B73',
+		accentColor = '#003B73',
 	},
 	ref
 ) {

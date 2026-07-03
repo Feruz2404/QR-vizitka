@@ -26,6 +26,10 @@ function safeObjectUrl(file: File) {
 	return URL.createObjectURL(file)
 }
 
+function organizationLogoValue(values: EmployeeCardUpdate) {
+	return values.organization_logo_url ?? values.logo_url ?? null
+}
+
 function normalizeInstagramUrl(input: string): string {
 	const trimmed = input.trim()
 
@@ -152,6 +156,11 @@ export function CardForm({
 				if (merged.instagram_url) {
 					merged.instagram_url = normalizeInstagramUrl(merged.instagram_url)
 				}
+				const existingOrganizationLogo = organizationLogoValue(merged)
+				if (existingOrganizationLogo) {
+					merged.organization_logo_url = existingOrganizationLogo
+					merged.logo_url = existingOrganizationLogo
+				}
 
 				if (!merged.full_name || !merged.slug || !merged.position) {
 					toast.push('Please fill required fields (Uzbek full name, position, slug)')
@@ -172,7 +181,7 @@ export function CardForm({
 					}
 					if (logoFile) {
 						const url = await uploadLogo({ file: logoFile, cardId: cardKey }).unwrap()
-						nextValues = { ...nextValues, logo_url: url }
+						nextValues = { ...nextValues, logo_url: url, organization_logo_url: url }
 					}
 					if (backgroundFile) {
 						const url = await uploadBackground({ file: backgroundFile, cardId: cardKey }).unwrap()
@@ -420,7 +429,7 @@ export function CardForm({
 					label="Organization logo"
 					helperText="Shown at the top of this employee's public card. Falls back to the global logo in Settings if left empty."
 					previewClassName="h-40 w-40 object-contain"
-					value={logoPreview ?? (values.logo_url as any)}
+					value={logoPreview ?? organizationLogoValue(values)}
 					disabled={busy}
 					onPick={(file) => {
 						setLogoFile(file)
@@ -432,7 +441,7 @@ export function CardForm({
 					onClear={() => {
 						setLogoFile(null)
 						setLogoPreview(null)
-						setValues((p) => ({ ...p, logo_url: null }))
+						setValues((p) => ({ ...p, logo_url: null, organization_logo_url: null }))
 					}}
 				/>
 			</div>

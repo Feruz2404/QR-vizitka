@@ -21,6 +21,7 @@ export type EmployeeCard = {
 	organization_name: string | null
 	profile_photo_url: string | null
 	logo_url: string | null
+	organization_logo_url: string | null
 	background_image_url: string | null
 	work_email: string | null
 	personal_email: string | null

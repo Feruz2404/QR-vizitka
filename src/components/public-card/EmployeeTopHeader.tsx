@@ -48,7 +48,7 @@ export function EmployeeTopHeader({
 							<div className="pointer-events-none absolute -inset-1.5 rounded-2xl bg-gradient-to-br from-yellow-300/35 via-yellow-300/10 to-blue-400/10 blur-md" />
 							<div
 								className={cn(
-									'relative grid h-12 w-12 place-items-center overflow-hidden rounded-2xl border border-yellow-300/35 bg-black/[0.04] backdrop-blur-[1px] shadow-[0_15px_45px_rgba(0,0,0,0.30)] md:bg-black/10 md:backdrop-blur-xl sm:h-14 sm:w-14 lg:h-16 lg:w-16'
+									'relative grid h-14 w-14 place-items-center overflow-hidden rounded-2xl border border-yellow-300/35 bg-black/[0.04] backdrop-blur-[1px] shadow-[0_15px_45px_rgba(0,0,0,0.30)] md:bg-black/10 md:backdrop-blur-xl sm:h-16 sm:w-16 lg:h-20 lg:w-20'
 								)}
 							>
 								{organizationLogoUrl ? (

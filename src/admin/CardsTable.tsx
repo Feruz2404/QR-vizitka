@@ -15,8 +15,11 @@ import { StatusBadge } from './StatusBadge'
 import { DeleteConfirmModal } from './DeleteConfirmModal'
 import { useToast } from '../ui/Toast'
 import { BrandedQrCode, type BrandedQrCodeHandle } from '../components/qr/BrandedQrCode'
+import { BrandedQrFrame } from '../components/qr/BrandedQrFrame'
+import { getOrganizationLogoUrl } from '../lib/organizationLogo'
+import type { EmployeeCard } from '../types/employee'
 
-type QrTarget = { id: string; full_name: string; slug: string; logo_url: string | null }
+type QrTarget = Pick<EmployeeCard, 'id' | 'full_name' | 'slug' | 'logo_url' | 'organization_logo_url'>
 
 export function CardsTable() {
 	const toast = useToast()
@@ -41,8 +44,14 @@ export function CardsTable() {
 		toast.push('Link copied', 'success')
 	}
 
-	const onOpenQr = (r: { id: string; full_name: string; slug: string; logo_url: string | null }) => {
-		setQrTarget({ id: r.id, full_name: r.full_name, slug: r.slug, logo_url: r.logo_url })
+	const onOpenQr = (r: QrTarget) => {
+		setQrTarget({
+			id: r.id,
+			full_name: r.full_name,
+			slug: r.slug,
+			logo_url: r.logo_url,
+			organization_logo_url: r.organization_logo_url,
+		})
 		setQrOpen(true)
 	}
 
@@ -63,6 +72,8 @@ export function CardsTable() {
 		if (!qrTarget) return
 		await qrRef.current?.downloadPng(qrTarget.slug + '.png', { scale: 4 })
 	}
+
+	const qrLogo = getOrganizationLogoUrl(qrTarget, settings?.organization_logo_url)
 
 	const onTogglePublish = (id: string, isActive: boolean) => {
 		toggleStatus({ id, is_active: !isActive })
@@ -218,17 +229,17 @@ export function CardsTable() {
 							</button>
 						</div>
 
-						<div className="mt-4 grid place-items-center">
-							<div className="rounded-xl bg-white p-4">
+						<div className="mt-5 grid place-items-center">
+							<BrandedQrFrame>
 								<BrandedQrCode
 									ref={qrRef}
 									value={qrUrl}
 									size={220}
-									logoUrl={qrTarget.logo_url ?? settings?.organization_logo_url ?? null}
+									logoUrl={qrLogo}
 									accentColor="#D4AF37"
 									dotsColor="#0b0f1a"
 								/>
-							</div>
+							</BrandedQrFrame>
 						</div>
 
 						<div className="mt-4 flex flex-wrap justify-end gap-2">

@@ -30,6 +30,7 @@ export function AdminCardEditorPage({ mode }: { mode: 'create' | 'edit' }) {
 			organization_name: null,
 			profile_photo_url: null,
 			logo_url: null,
+			organization_logo_url: null,
 			background_image_url: null,
 			work_email: null,
 			personal_email: null,

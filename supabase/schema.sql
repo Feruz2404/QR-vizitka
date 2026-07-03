@@ -11,6 +11,7 @@ create table if not exists employee_cards (
 	organization_name text,
 	profile_photo_url text,
 	logo_url text,
+	organization_logo_url text,
 	background_image_url text,
 	work_email text,
 	personal_email text,
@@ -36,6 +37,15 @@ create table if not exists employee_cards (
 -- Safe upgrade for existing databases (no-op if column already exists)
 alter table employee_cards
 add column if not exists background_image_url text;
+
+-- Safe upgrade for explicit per-card organization logo column.
+alter table public.employee_cards
+add column if not exists organization_logo_url text;
+
+update public.employee_cards
+set organization_logo_url = logo_url
+where organization_logo_url is null
+	and logo_url is not null;
 
 -- Safe upgrade for wechat_url column
 alter table employee_cards

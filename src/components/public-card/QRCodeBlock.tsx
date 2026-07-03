@@ -3,9 +3,11 @@ import { useMemo, useRef } from 'react'
 
 import { useGetAppSettingsQuery } from '../../services/appSettingsApi'
 import { BrandedQrCode, type BrandedQrCodeHandle } from '../qr/BrandedQrCode'
+import { BrandedQrFrame } from '../qr/BrandedQrFrame'
 import { Button } from '../../ui/Button'
 import { Card } from '../../ui/Card'
 import { useToast } from '../../ui/Toast'
+import { safeUrl } from '../../lib/utils'
 
 export function QRCodeBlock({
 	url,
@@ -20,7 +22,7 @@ export function QRCodeBlock({
 	const { data: settings } = useGetAppSettingsQuery()
 	const qrRef = useRef<BrandedQrCodeHandle | null>(null)
 
-	const logo = organizationLogoUrl ?? settings?.organization_logo_url ?? null
+	const logo = safeUrl(organizationLogoUrl) ?? safeUrl(settings?.organization_logo_url)
 
 	const svgName = useMemo(() => (filename.toLowerCase().endsWith('.svg') ? filename : filename + '.svg'), [filename])
 	const pngName = useMemo(() => filename.replace(/\.svg$/i, '') + '.png', [filename])
@@ -58,18 +60,16 @@ export function QRCodeBlock({
 			</div>
 
 			<div className="mt-4 grid place-items-center">
-				<div className="rounded-3xl border border-white/10 bg-white/5 p-4 shadow-[0_30px_90px_rgba(0,0,0,0.55)]">
-					<div className="rounded-2xl bg-white p-4">
-						<BrandedQrCode
-							ref={qrRef}
-							value={url}
-							size={220}
-							logoUrl={logo}
-							accentColor="#D4AF37"
-							dotsColor="#0b0f1a"
-						/>
-					</div>
-				</div>
+				<BrandedQrFrame>
+					<BrandedQrCode
+						ref={qrRef}
+						value={url}
+						size={220}
+						logoUrl={logo}
+						accentColor="#D4AF37"
+						dotsColor="#0b0f1a"
+					/>
+				</BrandedQrFrame>
 			</div>
 
 			<div className="mt-4 flex flex-col gap-2">

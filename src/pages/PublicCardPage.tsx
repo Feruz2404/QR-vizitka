@@ -26,6 +26,7 @@ import { SaveContactButton } from '../components/public-card/SaveContactButton'
 import { ShareButton } from '../components/public-card/ShareButton'
 import { useGetAppSettingsQuery } from '../services/appSettingsApi'
 import { useGetCardBySlugQuery } from '../services/employeeCardsApi'
+import { getOrganizationLogoUrl } from '../lib/organizationLogo'
 import type { EmployeeCard, EmployeeCardTranslation } from '../types/employee'
 import { Card } from '../ui/Card'
 
@@ -624,11 +625,7 @@ export function PublicCardPage() {
 	const employeeBg = isHttpUrl(data?.background_image_url) ? data!.background_image_url : null
 	const backgroundImage = employeeBg ?? globalBg ?? null
 
-	const globalLogo = isHttpUrl(settings?.organization_logo_url)
-		? settings!.organization_logo_url
-		: null
-	const employeeLogo = isHttpUrl(data?.logo_url) ? data!.logo_url : null
-	const orgLogo = employeeLogo ?? globalLogo ?? null
+	const orgLogo = getOrganizationLogoUrl(data, settings?.organization_logo_url) ?? null
 
 	const localized = useMemo(() => {
 		if (!data) {

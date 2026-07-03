@@ -21,21 +21,21 @@ export type BrandedQrCodeHandle = {
 
 type ErrorCorrectionLevel = 'L' | 'M' | 'Q' | 'H'
 
-type DotType = 'rounded' | 'classy-rounded' | 'dots' | 'square' | 'extra-rounded'
+type DotType = 'rounded' | 'classy' | 'classy-rounded' | 'dots' | 'square' | 'extra-rounded'
 
-type CornerSquareType = 'square' | 'dot' | 'extra-rounded'
+type CornerSquareType = 'square' | 'dot' | 'extra-rounded' | DotType
 
-type CornerDotType = 'square' | 'dot'
+type CornerDotType = 'square' | 'dot' | DotType
 
-// Reliability-first defaults (clean, modern, scannable).
-const DEFAULT_DOT_TYPE: DotType = 'rounded'
+// Premium rounded-dot style matching the card system while staying scannable.
+const DEFAULT_DOT_TYPE: DotType = 'dots'
 const DEFAULT_CORNER_SQUARE_TYPE: CornerSquareType = 'extra-rounded'
 const DEFAULT_CORNER_DOT_TYPE: CornerDotType = 'dot'
 
-// Keep these stable for scan reliability (logo integrated, not isolated).
-const DEFAULT_MARGIN = 10
-const DEFAULT_IMAGE_SIZE = 0.32
-const DEFAULT_IMAGE_MARGIN = 3
+// Keep these stable for scan reliability with a contained center logo.
+const DEFAULT_MARGIN = 12
+const DEFAULT_IMAGE_SIZE = 0.28
+const DEFAULT_IMAGE_MARGIN = 8
 
 function pickEcLevel(hasLogo: boolean): ErrorCorrectionLevel {
 	// Use H when embedding a logo.
@@ -102,12 +102,13 @@ export const BrandedQrCode = forwardRef<BrandedQrCodeHandle, BrandedQrCodeProps>
 				backgroundOptions: { color: backgroundColor },
 				dotsOptions: { color: dotsColor, type: DEFAULT_DOT_TYPE },
 				cornersSquareOptions: { color: cornerSquareColor, type: DEFAULT_CORNER_SQUARE_TYPE },
-				cornersDotOptions: { color: dotsColor, type: DEFAULT_CORNER_DOT_TYPE },
+				cornersDotOptions: { color: cornerSquareColor, type: DEFAULT_CORNER_DOT_TYPE },
 				image: safeLogo ?? undefined,
 				imageOptions: {
 					crossOrigin: 'anonymous',
+					saveAsBlob: true,
 					margin: DEFAULT_IMAGE_MARGIN,
-					size: DEFAULT_IMAGE_SIZE,
+					imageSize: DEFAULT_IMAGE_SIZE,
 					hideBackgroundDots: true,
 				},
 			})
@@ -153,12 +154,13 @@ export const BrandedQrCode = forwardRef<BrandedQrCodeHandle, BrandedQrCodeProps>
 				backgroundOptions: { color: backgroundColor },
 				dotsOptions: { color: dotsColor, type: DEFAULT_DOT_TYPE },
 				cornersSquareOptions: { color: cornerSquareColor, type: DEFAULT_CORNER_SQUARE_TYPE },
-				cornersDotOptions: { color: dotsColor, type: DEFAULT_CORNER_DOT_TYPE },
+				cornersDotOptions: { color: cornerSquareColor, type: DEFAULT_CORNER_DOT_TYPE },
 				image: safeLogo ?? undefined,
 				imageOptions: {
 					crossOrigin: 'anonymous',
+					saveAsBlob: true,
 					margin: DEFAULT_IMAGE_MARGIN * scale,
-					size: DEFAULT_IMAGE_SIZE,
+					imageSize: DEFAULT_IMAGE_SIZE,
 					hideBackgroundDots: true,
 				},
 			})

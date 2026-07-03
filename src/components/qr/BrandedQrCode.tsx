@@ -34,8 +34,8 @@ const DEFAULT_CORNER_DOT_TYPE: CornerDotType = 'dot'
 
 // Keep these stable for scan reliability with a contained center logo.
 const DEFAULT_MARGIN = 12
-const DEFAULT_IMAGE_SIZE = 0.20
-const DEFAULT_IMAGE_MARGIN = 1
+const DEFAULT_IMAGE_SIZE = 0.34
+const DEFAULT_IMAGE_MARGIN = 0
 const DEFAULT_QR_CENTER_LOGO_URL = '/qr-fallback-logo.svg'
 
 function pickEcLevel(hasLogo: boolean): ErrorCorrectionLevel {

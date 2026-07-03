@@ -34,8 +34,9 @@ const DEFAULT_CORNER_DOT_TYPE: CornerDotType = 'dot'
 
 // Keep these stable for scan reliability with a contained center logo.
 const DEFAULT_MARGIN = 12
-const DEFAULT_IMAGE_SIZE = 0.28
-const DEFAULT_IMAGE_MARGIN = 8
+const DEFAULT_IMAGE_SIZE = 0.24
+const DEFAULT_IMAGE_MARGIN = 2
+const DEFAULT_QR_CENTER_LOGO_URL = '/qr-fallback-logo.svg'
 
 function pickEcLevel(hasLogo: boolean): ErrorCorrectionLevel {
 	// Use H when embedding a logo.
@@ -66,7 +67,8 @@ export const BrandedQrCode = forwardRef<BrandedQrCodeHandle, BrandedQrCodeProps>
 	const containerRef = useRef<HTMLDivElement | null>(null)
 	const qrRef = useRef<unknown>(null)
 
-	const safeLogo = safeUrl(logoUrl)
+	// const safeLogo = safeUrl(logoUrl)
+	const safeLogo = safeUrl(logoUrl) ?? DEFAULT_QR_CENTER_LOGO_URL
 	const ecLevel = useMemo<ErrorCorrectionLevel>(() => pickEcLevel(Boolean(safeLogo)), [safeLogo])
 
 	// Thin wrapper: a single container for qr-code-styling to render into.
@@ -159,7 +161,8 @@ export const BrandedQrCode = forwardRef<BrandedQrCodeHandle, BrandedQrCodeProps>
 				imageOptions: {
 					crossOrigin: 'anonymous',
 					saveAsBlob: true,
-					margin: DEFAULT_IMAGE_MARGIN * scale,
+					// margin: DEFAULT_IMAGE_MARGIN * scale,
+					margin: DEFAULT_IMAGE_MARGIN,
 					imageSize: DEFAULT_IMAGE_SIZE,
 					hideBackgroundDots: true,
 				},

@@ -1,10 +1,14 @@
 import { createClient } from '@supabase/supabase-js'
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string | undefined
+const configuredSupabaseUrl = import.meta.env.VITE_SUPABASE_URL as string | undefined
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined
 
-if (!supabaseUrl || !supabaseAnonKey) {
-	// eslint-disable-next-line no-console
+const supabaseUrl =
+	import.meta.env.PROD && typeof window !== 'undefined'
+		? `${window.location.origin}/supabase`
+		: configuredSupabaseUrl
+
+if (!configuredSupabaseUrl || !supabaseAnonKey) {
 	console.warn('Supabase env vars missing. Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.')
 }
 

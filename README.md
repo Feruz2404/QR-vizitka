@@ -100,3 +100,4 @@ npm run build
 ## Notes / manual steps
 - You still need to create the Supabase project, run `supabase/schema.sql`, and create the storage buckets.
 - If you deploy behind a different domain, update `VITE_PUBLIC_BASE_URL`.
+- Production deployments on Vercel proxy Supabase requests through `/supabase/*` so client networks do not need to resolve `*.supabase.co` directly.
